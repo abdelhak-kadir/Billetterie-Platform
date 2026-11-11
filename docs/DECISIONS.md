@@ -133,7 +133,8 @@ et 3. Le modèle détaillé et ses scénarios se trouvent dans [MODELE.md](MODEL
 - **Conséquences :** ancienne commande et ancien billet restent consultables ;
   la revente produit un nouveau billet. Confirmation répétée sans duplication,
   ordre de verrouillage stable et annulation de représentation concurrente à
-  couvrir au Niveau 2. L'index généré devra être validé sur MySQL 8 dans la future migration.
+  couvrir au Niveau 2. L'index généré a été validé sur MySQL 8 dans la migration
+  S1-04 (colonne STORED, index UNIQUE) ; il ne remplace pas les verrous du Niveau 2.
 
 ## D09 — Suppressions et conservation de l'historique
 

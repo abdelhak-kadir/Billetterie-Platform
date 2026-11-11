@@ -1,13 +1,14 @@
 # Sprint status — 11 November 2026
 
 This status is based on repository evidence. No existing S1–S2 task checklist
-was found; task IDs other than the requested S1-02 have not been inferred.
+was found; only the requested S1-02 and S1-04 scopes are recorded.
 
 | Scope | Status | Evidence / remaining work |
 | --- | --- | --- |
 | S1 Symfony skeleton | Committed | `a759a36` initializes Symfony 7.4. |
 | S1-02 development environment | Implemented; runtime verification blocked | PHP 8.3 Dockerfile, MySQL 8.0 with a named persistent volume and authenticated SQL health check, Doctrine ORM and migrations configuration, example environment and setup instructions. |
-| S1–S2 business implementation | Not implemented | Model and decisions are design proposals. No business entities, fixtures or migration classes exist. No sprint checklist was available to assess other tasks. |
+| S1-04 entities and migrations | Implemented | Nine Doctrine entities with SQL constraints and a generated conditional unique index; one migration applied to the development and isolated test databases; 13 MySQL integration tests passing. |
+| S1–S2 remaining business scope | Not implemented | Demo fixtures (S1-05), back-office, payment flow and Level 2 reservation/refund workflows remain. |
 
 ## S1-02 verification
 
