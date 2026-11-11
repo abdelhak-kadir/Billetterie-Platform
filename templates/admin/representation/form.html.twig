@@ -1,0 +1,48 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ representation ? 'Modifier la représentation' : 'Nouvelle représentation' }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>{{ representation ? 'Modifier la représentation' : 'Nouvelle représentation' }}</h1>
+            <p>
+                {% if representation %}
+                    La date et l’événement restent modifiables. La salle est verrouillée dès que l’inventaire existe.
+                {% else %}
+                    L’inventaire complet de la salle sera créé automatiquement dans la même transaction.
+                {% endif %}
+            </p>
+        </div>
+        <a class="btn btn-secondary" href="{{ representation ? path('admin_representation_show', {id: representation.id}) : path('admin_representation_index') }}">Annuler</a>
+    </div>
+
+    <div class="card form-card">
+        {% if representation and inventoryCount is defined and inventoryCount > 0 %}
+            <p class="help">Cette représentation possède {{ inventoryCount }} lignes d’inventaire. Le changement de salle est refusé côté serveur.</p>
+        {% endif %}
+        {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="field">
+                {{ form_label(form.evenement) }}
+                {{ form_widget(form.evenement) }}
+                {{ form_errors(form.evenement) }}
+            </div>
+            <div class="field">
+                {{ form_label(form.salle) }}
+                {{ form_widget(form.salle) }}
+                {{ form_errors(form.salle) }}
+                {% if salleLocked %}<span class="help">Salle verrouillée : l’inventaire existe déjà.</span>{% endif %}
+            </div>
+            <div class="field">
+                {{ form_label(form.debut) }}
+                {{ form_widget(form.debut) }}
+                {{ form_errors(form.debut) }}
+                <span class="help">Saisie et affichage en Africa/Casablanca ; stockage en UTC.</span>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Enregistrer</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ evenement ? 'Modifier l’événement' : 'Nouvel événement' }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>{{ evenement ? 'Modifier l’événement' : 'Nouvel événement' }}</h1>
+            <p>Le titre, la description et le type sont modifiables. Aucune suppression destructive n’est proposée.</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ evenement ? path('admin_evenement_show', {id: evenement.id}) : path('admin_evenement_index') }}">Annuler</a>
+    </div>
+
+    <div class="card form-card">
+        {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="field">
+                {{ form_label(form.titre) }}
+                {{ form_widget(form.titre) }}
+                {{ form_errors(form.titre) }}
+            </div>
+            <div class="field">
+                {{ form_label(form.type) }}
+                {{ form_widget(form.type) }}
+                {{ form_errors(form.type) }}
+            </div>
+            <div class="field">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description) }}
+                {{ form_errors(form.description) }}
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Enregistrer</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

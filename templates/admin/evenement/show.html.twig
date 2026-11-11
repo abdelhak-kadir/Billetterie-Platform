@@ -1,0 +1,50 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ evenement.titre }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>{{ evenement.titre }}</h1>
+            <p>{{ evenement.type.label }}</p>
+        </div>
+        <div class="actions">
+            <a class="btn btn-secondary" href="{{ path('admin_evenement_index') }}">← Retour</a>
+            <a class="btn btn-primary" href="{{ path('admin_evenement_edit', {id: evenement.id}) }}">Modifier</a>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1rem;">
+        <dl class="detail-list">
+            <div><dt>Type</dt><dd>{{ evenement.type.label }}</dd></div>
+            <div><dt>Description</dt><dd>{{ evenement.description is not empty ? evenement.description : '—' }}</dd></div>
+        </dl>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Représentation</th>
+                    <th>Salle</th>
+                    <th>Date (Africa/Casablanca)</th>
+                    <th>Statut</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for representation in representations %}
+                    <tr>
+                        <td>#{{ representation.id }}</td>
+                        <td>{{ representation.salle.nom }}</td>
+                        <td>{{ representation.debut|casablanca_date }}</td>
+                        <td><span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span></td>
+                        <td><a href="{{ path('admin_representation_show', {id: representation.id}) }}">Détail</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="empty">Aucune représentation.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

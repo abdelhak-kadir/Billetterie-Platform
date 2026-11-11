@@ -1,0 +1,76 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Représentations{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Représentations</h1>
+            <p>Chaque représentation possède un inventaire complet des places de sa salle.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ path('admin_representation_new') }}">Nouvelle représentation</a>
+    </div>
+
+    <form class="filters" method="get" action="{{ path('admin_representation_index') }}">
+        <div class="field">
+            <label for="evenement">Événement</label>
+            <select id="evenement" name="evenement">
+                <option value="">Tous</option>
+                {% for evenement in evenements %}
+                    <option value="{{ evenement.id }}" {% if evenementId == evenement.id %}selected{% endif %}>{{ evenement.titre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="salle">Salle</label>
+            <select id="salle" name="salle">
+                <option value="">Toutes</option>
+                {% for salle in salles %}
+                    <option value="{{ salle.id }}" {% if salleId == salle.id %}selected{% endif %}>{{ salle.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Filtrer</button>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Événement</th>
+                    <th>Salle</th>
+                    <th>Date (Africa/Casablanca)</th>
+                    <th>Disponibles</th>
+                    <th>Vendues</th>
+                    <th>Réservées</th>
+                    <th>Bloquées</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for representation in representations %}
+                    {% set counters = counts[representation.id]|default({}) %}
+                    <tr>
+                        <td>{{ representation.evenement.titre }}</td>
+                        <td>{{ representation.salle.nom }}</td>
+                        <td>{{ representation.debut|casablanca_date }}</td>
+                        <td><span class="badge badge-disponible">{{ counters.disponible|default(0) }}</span></td>
+                        <td><span class="badge badge-vendue">{{ counters.vendue|default(0) }}</span></td>
+                        <td><span class="badge badge-reservee">{{ counters.reservee|default(0) }}</span></td>
+                        <td><span class="badge badge-bloquee">{{ counters.bloquee|default(0) }}</span></td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ path('admin_representation_show', {id: representation.id}) }}">Détail</a>
+                                <a href="{{ path('admin_representation_edit', {id: representation.id}) }}">Modifier</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8" class="empty">Aucune représentation.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'admin/_pagination.html.twig' %}
+{% endblock %}

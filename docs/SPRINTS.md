@@ -8,8 +8,9 @@ was found; the requested S1 scopes are recorded below.
 | S1 Symfony skeleton | Committed | `a759a36` initializes Symfony 7.4. |
 | S1-02 development environment | Implemented; verified | PHP 8.3 Dockerfile, MySQL 8.0 with a named persistent volume and authenticated SQL health check, Doctrine ORM and migrations configuration, example environment and setup instructions. Container startup, MySQL health and Doctrine connectivity were verified during S1-04/S1-05. |
 | S1-04 entities and migrations | Implemented | Nine Doctrine entities with SQL constraints and a generated conditional unique index; one migration applied to the development and isolated test databases; 13 MySQL integration tests passing. |
-| S1-05 demo data | Implemented and verified in Docker | Dedicated MySQL database, standard fixture loads, deterministic reload test. Standard suite `php bin/phpunit` (13 tests, 35 assertions) and isolated `Demo Fixtures` suite (1 test, 16 175 assertions) pass. |
-| S1–S2 remaining business scope | Not implemented | Back-office, payment flow and Level 2 reservation/refund workflows remain. |
+| S1-05 demo data | Implemented and verified in Docker | Dedicated MySQL database, standard fixture loads, deterministic reload test. S1-05 tests pass in the standard suite; isolated `Demo Fixtures` suite (1 test, 16 175 assertions) passes. |
+| S1-06 basic back-office | Implemented and verified in Docker | French Symfony/Twig admin at `/admin`, read-only physical plan, events, representations, tariffs, inventory, orders and tickets. Standard suite 28 tests / 130 assertions; Demo Fixtures 1 test / 16 175 assertions; Chrome desktop and mobile check. `/admin` returns 404 in `prod` until authentication exists. |
+| S1–S2 remaining business scope | Not implemented | Payment flow, Level 2 reservation/refund workflows, authentication/roles (Niveau 3) and QR codes remain. |
 
 ## S1-02 verification
 
@@ -79,3 +80,47 @@ ne sont pas utilisées comme preuve de compatibilité PHP 8.3.
 Le README documente le chargement, la purge, les dates UTC, les prix fictifs,
 la répartition de démonstration et le scénario A1 / R1 / R2. Les workflows de
 paiement, de concurrence et le back-office restent hors de S1-05.
+
+## S1-06 — Back-office minimal (11 novembre 2026)
+
+Interface Symfony/Twig en français, sobre et responsive, accessible à
+`/admin`. EasyAdmin n’a pas été retenu : les vues majoritairement en lecture
+seule, les formulaires dédiés et les verrous métier demandaient un contrôle plus
+direct que le CRUD générique.
+
+Pages et actions livrées :
+
+- tableau de bord avec compteurs et navigation ;
+- salles, zones et places en consultation, avec pagination des places ;
+- événements : liste filtrée, détail, création et modification ;
+- représentations : liste filtrée avec compteurs, détail, création via
+  `RepresentationInventoryService` et modification avec salle verrouillée ;
+- tarifs : liste filtrée, détail, création, modification, désactivation CSRF,
+  refus des montants négatifs, invitation à 0 MAD et verrouillage de la
+  représentation d’un tarif déjà utilisé ;
+- inventaire : pagination et filtres par représentation, zone, statut et
+  recherche ;
+- commandes et billets : liste et détail en lecture seule, navigation croisée.
+
+Protections vérifiées : validation serveur, CSRF des formulaires et de la
+désactivation, absence de routes génériques de modification pour l’inventaire,
+les commandes et les billets, refus du changement de salle après inventaire,
+conservation du prix payé après modification d’un tarif. En `APP_ENV=prod`,
+`/admin` renvoie 404 tant que l’authentification du Niveau 3 n’existe pas.
+
+Vérifications exécutées dans Docker (PHP 8.3.36, MySQL 8.0) :
+
+- `composer validate --strict` : valide.
+- `php bin/console lint:container` : OK.
+- `php bin/console lint:twig templates` : 20 fichiers valides.
+- `php bin/console doctrine:schema:validate` : mapping correct, schéma synchronisé.
+- `php bin/phpunit` : **28 tests, 130 assertions**, aucun échec, sur
+  `billetterie_test`.
+- `php bin/phpunit --testsuite "Demo Fixtures"` : **1 test, 16 175 assertions**,
+  aucun échec, sur `billetterie_s105_verify_test`.
+- Vérification visuelle Chrome headless en 1440×1000 et 390×844 : tableau de
+  bord, représentations, inventaire filtré A1/R1 et formulaire événement.
+
+Aucune base utilisateur n’a été purgée. Aucune migration ni configuration Docker
+n’a été modifiée. Les paiements, remboursements, réservations temporaires,
+QR codes, rôles et authentification restent hors de S1-06.

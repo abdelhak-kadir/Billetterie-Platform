@@ -144,3 +144,63 @@ s105 php bin/console dbal:run-sql "SELECT e.titre, r.debut, z.nom, p.rangee, p.n
 Après la suite complète, les autres tests peuvent avoir remplacé le jeu de
 fixtures. Vérifier à nouveau la base ciblée puis relancer le chargement standard
 pour laisser le jeu de démonstration en place.
+
+## S1-06 — Back-office minimal
+
+Le back-office est accessible à **http://localhost:8080/admin** avec
+`docker compose up -d`.
+
+Il est volontairement limité aux environnements de développement et de test :
+en `APP_ENV=prod`, les routes `/admin` renvoient **404** tant que
+l’authentification et les rôles du Niveau 3 ne sont pas implémentés. Il ne faut
+pas exposer ce back-office publiquement.
+
+### Fonctionnalités
+
+- **Salles** : liste et détail en consultation seule, avec zones, rangées,
+  numéros et pagination des places. Le plan physique n’est pas modifiable.
+- **Événements** : liste filtrée, détail, création et modification du titre, de
+  la description et du type. Aucune suppression destructive.
+- **Représentations** : liste filtrée, détail, création et modification. La
+  création passe par `RepresentationInventoryService` : une salle de 400 places
+  produit exactement 400 lignes d’inventaire, dans la même transaction. Les
+  compteurs disponibles/vendues/réservées/bloquées sont affichés. La salle est
+  verrouillée dès que l’inventaire existe, y compris côté serveur.
+- **Tarifs** : liste filtrée, détail, création, modification et désactivation.
+  Les montants sont saisis et affichés en MAD, stockés en centimes. Les prix
+  négatifs sont refusés, une invitation doit valoir 0 MAD, un tarif déjà utilisé
+  ne peut pas changer de représentation et les billets émis conservent leur prix
+  payé.
+- **Inventaire** : consultation seule, paginée, avec filtres par représentation,
+  zone, disponibilité et recherche (événement, zone, rangée ou numéro). Le
+  scénario Parterre / A / 1 pour R1 et R2 se retrouve avec ces filtres.
+- **Commandes et billets** : listes et détails en lecture seule, avec navigation
+  commande ↔ billets, représentation, place, tarif, prix payé, canal et statut.
+  Aucun formulaire ne permet de changer un statut, un prix payé ou une
+  association historique.
+
+### Protection et limites
+
+- Validation serveur de tous les formulaires, protection CSRF des formulaires
+  et de la désactivation d’un tarif, échappement Twig par défaut.
+- Les actions interdites sont refusées côté serveur, pas seulement masquées.
+- Aucune authentification, aucun rôle, aucun parcours d’achat, paiement,
+  réservation temporaire, remboursement ou QR code dans ce jalon.
+- Aucune migration ni configuration Docker n’a été modifiée par S1-06.
+
+### Vérifications
+
+```sh
+docker compose exec app composer validate --strict
+docker compose exec app php bin/console lint:container
+docker compose exec app php bin/console lint:twig templates
+docker compose exec app php bin/console doctrine:schema:validate
+docker compose exec app php bin/phpunit
+s105 php bin/phpunit --testsuite "Demo Fixtures"
+```
+
+La suite standard couvre les tests S1-04, les tests fonctionnels S1-06 et les
+tests unitaires du back-office. Elle utilise `billetterie_test` et ne purge pas
+la base dédiée des fixtures. La vérification visuelle a été effectuée avec
+Chrome headless en 1440×1000 et 390×844 sur le tableau de bord, les
+représentations, l’inventaire filtré A1/R1 et un formulaire d’événement.

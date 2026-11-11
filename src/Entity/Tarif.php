@@ -100,4 +100,22 @@ class Tarif
     {
         $this->actif = true;
     }
+
+    public function modifier(Representation $representation, string $libelle, CategorieTarif $categorie, int $prixCentimes): void
+    {
+        $libelle = trim($libelle);
+
+        if ($libelle === '') {
+            throw new \InvalidArgumentException('Le libellé du tarif est obligatoire.');
+        }
+
+        if ($prixCentimes < 0) {
+            throw new \InvalidArgumentException('Le prix d’un tarif ne peut pas être négatif.');
+        }
+
+        $this->representation = $representation;
+        $this->libelle = $libelle;
+        $this->categorie = $categorie;
+        $this->prixCentimes = $prixCentimes;
+    }
 }

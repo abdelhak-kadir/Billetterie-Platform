@@ -1,0 +1,56 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Commande {{ commande.reference }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Commande {{ commande.reference }}</h1>
+            <p>{{ commande.emailClient }} · <span class="badge badge-{{ commande.statut.value }}">{{ commande.statut.label }}</span></p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('admin_commande_index') }}">← Retour aux commandes</a>
+    </div>
+
+    <div class="card" style="margin-bottom: 1rem;">
+        <dl class="detail-list">
+            <div><dt>Canal</dt><dd>{{ commande.canal.label }}</dd></div>
+            <div><dt>Créée le</dt><dd>{{ commande.creeA|casablanca_date }} <small>(Africa/Casablanca)</small></dd></div>
+            <div><dt>Payée le</dt><dd>{{ commande.payeA|casablanca_date }} <small>(Africa/Casablanca)</small></dd></div>
+            <div><dt>Statut</dt><dd>{{ commande.statut.label }}</dd></div>
+        </dl>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Billet</th>
+                    <th>Représentation</th>
+                    <th>Place</th>
+                    <th>Tarif</th>
+                    <th>Prix payé</th>
+                    <th>Statut</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for billet in billets %}
+                    <tr>
+                        <td>{{ billet.reference }}</td>
+                        <td>
+                            {{ billet.inventairePlace.representation.evenement.titre }}<br>
+                            <small>{{ billet.inventairePlace.representation.debut|casablanca_date }}</small>
+                        </td>
+                        <td>{{ billet.inventairePlace.place.zone.nom }} / {{ billet.inventairePlace.place.rangee }} / {{ billet.inventairePlace.place.numero }}</td>
+                        <td>{{ billet.tarif.libelle }}</td>
+                        <td>{{ billet.prixPayeCentimes|mad }}</td>
+                        <td><span class="badge badge-{{ billet.statut.value }}">{{ billet.statut.label }}</span></td>
+                        <td><a href="{{ path('admin_billet_show', {id: billet.id}) }}">Détail</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="empty">Aucun billet pour cette commande.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

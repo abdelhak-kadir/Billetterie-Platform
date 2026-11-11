@@ -1,0 +1,13 @@
+{% if pagination.pages > 1 %}
+    {% set routeParams = app.request.attributes.get('_route_params')|default({}) %}
+    {% set query = routeParams|merge(app.request.query.all) %}
+    <nav class="pagination" aria-label="Pagination">
+        {% if pagination.hasPrevious %}
+            <a href="{{ path(app.request.attributes.get('_route'), query|merge({'page': pagination.page - 1})) }}">← Précédent</a>
+        {% endif %}
+        <span>Page {{ pagination.page }} sur {{ pagination.pages }} · {{ pagination.total }} résultat{{ pagination.total > 1 ? 's' : '' }}</span>
+        {% if pagination.hasNext %}
+            <a href="{{ path(app.request.attributes.get('_route'), query|merge({'page': pagination.page + 1})) }}">Suivant →</a>
+        {% endif %}
+    </nav>
+{% endif %}

@@ -82,4 +82,19 @@ class Evenement
 
         return $this;
     }
+
+    public function modifier(string $titre, TypeEvenement $type, ?string $description = null): void
+    {
+        $titre = trim($titre);
+
+        if ($titre === '') {
+            throw new \InvalidArgumentException('Le titre de l’événement est obligatoire.');
+        }
+
+        $description = $description !== null ? trim($description) : null;
+
+        $this->titre = $titre;
+        $this->type = $type;
+        $this->description = $description === '' ? null : $description;
+    }
 }

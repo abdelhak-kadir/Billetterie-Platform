@@ -1,0 +1,47 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ tarif ? 'Modifier le tarif' : 'Nouveau tarif' }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>{{ tarif ? 'Modifier le tarif' : 'Nouveau tarif' }}</h1>
+            <p>Le montant est saisi en MAD et converti exactement en centimes.</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ tarif ? path('admin_tarif_show', {id: tarif.id}) : path('admin_tarif_index') }}">Annuler</a>
+    </div>
+
+    <div class="card form-card">
+        {% if usedCount > 0 %}
+            <p class="help">Ce tarif a {{ usedCount }} billet{{ usedCount > 1 ? 's' : '' }} émis. Les billets conservent leur prix payé ; la représentation est verrouillée.</p>
+        {% endif %}
+        {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="field">
+                {{ form_label(form.representation) }}
+                {{ form_widget(form.representation) }}
+                {{ form_errors(form.representation) }}
+                {% if representationLocked %}<span class="help">Représentation verrouillée : ce tarif est déjà utilisé.</span>{% endif %}
+            </div>
+            <div class="field">
+                {{ form_label(form.libelle) }}
+                {{ form_widget(form.libelle) }}
+                {{ form_errors(form.libelle) }}
+            </div>
+            <div class="field">
+                {{ form_label(form.categorie) }}
+                {{ form_widget(form.categorie) }}
+                {{ form_errors(form.categorie) }}
+            </div>
+            <div class="field">
+                {{ form_label(form.prixCentimes) }}
+                {{ form_widget(form.prixCentimes) }}
+                {{ form_errors(form.prixCentimes) }}
+                <span class="help">Prix en MAD. Une invitation doit être à 0 MAD ; aucun prix négatif n’est accepté.</span>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Enregistrer</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

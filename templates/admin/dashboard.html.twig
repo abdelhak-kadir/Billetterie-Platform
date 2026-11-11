@@ -1,0 +1,49 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Tableau de bord</h1>
+            <p>Vue d’ensemble de la billetterie. Les données de démonstration peuvent être chargées avec les fixtures.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ path('admin_representation_new') }}">Créer une représentation</a>
+    </div>
+
+    <div class="grid">
+        <a class="card stat" href="{{ path('admin_salle_index') }}">
+            <span>Salles</span><strong>{{ counts.salles }}</strong><span class="hint">Plan physique en consultation</span>
+        </a>
+        <a class="card stat" href="{{ path('admin_evenement_index') }}">
+            <span>Événements</span><strong>{{ counts.evenements }}</strong><span class="hint">Programme</span>
+        </a>
+        <a class="card stat" href="{{ path('admin_representation_index') }}">
+            <span>Représentations</span><strong>{{ counts.representations }}</strong><span class="hint">Dates et inventaires</span>
+        </a>
+        <a class="card stat" href="{{ path('admin_inventaire_index') }}">
+            <span>Lignes d’inventaire</span><strong>{{ counts.inventaires }}</strong><span class="hint">Disponibilité par place</span>
+        </a>
+        <a class="card stat" href="{{ path('admin_tarif_index') }}">
+            <span>Tarifs</span><strong>{{ counts.tarifs }}</strong><span class="hint">Plein, réduit, groupe, invitation</span>
+        </a>
+        <a class="card stat" href="{{ path('admin_commande_index') }}">
+            <span>Commandes</span><strong>{{ counts.commandes }}</strong><span class="hint">Ventes enregistrées</span>
+        </a>
+        <a class="card stat" href="{{ path('admin_billet_index') }}">
+            <span>Billets</span><strong>{{ counts.billets }}</strong><span class="hint">Historique des droits</span>
+        </a>
+    </div>
+
+    <div class="card" style="margin-top: 1rem;">
+        <h2 style="margin-top: 0; font-size: 1.1rem;">Scénario de démonstration A1 / R1 / R2</h2>
+        <p class="muted" style="margin-bottom: .6rem;">
+            Une même place physique peut être vendue pour une représentation et rester disponible pour une autre.
+            Utilisez les filtres d’inventaire par représentation, zone et disponibilité.
+        </p>
+        <div class="actions">
+            <a class="btn btn-secondary" href="{{ path('admin_inventaire_index') }}">Consulter l’inventaire</a>
+            <a class="btn btn-secondary" href="{{ path('admin_representation_index') }}">Voir les représentations</a>
+        </div>
+    </div>
+{% endblock %}

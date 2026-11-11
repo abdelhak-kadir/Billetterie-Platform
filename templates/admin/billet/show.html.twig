@@ -1,0 +1,32 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Billet {{ billet.reference }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Billet {{ billet.reference }}</h1>
+            <p>{{ billet.commande.emailClient }} · <span class="badge badge-{{ billet.statut.value }}">{{ billet.statut.label }}</span></p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('admin_billet_index') }}">← Retour aux billets</a>
+    </div>
+
+    <div class="card" style="margin-bottom: 1rem;">
+        <dl class="detail-list">
+            <div><dt>Commande</dt><dd><a href="{{ path('admin_commande_show', {id: billet.commande.id}) }}">{{ billet.commande.reference }}</a></dd></div>
+            <div><dt>Représentation</dt><dd>{{ billet.inventairePlace.representation.evenement.titre }}</dd></div>
+            <div><dt>Date (Africa/Casablanca)</dt><dd>{{ billet.inventairePlace.representation.debut|casablanca_date }}</dd></div>
+            <div><dt>Place</dt><dd>{{ billet.inventairePlace.place.zone.nom }} / {{ billet.inventairePlace.place.rangee }} / {{ billet.inventairePlace.place.numero }}</dd></div>
+            <div><dt>Tarif</dt><dd><a href="{{ path('admin_tarif_show', {id: billet.tarif.id}) }}">{{ billet.tarif.libelle }}</a></dd></div>
+            <div><dt>Prix payé</dt><dd>{{ billet.prixPayeCentimes|mad }}</dd></div>
+            <div><dt>Émis le</dt><dd>{{ billet.emisA|casablanca_date }} <small>(Africa/Casablanca)</small></dd></div>
+            <div><dt>Statut du billet</dt><dd>{{ billet.statut.label }}</dd></div>
+            <div><dt>Annulé le</dt><dd>{{ billet.annuleA|casablanca_date }}</dd></div>
+            <div><dt>Statut de remboursement</dt><dd>{{ billet.statutRemboursement.label }}</dd></div>
+            <div><dt>Montant remboursé</dt><dd>{{ billet.montantRembourseCentimes|mad }}</dd></div>
+            <div><dt>Remboursé le</dt><dd>{{ billet.rembourseA|casablanca_date }}</dd></div>
+        </dl>
+    </div>
+
+    <p class="muted">Aucun formulaire de modification n’est proposé : le prix payé, le statut et les associations historiques sont protégés.</p>
+{% endblock %}

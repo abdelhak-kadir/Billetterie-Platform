@@ -1,0 +1,35 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Salles{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Salles</h1>
+            <p>Consultation du plan physique. Les zones et places ne sont pas modifiables dans ce jalon.</p>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for salle in salles %}
+                    <tr>
+                        <td>{{ salle.nom }}</td>
+                        <td><a href="{{ path('admin_salle_show', {id: salle.id}) }}">Consulter</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="2" class="empty">Aucune salle.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'admin/_pagination.html.twig' %}
+{% endblock %}

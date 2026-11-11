@@ -134,4 +134,11 @@ class Representation
 
         return $this;
     }
+
+    public function modifier(Evenement $evenement, Salle $salle, \DateTimeImmutable $debut): void
+    {
+        $this->evenement = $evenement;
+        $this->salle = $salle;
+        $this->debut = $debut->setTimezone(new \DateTimeZone('UTC'));
+    }
 }

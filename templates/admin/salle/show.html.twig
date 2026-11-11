@@ -1,0 +1,51 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ salle.nom }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>{{ salle.nom }}</h1>
+            <p>Plan physique : {{ zones|length }} zone{{ zones|length > 1 ? 's' : '' }}, {{ pagination.total }} place{{ pagination.total > 1 ? 's' : '' }}.</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('admin_salle_index') }}">← Retour aux salles</a>
+    </div>
+
+    <div class="card" style="margin-bottom: 1rem;">
+        <h2 style="margin-top: 0; font-size: 1.05rem;">Zones</h2>
+        <div class="actions">
+            {% for zone in zones %}
+                <span class="badge badge-terminee">{{ zone.nom }}</span>
+            {% else %}
+                <span class="muted">Aucune zone.</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Zone</th>
+                    <th>Rangée</th>
+                    <th>Numéro</th>
+                    <th>Libellé</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for place in places %}
+                    <tr>
+                        <td>{{ place.zone.nom }}</td>
+                        <td>{{ place.rangee }}</td>
+                        <td>{{ place.numero }}</td>
+                        <td>{{ place.libelle }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="empty">Aucune place.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'admin/_pagination.html.twig' %}
+{% endblock %}

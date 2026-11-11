@@ -35,4 +35,35 @@ class InventairePlaceRepository extends ServiceEntityRepository
             'place' => $place,
         ]);
     }
+
+    /**
+     * @param list<int> $representationIds
+     *
+     * @return array<int, array<string, int>> compteurs par représentation et par statut
+     */
+    public function countsByRepresentationIds(array $representationIds): array
+    {
+        if ($representationIds === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('i')
+            ->select('IDENTITY(i.representation) AS representationId', 'i.statut AS statut', 'COUNT(i.id) AS total')
+            ->andWhere('i.representation IN (:ids)')
+            ->setParameter('ids', $representationIds)
+            ->groupBy('i.representation')
+            ->addGroupBy('i.statut')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $statut = $row['statut'];
+            $statusKey = $statut instanceof \BackedEnum ? $statut->value : (string) $statut;
+            $counts[(int) $row['representationId']][$statusKey] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
 }
