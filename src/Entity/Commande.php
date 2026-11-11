@@ -47,7 +47,7 @@ class Commande
     #[ORM\OneToMany(mappedBy: 'commandeReservation', targetEntity: InventairePlace::class)]
     private Collection $reservations;
 
-    public function __construct(string $reference, string $emailClient, CanalCommande $canal)
+    public function __construct(string $reference, string $emailClient, CanalCommande $canal, ?\DateTimeImmutable $creeA = null)
     {
         $reference = trim($reference);
         $emailClient = trim($emailClient);
@@ -64,7 +64,8 @@ class Commande
         $this->emailClient = $emailClient;
         $this->canal = $canal;
         $this->statut = StatutCommande::EnAttente;
-        $this->creeA = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->creeA = ($creeA ?? new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
+            ->setTimezone(new \DateTimeZone('UTC'));
         $this->billets = new ArrayCollection();
         $this->reservations = new ArrayCollection();
     }
