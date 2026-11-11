@@ -83,22 +83,34 @@ s105 php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
 ```
 
 **Vérifier que le résultat est exactement `billetterie_s105_verify_test` avant
-chaque chargement et avant PHPUnit** (les tests S1-04 vident également les tables).
-Ne poursuivre que si cette base est dédiée et jetable :
+chaque chargement et avant la suite `Demo Fixtures`.** La suite standard
+`php bin/phpunit` utilise `billetterie_test` et ne touche pas à cette base
+dédiée. Ne poursuivre que si cette base est dédiée et jetable :
 
 ```sh
 s105 php bin/console doctrine:migrations:migrate --no-interaction
 s105 php bin/console doctrine:fixtures:load --no-interaction
 s105 php bin/console doctrine:schema:validate
-s105 php bin/phpunit
-# Vérifie le jeu complet et deux chargements avec purge standard :
-s105 php bin/phpunit --filter DemoFixturesTest
+# Suite isolée : purge uniquement la base dédiée et vérifie deux chargements.
+s105 php bin/phpunit --testsuite "Demo Fixtures"
+```
+
+La suite standard se lance sans configuration spéciale et ne purge pas la base
+dédiée ; elle utilise `billetterie_test`. Sur un volume neuf, créer et migrer
+cette base une fois :
+
+```sh
+docker compose exec -T database sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot -e "CREATE DATABASE IF NOT EXISTS billetterie_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON billetterie_test.* TO '\''billetterie'\''@'\''%'\'';"'
+docker compose exec app php bin/console --env=test doctrine:migrations:migrate --no-interaction
+docker compose exec app php bin/phpunit
 ```
 
 Le test de démonstration vérifie lui-même `SELECT DATABASE()` avant chaque purge
-et refuse toute base autre que `billetterie_s105_verify_test`. Il compare deux
-jeux rechargés sans tenir compte des identifiants auto-incrémentés. Le reste de
-la suite utilise aussi cette base dédiée via la fonction `s105` ci-dessus.
+et refuse toute base autre que `billetterie_s105_verify_test`. Il appartient à la
+suite PHPUnit séparée `Demo Fixtures` ; `php bin/phpunit` sans option n'exécute
+que la suite standard. Le test compare deux jeux rechargés en remplaçant les
+identifiants auto-incrémentés par des clés naturelles, y compris les
+associations.
 
 Jeu attendu (données fictives, aucune condition d'éligibilité ajoutée) :
 

@@ -9,6 +9,7 @@
          failOnWarning="true"
          bootstrap="tests/bootstrap.php"
          cacheDirectory=".phpunit.cache"
+         defaultTestSuite="Project Test Suite"
 >
     <php>
         <ini name="display_errors" value="1" />
@@ -20,6 +21,10 @@
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
+            <exclude>tests/Integration/DemoFixturesTest.php</exclude>
+        </testsuite>
+        <testsuite name="Demo Fixtures">
+            <file>tests/Integration/DemoFixturesTest.php</file>
         </testsuite>
     </testsuites>
 

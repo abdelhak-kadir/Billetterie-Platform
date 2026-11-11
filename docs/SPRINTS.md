@@ -8,7 +8,7 @@ was found; the requested S1 scopes are recorded below.
 | S1 Symfony skeleton | Committed | `a759a36` initializes Symfony 7.4. |
 | S1-02 development environment | Implemented; verified | PHP 8.3 Dockerfile, MySQL 8.0 with a named persistent volume and authenticated SQL health check, Doctrine ORM and migrations configuration, example environment and setup instructions. Container startup, MySQL health and Doctrine connectivity were verified during S1-04/S1-05. |
 | S1-04 entities and migrations | Implemented | Nine Doctrine entities with SQL constraints and a generated conditional unique index; one migration applied to the development and isolated test databases; 13 MySQL integration tests passing. |
-| S1-05 demo data | Implemented and verified in Docker | Dedicated MySQL database, standard fixture loads, deterministic reload test and full suite passing (14 tests, 16 210 assertions). |
+| S1-05 demo data | Implemented and verified in Docker | Dedicated MySQL database, standard fixture loads, deterministic reload test. Standard suite `php bin/phpunit` (13 tests, 35 assertions) and isolated `Demo Fixtures` suite (1 test, 16 175 assertions) pass. |
 | S1–S2 remaining business scope | Not implemented | Back-office, payment flow and Level 2 reservation/refund workflows remain. |
 
 ## S1-02 verification
@@ -53,10 +53,14 @@ Vérifications réussies dans Docker (PHP 8.3.36, MySQL 8.0) :
 - `composer validate --strict`.
 - `php bin/console lint:container`.
 - `php bin/console doctrine:schema:validate` sur la base dédiée : mapping et schéma synchronisés.
-- `php bin/phpunit` : **14 tests, 16 210 assertions**, aucun échec.
+- `php bin/phpunit` sur la configuration standard : **13 tests, 35 assertions**,
+  aucun échec (base `billetterie_test`, aucune purge de la base dédiée).
+- `php bin/phpunit --testsuite "Demo Fixtures"` sur la base dédiée :
+  **1 test, 16 175 assertions**, aucun échec.
 - Le nouveau test charge deux fois les fixtures avec purge standard et compare
-  toutes les lignes métier hors identifiants techniques ; il contrôle les
-  quantités, catégories, canaux, prix, états, associations et invitation gratuite.
+  toutes les lignes métier en remplaçant les identifiants techniques par des
+  clés naturelles ; il contrôle quantités, catégories, canaux, prix, états,
+  associations et invitation gratuite.
 - Chargement CLI standard effectué avant les tests puis après la suite pour
   laisser le jeu de démonstration en place. Comptages finaux : 1 / 400 / 3 / 4 /
   1 600 / 16 / 4 / 6 (salles, places, événements, représentations, inventaires,
