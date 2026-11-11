@@ -47,7 +47,17 @@
         <button class="btn btn-primary" type="submit">Filtrer</button>
     </form>
 
-    <div class="table-wrap">
+    <div class="inventory-summary"><span><strong>{{ pagination.total }}</strong> résultat(s) · Consultation seule</span><a href="{{ path('admin_inventaire_index') }}">Réinitialiser les filtres</a></div>
+    {% if q or representationId or zoneId or statut %}
+        <div class="filter-tags" aria-label="Filtres actifs">
+            {% if q %}<span>Recherche : {{ q }}</span>{% endif %}
+            {% for representation in representations %}{% if representation.id == representationId %}<span>{{ representation.evenement.titre }} · {{ representation.debut|casablanca_date }}</span>{% endif %}{% endfor %}
+            {% for zone in zones %}{% if zone.id == zoneId %}<span>Zone : {{ zone.nom }}</span>{% endif %}{% endfor %}
+            {% if statut %}<span>Statut : {{ statut.label }}</span>{% endif %}
+        </div>
+    {% endif %}
+
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>
                 <tr>
@@ -57,7 +67,7 @@
                     <th>Rangée</th>
                     <th>Numéro</th>
                     <th>Statut</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>

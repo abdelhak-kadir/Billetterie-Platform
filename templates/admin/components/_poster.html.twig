@@ -1,0 +1,13 @@
+{% set next = next_representation(evenement) %}
+<a class="poster-link" href="{{ path('admin_evenement_show', {id: evenement.id}) }}">
+    <div class="poster">
+        <img src="{{ event_art(evenement) }}" alt="" loading="lazy" width="400" height="600">
+        <span class="poster-type" aria-hidden="true">{{ evenement.type.label }}</span>
+        <span class="poster-title" aria-hidden="true">{{ evenement.titre }}</span>
+    </div>
+    <div class="poster-caption">
+        <h3>{{ evenement.titre }}</h3>
+        <p class="category-line">{{ evenement.type.label }}</p>
+        <p>{{ next ? 'Prochaine date · ' ~ next.debut|casablanca_date : 'Aucune représentation à venir' }}</p>
+    </div>
+</a>

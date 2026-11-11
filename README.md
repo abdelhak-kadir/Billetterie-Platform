@@ -204,3 +204,13 @@ tests unitaires du back-office. Elle utilise `billetterie_test` et ne purge pas
 la base dédiée des fixtures. La vérification visuelle a été effectuée avec
 Chrome headless en 1440×1000 et 390×844 sur le tableau de bord, les
 représentations, l’inventaire filtré A1/R1 et un formulaire d’événement.
+
+### Identité visuelle Horizon
+
+Le redesign S1-06 conserve les fonctionnalités et protections existantes :
+affiches originales locales, catalogue, dates réelles et inventaire de gestion.
+Les choix, licences, limites, contrôles d'accessibilité et captures avant/après
+sont décrits dans [docs/DESIGN.md](docs/DESIGN.md).
+Les visuels des trois événements S1-05 sont associés à leurs titres dans
+`EventPresentationExtension` ; un visuel de secours est prévu pour tout nouveau
+programme. Aucun service d'image externe n'est appelé à l'affichage.

@@ -10,25 +10,14 @@
         </div>
     </div>
 
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for salle in salles %}
-                    <tr>
-                        <td>{{ salle.nom }}</td>
-                        <td><a href="{{ path('admin_salle_show', {id: salle.id}) }}">Consulter</a></td>
-                    </tr>
-                {% else %}
-                    <tr><td colspan="2" class="empty">Aucune salle.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="grid">
+        {% for salle in salles %}
+            <a class="card stat" href="{{ path('admin_salle_show', {id: salle.id}) }}">
+                <span class="eyebrow">Salle culturelle</span><h2>{{ salle.nom }}</h2>
+                <strong>{{ salle.capacite }} <small>places</small></strong>
+                <span>{{ salle.zones|length }} zone(s) · Consulter le plan physique ↗</span>
+            </a>
+        {% else %}<p class="empty">Aucune salle.</p>{% endfor %}
     </div>
 
     {% include 'admin/_pagination.html.twig' %}

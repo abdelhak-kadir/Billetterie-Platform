@@ -1,49 +1,36 @@
 {% extends 'admin/base.html.twig' %}
-
-{% block title %}Tableau de bord{% endblock %}
-
+{% block title %}Accueil{% endblock %}
 {% block body %}
-    <div class="page-head">
-        <div>
-            <h1>Tableau de bord</h1>
-            <p>Vue d’ensemble de la billetterie. Les données de démonstration peuvent être chargées avec les fixtures.</p>
+    {% set featured = evenements|first %}
+    {% if featured %}
+        {% set next = next_representation(featured) %}
+        <section class="hero" aria-labelledby="hero-title">
+            <img class="hero-image" src="{{ event_art(featured) }}" alt="" fetchpriority="high" width="1536" height="1024">
+            <div class="hero-content">
+                <p class="eyebrow">La scène vous attend <span aria-hidden="true">/</span> {{ featured.type.label }}</p>
+                <h1 id="hero-title">{{ featured.titre }}</h1>
+                <p class="hero-meta">{{ next ? next.debut|casablanca_date ~ ' · ' ~ next.salle.nom : 'Aucune représentation à venir' }}</p>
+                <a class="btn btn-primary" href="{{ path('admin_evenement_show', {id: featured.id}) }}#programmation">Voir les représentations <span aria-hidden="true">↗</span></a>
+            </div>
+        </section>
+    {% else %}
+        <div class="page-head"><div><p class="eyebrow">Horizon · Programmation</p><h1>Une scène à imaginer</h1><p>Aucun événement pour le moment.</p></div><a class="btn btn-primary" href="{{ path('admin_evenement_new') }}">Nouvel événement</a></div>
+    {% endif %}
+    <section class="section" aria-labelledby="events-title">
+        <div class="section-head"><h2 id="events-title">À l’affiche</h2><a href="{{ path('admin_evenement_index') }}">Tous les événements <span aria-hidden="true">↗</span></a></div>
+        <div class="poster-grid">
+            {% for evenement in evenements %}{% include 'admin/components/_poster.html.twig' %}{% else %}<p class="empty">Le programme sera affiché ici.</p>{% endfor %}
         </div>
-        <a class="btn btn-primary" href="{{ path('admin_representation_new') }}">Créer une représentation</a>
-    </div>
-
-    <div class="grid">
-        <a class="card stat" href="{{ path('admin_salle_index') }}">
-            <span>Salles</span><strong>{{ counts.salles }}</strong><span class="hint">Plan physique en consultation</span>
-        </a>
-        <a class="card stat" href="{{ path('admin_evenement_index') }}">
-            <span>Événements</span><strong>{{ counts.evenements }}</strong><span class="hint">Programme</span>
-        </a>
-        <a class="card stat" href="{{ path('admin_representation_index') }}">
-            <span>Représentations</span><strong>{{ counts.representations }}</strong><span class="hint">Dates et inventaires</span>
-        </a>
-        <a class="card stat" href="{{ path('admin_inventaire_index') }}">
-            <span>Lignes d’inventaire</span><strong>{{ counts.inventaires }}</strong><span class="hint">Disponibilité par place</span>
-        </a>
-        <a class="card stat" href="{{ path('admin_tarif_index') }}">
-            <span>Tarifs</span><strong>{{ counts.tarifs }}</strong><span class="hint">Plein, réduit, groupe, invitation</span>
-        </a>
-        <a class="card stat" href="{{ path('admin_commande_index') }}">
-            <span>Commandes</span><strong>{{ counts.commandes }}</strong><span class="hint">Ventes enregistrées</span>
-        </a>
-        <a class="card stat" href="{{ path('admin_billet_index') }}">
-            <span>Billets</span><strong>{{ counts.billets }}</strong><span class="hint">Historique des droits</span>
-        </a>
-    </div>
-
-    <div class="card" style="margin-top: 1rem;">
-        <h2 style="margin-top: 0; font-size: 1.1rem;">Scénario de démonstration A1 / R1 / R2</h2>
-        <p class="muted" style="margin-bottom: .6rem;">
-            Une même place physique peut être vendue pour une représentation et rester disponible pour une autre.
-            Utilisez les filtres d’inventaire par représentation, zone et disponibilité.
-        </p>
-        <div class="actions">
-            <a class="btn btn-secondary" href="{{ path('admin_inventaire_index') }}">Consulter l’inventaire</a>
-            <a class="btn btn-secondary" href="{{ path('admin_representation_index') }}">Voir les représentations</a>
-        </div>
+    </section>
+    <section class="section" aria-labelledby="schedule-title">
+        <div class="section-head"><h2 id="schedule-title">Le programme</h2><a href="{{ path('admin_representation_index') }}">Toutes les représentations ↗</a></div>
+        {% include 'admin/components/_schedule.html.twig' %}
+    </section>
+    <div class="operational" aria-label="Repères de gestion">
+        <a href="{{ path('admin_salle_index') }}"><strong>{{ counts.salles }}</strong> salle(s)</a>
+        <a href="{{ path('admin_inventaire_index') }}"><strong>{{ counts.inventaires }}</strong> places inventoriées</a>
+        <a href="{{ path('admin_tarif_index') }}"><strong>{{ counts.tarifs }}</strong> tarifs</a>
+        <a href="{{ path('admin_commande_index') }}"><strong>{{ counts.commandes }}</strong> commandes</a>
+        <a href="{{ path('admin_billet_index') }}"><strong>{{ counts.billets }}</strong> billets</a>
     </div>
 {% endblock %}

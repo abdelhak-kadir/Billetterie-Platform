@@ -18,7 +18,8 @@
             <div><dt>Date (Africa/Casablanca)</dt><dd>{{ billet.inventairePlace.representation.debut|casablanca_date }}</dd></div>
             <div><dt>Place</dt><dd>{{ billet.inventairePlace.place.zone.nom }} / {{ billet.inventairePlace.place.rangee }} / {{ billet.inventairePlace.place.numero }}</dd></div>
             <div><dt>Tarif</dt><dd><a href="{{ path('admin_tarif_show', {id: billet.tarif.id}) }}">{{ billet.tarif.libelle }}</a></dd></div>
-            <div><dt>Prix payé</dt><dd>{{ billet.prixPayeCentimes|mad }}</dd></div>
+            <div><dt>Prix payé à l’achat (historique)</dt><dd>{{ billet.prixPayeCentimes|mad }}</dd></div>
+            <div><dt>Prix du tarif actuel</dt><dd>{{ billet.tarif.prixCentimes|mad }} <small>(catalogue)</small></dd></div>
             <div><dt>Émis le</dt><dd>{{ billet.emisA|casablanca_date }} <small>(Africa/Casablanca)</small></dd></div>
             <div><dt>Statut du billet</dt><dd>{{ billet.statut.label }}</dd></div>
             <div><dt>Annulé le</dt><dd>{{ billet.annuleA|casablanca_date }}</dd></div>

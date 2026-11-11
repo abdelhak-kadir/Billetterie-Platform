@@ -38,7 +38,7 @@
         <button class="btn btn-primary" type="submit">Filtrer</button>
     </form>
 
-    <div class="table-wrap">
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>
                 <tr>
@@ -47,15 +47,15 @@
                     <th>Représentation</th>
                     <th>Place</th>
                     <th>Tarif</th>
-                    <th>Prix payé</th>
+                    <th class="money">Prix payé</th>
                     <th>Statut</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for billet in billets %}
                     <tr>
-                        <td>{{ billet.reference }}</td>
+                        <td class="reference">{{ billet.reference }}</td>
                         <td><a href="{{ path('admin_commande_show', {id: billet.commande.id}) }}">{{ billet.commande.reference }}</a></td>
                         <td>
                             {{ billet.inventairePlace.representation.evenement.titre }}<br>
@@ -63,7 +63,7 @@
                         </td>
                         <td>{{ billet.inventairePlace.place.zone.nom }} / {{ billet.inventairePlace.place.rangee }} / {{ billet.inventairePlace.place.numero }}</td>
                         <td>{{ billet.tarif.libelle }}</td>
-                        <td>{{ billet.prixPayeCentimes|mad }}</td>
+                        <td class="money">{{ billet.prixPayeCentimes|mad }}</td>
                         <td><span class="badge badge-{{ billet.statut.value }}">{{ billet.statut.label }}</span></td>
                         <td><a href="{{ path('admin_billet_show', {id: billet.id}) }}">Détail</a></td>
                     </tr>

@@ -124,3 +124,22 @@ Vérifications exécutées dans Docker (PHP 8.3.36, MySQL 8.0) :
 Aucune base utilisateur n’a été purgée. Aucune migration ni configuration Docker
 n’a été modifiée. Les paiements, remboursements, réservations temporaires,
 QR codes, rôles et authentification restent hors de S1-06.
+
+## Redesign S1-06 — Horizon (11 novembre 2026)
+
+Identité sombre/ambre centrée sur les événements, affiches originales locales,
+bannière panoramique, catalogue et programmation par dates réelles. Inventaire,
+commandes, billets et formulaires conservent les protections serveur de S1-06.
+Aucun travail du Niveau 2, aucune modification des fixtures, des migrations ou de Docker.
+
+Vérifications Docker : Composer strict, conteneur, 22 templates Twig et schéma
+Doctrine valides ; **31 tests standard, 153 assertions**. La suite Demo Fixtures
+reste séparée et n'a pas été modifiée. Contrôles Chrome headless desktop
+1440×1000 et mobile 390×844 sur la base S1-05 dédiée : parcours catalogue/fiche/date,
+retour depuis une représentation, salle, filtres A1/R1 et A1/R2, commandes,
+billets, erreurs de formulaire, états vides et secours. Débordements corrigés,
+aucun débordement global mesuré sur ces pages ; tableaux dans leurs régions
+scrollables. Aucun chargement ni purge de base utilisateur.
+
+Voir [DESIGN.md](DESIGN.md) pour les captures avant/après, les contrastes, les
+sources des assets, la correction MIME du serveur PHP et les limites du contrôle.

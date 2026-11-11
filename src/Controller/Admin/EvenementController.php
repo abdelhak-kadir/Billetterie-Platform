@@ -10,6 +10,7 @@ use App\Enum\TypeEvenement;
 use App\Form\Model\EvenementFormData;
 use App\Form\Type\EvenementType;
 use App\Repository\EvenementRepository;
+use App\Repository\InventairePlaceRepository;
 use App\Repository\RepresentationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,7 +61,7 @@ final class EvenementController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(int $id, EvenementRepository $evenements, RepresentationRepository $representations): Response
+    public function show(int $id, Request $request, EvenementRepository $evenements, RepresentationRepository $representations, InventairePlaceRepository $inventaires): Response
     {
         $evenement = $evenements->find($id) ?? throw $this->createNotFoundException('Événement introuvable.');
 
@@ -73,9 +74,27 @@ final class EvenementController extends AbstractController
             ->getQuery()
             ->getResult();
 
+        $dates = [];
+        foreach ($reps as $representation) {
+            $key = $representation->getDebut()->setTimezone(new \DateTimeZone('Africa/Casablanca'))->format('Y-m-d');
+            $dates[$key] = $representation->getDebut();
+        }
+        $selectedDate = $request->query->getString('date');
+        if (!isset($dates[$selectedDate])) {
+            $selectedDate = array_key_first($dates);
+        }
+        $selectedRepresentations = array_values(array_filter($reps, static fn ($r): bool =>
+            $r->getDebut()->setTimezone(new \DateTimeZone('Africa/Casablanca'))->format('Y-m-d') === $selectedDate,
+        ));
+
         return $this->render('admin/evenement/show.html.twig', [
             'evenement' => $evenement,
-            'representations' => $reps,
+            'representations' => $selectedRepresentations,
+            'dates' => $dates,
+            'selectedDate' => $selectedDate,
+            'inventoryCounts' => $inventaires->countsByRepresentationIds(array_map(
+                static fn ($r): int => (int) $r->getId(), $reps,
+            )),
         ]);
     }
 

@@ -36,7 +36,7 @@
         <button class="btn btn-primary" type="submit">Filtrer</button>
     </form>
 
-    <div class="table-wrap">
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>
                 <tr>
@@ -45,13 +45,13 @@
                     <th>Canal</th>
                     <th>Statut</th>
                     <th>Client</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for commande in commandes %}
                     <tr>
-                        <td>{{ commande.reference }}</td>
+                        <td class="reference">{{ commande.reference }}</td>
                         <td>{{ commande.creeA|casablanca_date }}</td>
                         <td>{{ commande.canal.label }}</td>
                         <td><span class="badge badge-{{ commande.statut.value }}">{{ commande.statut.label }}</span></td>

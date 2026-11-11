@@ -4,145 +4,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Administration{% endblock %} — Billetterie</title>
-        <style>
-            :root {
-                --bg: #f4f6f9;
-                --surface: #ffffff;
-                --text: #1f2937;
-                --muted: #5b6675;
-                --line: #dfe4ea;
-                --primary: #1d4ed8;
-                --primary-dark: #1e3a8a;
-                --success-bg: #dcfce7;
-                --success-text: #166534;
-                --warning-bg: #fef3c7;
-                --warning-text: #92400e;
-                --danger-bg: #fee2e2;
-                --danger-text: #991b1b;
-                --neutral-bg: #e5e7eb;
-                --neutral-text: #374151;
-                --info-bg: #dbeafe;
-                --info-text: #1e40af;
-            }
-
-            * { box-sizing: border-box; }
-
-            body {
-                margin: 0;
-                background: var(--bg);
-                color: var(--text);
-                font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-            }
-
-            a { color: var(--primary); text-decoration: none; }
-            a:hover { text-decoration: underline; }
-
-            .container { width: min(1200px, 100% - 2rem); margin-inline: auto; }
-
-            .topbar { background: #111827; color: #f9fafb; }
-            .topbar-inner { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; padding: 1rem 0; }
-            .brand { color: #f9fafb; font-weight: 700; font-size: 1.05rem; }
-            .brand span { color: #93c5fd; font-weight: 500; }
-            .topnav { display: flex; flex-wrap: wrap; gap: .35rem; margin-left: auto; }
-            .topnav a { color: #e5e7eb; padding: .35rem .6rem; border-radius: .35rem; font-size: .9rem; }
-            .topnav a:hover, .topnav a[aria-current="page"] { background: #1f2937; text-decoration: none; }
-
-            .notice {
-                background: #fffbeb;
-                border-bottom: 1px solid #fcd34d;
-                color: #92400e;
-                font-size: .88rem;
-                padding: .55rem 0;
-            }
-
-            main { padding: 1.5rem 0 2.5rem; min-height: 65vh; }
-            .page-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; justify-content: space-between; margin-bottom: 1.25rem; }
-            .page-head h1 { margin: 0; font-size: 1.55rem; }
-            .page-head p { margin: .25rem 0 0; color: var(--muted); }
-
-            .card { background: var(--surface); border: 1px solid var(--line); border-radius: .7rem; padding: 1rem; box-shadow: 0 1px 2px rgb(15 23 42 / .04); }
-            .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-            .stat { display: block; color: inherit; }
-            .stat:hover { text-decoration: none; border-color: #93c5fd; }
-            .stat strong { display: block; font-size: 1.7rem; margin-top: .25rem; }
-            .stat span { color: var(--muted); font-size: .9rem; }
-            .stat .hint { display: block; margin-top: .4rem; font-size: .82rem; }
-
-            .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: .7rem; }
-            table { width: 100%; border-collapse: collapse; min-width: 720px; }
-            th, td { padding: .7rem .8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-            th { background: #f8fafc; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
-            tbody tr:last-child td { border-bottom: 0; }
-            tbody tr:hover { background: #f8fbff; }
-            td small, .muted { color: var(--muted); }
-
-            .badge { display: inline-block; padding: .15rem .5rem; border-radius: 999px; font-size: .78rem; font-weight: 600; white-space: nowrap; }
-            .badge-disponible, .badge-payee, .badge-valide, .badge-programmee, .badge-actif { background: var(--success-bg); color: var(--success-text); }
-            .badge-reservee, .badge-en_attente { background: var(--warning-bg); color: var(--warning-text); }
-            .badge-vendue, .badge-annulee, .badge-annule, .badge-echouee, .badge-expiree, .badge-inactif { background: var(--danger-bg); color: var(--danger-text); }
-            .badge-bloquee, .badge-terminee { background: var(--neutral-bg); color: var(--neutral-text); }
-
-            .actions { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
-            .btn { display: inline-block; border: 1px solid transparent; border-radius: .4rem; padding: .45rem .7rem; font: inherit; font-size: .9rem; cursor: pointer; text-decoration: none; }
-            .btn:hover { text-decoration: none; }
-            .btn-primary { background: var(--primary); color: #fff; }
-            .btn-primary:hover { background: var(--primary-dark); }
-            .btn-secondary { background: #fff; color: var(--text); border-color: var(--line); }
-            .btn-danger { background: #b91c1c; color: #fff; }
-            .btn-small { padding: .28rem .55rem; font-size: .82rem; }
-
-            .filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; margin-bottom: 1rem; padding: .9rem; background: var(--surface); border: 1px solid var(--line); border-radius: .7rem; }
-            .filters .field { min-width: 150px; flex: 1 1 150px; }
-            .filters .field-wide { flex: 2 1 260px; }
-
-            .field { margin-bottom: .9rem; }
-            .field label, .filters label { display: block; font-weight: 600; font-size: .88rem; margin-bottom: .3rem; }
-            .field input, .field select, .field textarea, .filters input, .filters select {
-                width: 100%;
-                padding: .5rem .6rem;
-                border: 1px solid #cbd5e1;
-                border-radius: .4rem;
-                background: #fff;
-                font: inherit;
-                color: var(--text);
-            }
-            .field textarea { resize: vertical; }
-            .field input:disabled, .field select:disabled { background: #f1f5f9; color: var(--muted); }
-            .help { display: block; margin-top: .3rem; color: var(--muted); font-size: .82rem; }
-            .errors, .form-error { color: var(--danger-text); font-size: .86rem; margin: .3rem 0 0; padding-left: 1rem; }
-            .form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-            .form-card { max-width: 760px; }
-
-            .flash { padding: .7rem .9rem; border-radius: .5rem; margin-bottom: 1rem; border: 1px solid transparent; }
-            .flash-success { background: var(--success-bg); color: var(--success-text); border-color: #86efac; }
-            .flash-error { background: var(--danger-bg); color: var(--danger-text); border-color: #fca5a5; }
-            .flash-info { background: var(--info-bg); color: var(--info-text); border-color: #93c5fd; }
-
-            .pagination { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; justify-content: center; margin-top: 1rem; font-size: .9rem; }
-            .pagination a { padding: .35rem .6rem; border: 1px solid var(--line); border-radius: .35rem; background: #fff; }
-
-            .detail-list { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-            .detail-list dt { color: var(--muted); font-size: .82rem; }
-            .detail-list dd { margin: .1rem 0 0; font-weight: 600; }
-
-            .footer { color: var(--muted); font-size: .82rem; padding-bottom: 2rem; }
-            .empty { color: var(--muted); padding: 1.2rem; text-align: center; }
-
-            @media (max-width: 640px) {
-                .topnav { margin-left: 0; }
-                .page-head { align-items: start; }
-                table { min-width: 620px; }
-                .actions { flex-direction: column; align-items: stretch; }
-            }
-        </style>
+        <link rel="stylesheet" href="/admin/admin.css">
     </head>
     <body>
+        <a class="skip-link" href="#contenu">Aller au contenu</a>
         <header class="topbar">
             <div class="container topbar-inner">
-                <a class="brand" href="{{ path('admin_index') }}">Billetterie <span>Administration</span></a>
+                <a class="brand" href="{{ path('admin_index') }}" aria-label="Horizon — Billetterie, accueil"><span class="brand-mark" aria-hidden="true"></span><span><strong>HORIZON</strong><small>Salle culturelle · Billetterie</small></span></a>
                 <nav class="topnav" aria-label="Navigation principale">
                     {% set currentRoute = app.request.attributes.get('_route') %}
-                    <a href="{{ path('admin_index') }}" {% if currentRoute == 'admin_index' %}aria-current="page"{% endif %}>Tableau de bord</a>
+                    <a href="{{ path('admin_index') }}" {% if currentRoute == 'admin_index' %}aria-current="page"{% endif %}>Accueil</a>
                     <a href="{{ path('admin_salle_index') }}" {% if currentRoute starts with 'admin_salle_' %}aria-current="page"{% endif %}>Salles</a>
                     <a href="{{ path('admin_evenement_index') }}" {% if currentRoute starts with 'admin_evenement_' %}aria-current="page"{% endif %}>Événements</a>
                     <a href="{{ path('admin_representation_index') }}" {% if currentRoute starts with 'admin_representation_' %}aria-current="page"{% endif %}>Représentations</a>
@@ -155,10 +26,10 @@
         </header>
 
         <div class="notice">
-            <div class="container">Back-office local de démonstration — authentification et rôles non activés (Niveau 3). Ne pas exposer publiquement.</div>
+            <div class="container"><span><span class="local-dot" aria-hidden="true">●</span>Espace de gestion · Démonstration locale</span><span class="notice-detail">Accès local uniquement · Ne pas exposer publiquement</span></div>
         </div>
 
-        <main class="container">
+        <main id="contenu" class="container" tabindex="-1">
             {% for label, messages in app.flashes %}
                 {% for message in messages %}
                     <div class="flash flash-{{ label }}" role="status">{{ message }}</div>
@@ -169,7 +40,7 @@
         </main>
 
         <footer class="container footer">
-            Dates affichées en Africa/Casablanca · Montants en MAD (stockés en centimes) · Plan physique en consultation seule.
+            <div class="footer-inner"><strong>HORIZON / SALLE CULTURELLE</strong><span>Africa/Casablanca · MAD · Plan physique en consultation seule</span></div>
         </footer>
     </body>
 </html>

@@ -8,35 +8,35 @@
     {% set reservees = counts.reservee|default(0) %}
     {% set bloquees = counts.bloquee|default(0) %}
 
-    <div class="page-head">
-        <div>
-            <h1>{{ representation.evenement.titre }}</h1>
-            <p>{{ representation.salle.nom }} · <span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span></p>
+    <a class="back-link" href="{{ path('admin_evenement_show', {id: representation.evenement.id, date: representation.debut|date('Y-m-d', 'Africa/Casablanca')}) }}#programmation">← Retour à la programmation de l’événement</a>
+    <section class="hero detail-hero" aria-labelledby="representation-title">
+        <img class="hero-image" src="{{ event_art(representation.evenement) }}" alt="" width="1536" height="1024">
+        <div class="hero-content">
+            <p class="eyebrow">{{ representation.evenement.type.label }} / Représentation</p>
+            <h1 id="representation-title">{{ representation.evenement.titre }}</h1>
+            <p class="hero-meta">{{ representation.debut|casablanca_date }} · {{ representation.salle.nom }}</p>
+            <span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span>
+            <div class="actions">
+                <a class="btn btn-primary" href="{{ path('admin_inventaire_index', {representation: representation.id}) }}">Voir l’inventaire ↗</a>
+                <a class="btn btn-secondary" href="#tarifs">Tarifs</a>
+                <a class="btn btn-secondary" href="{{ path('admin_representation_edit', {id: representation.id}) }}">Modifier</a>
+            </div>
         </div>
-        <div class="actions">
-            <a class="btn btn-secondary" href="{{ path('admin_representation_index') }}">← Retour</a>
-            <a class="btn btn-secondary" href="{{ path('admin_inventaire_index', {representation: representation.id}) }}">Voir l’inventaire</a>
-            <a class="btn btn-primary" href="{{ path('admin_representation_edit', {id: representation.id}) }}">Modifier</a>
-        </div>
+    </section>
+    <div class="operational" aria-label="Disponibilité de la représentation">
+        <span><strong>{{ disponibles }}</strong> disponibles</span><span><strong>{{ vendues }}</strong> vendues</span>
+        <span><strong>{{ reservees }}</strong> réservées</span><span><strong>{{ bloquees }}</strong> bloquées</span>
     </div>
-
-    <div class="grid" style="margin-bottom: 1rem;">
-        <div class="card stat"><span>Date (Africa/Casablanca)</span><strong style="font-size: 1.1rem;">{{ representation.debut|casablanca_date }}</strong></div>
-        <div class="card stat"><span>Disponibles</span><strong>{{ disponibles }}</strong></div>
-        <div class="card stat"><span>Vendues</span><strong>{{ vendues }}</strong></div>
-        <div class="card stat"><span>Réservées</span><strong>{{ reservees }}</strong></div>
-        <div class="card stat"><span>Bloquées</span><strong>{{ bloquees }}</strong></div>
-    </div>
-
-    <div class="table-wrap">
+    <div class="section-head section" id="tarifs"><h2>Les tarifs</h2><a href="{{ path('admin_tarif_index', {representation: representation.id}) }}">Gérer les tarifs ↗</a></div>
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>
                 <tr>
                     <th>Tarif</th>
                     <th>Catégorie</th>
-                    <th>Prix</th>
+                    <th class="money">Prix</th>
                     <th>État</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,7 +44,7 @@
                     <tr>
                         <td>{{ tarif.libelle }}</td>
                         <td>{{ tarif.categorie.label }}</td>
-                        <td>{{ tarif.prixCentimes|mad }}</td>
+                        <td class="money">{{ tarif.prixCentimes|mad }}</td>
                         <td>
                             {% if tarif.actif %}
                                 <span class="badge badge-actif">Actif</span>

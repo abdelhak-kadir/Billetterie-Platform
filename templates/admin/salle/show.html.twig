@@ -3,26 +3,26 @@
 {% block title %}{{ salle.nom }}{% endblock %}
 
 {% block body %}
-    <div class="page-head">
-        <div>
-            <h1>{{ salle.nom }}</h1>
-            <p>Plan physique : {{ zones|length }} zone{{ zones|length > 1 ? 's' : '' }}, {{ pagination.total }} place{{ pagination.total > 1 ? 's' : '' }}.</p>
-        </div>
-        <a class="btn btn-secondary" href="{{ path('admin_salle_index') }}">← Retour aux salles</a>
-    </div>
-
+    <a class="back-link" href="{{ path('admin_salle_index') }}">← Retour aux salles</a>
+    <section class="venue-banner">
+        <p class="eyebrow">Le lieu / Plan physique</p>
+        <span class="capacity">{{ pagination.total }}</span> <span class="muted">places numérotées</span>
+        <h1>{{ salle.nom }}</h1>
+        <p>{{ zones|length }} zone(s) · Un même plan pour chaque représentation.</p>
+        <a class="btn btn-primary" href="{{ path('admin_representation_index', {salle: salle.id}) }}">Voir les représentations ↗</a>
+    </section>
     <div class="card" style="margin-bottom: 1rem;">
         <h2 style="margin-top: 0; font-size: 1.05rem;">Zones</h2>
         <div class="actions">
             {% for zone in zones %}
-                <span class="badge badge-terminee">{{ zone.nom }}</span>
+                <span class="badge badge-terminee">{{ zone.nom }} · {{ zone.places|length }} places</span>
             {% else %}
                 <span class="muted">Aucune zone.</span>
             {% endfor %}
         </div>
     </div>
 
-    <div class="table-wrap">
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>
                 <tr>
