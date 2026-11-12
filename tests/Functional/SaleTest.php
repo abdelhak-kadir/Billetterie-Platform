@@ -20,7 +20,6 @@ final class SaleTest extends AdminTestCase
         self::assertResponseIsSuccessful();
         $form = $crawler->selectButton('Réserver les places')->form();
         $form['form[email]'] = 'demo@example.com';
-        $form['form[canal]'] = 'guichet';
         $form['form[inventaires]'] = [(string) $inventory->getId()];
         $form['form[tarif]'] = (string) $tariff->getId();
         $this->client->submit($form);

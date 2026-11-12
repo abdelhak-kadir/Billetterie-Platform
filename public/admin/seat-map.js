@@ -33,7 +33,6 @@ export class SeatMap {
     click(event) {
         const seat = event.target.closest('[data-seat-id]');
         if (seat && this.root.contains(seat)) {
-            this.focus(seat);
             if (this.mode === 'inspect') {
                 this.announce(`${seat.dataset.label}, ${seat.dataset.statusLabel}.`);
             } else if (seat.dataset.status === 'disponible' && this.root.dataset.selectable === 'true') {
@@ -43,6 +42,7 @@ export class SeatMap {
             } else {
                 this.announce(`${seat.dataset.label}, ${seat.dataset.statusLabel}. Cette place ne peut pas être sélectionnée.`);
             }
+            this.focus(seat);
         }
         const remove = event.target.closest('[data-remove-seat]');
         if (remove) {
@@ -67,6 +67,14 @@ export class SeatMap {
         this.seats.forEach(s => s.tabIndex = s === seat ? 0 : -1);
         seat.focus({preventScroll: true});
         seat.scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});
+        // scrollIntoView ne connaît pas le récapitulatif collant dans la page.
+        // Révéler aussi le siège dans la fenêtre, après le défilement du plan.
+        if (this.selected.size) {
+            let covered = seat.getBoundingClientRect().bottom - this.selection.getBoundingClientRect().top + 16;
+            if (covered > 0) window.scrollBy({top: covered, behavior: 'instant'});
+            covered = seat.getBoundingClientRect().bottom - this.selection.getBoundingClientRect().top + 16;
+            if (covered > 0) this.root.querySelector('.h-map-viewport').scrollBy({top: covered, behavior: 'instant'});
+        }
     }
 
     keydown(event) {

@@ -91,4 +91,21 @@ final class SecurityTest extends AdminTestCase
         self::assertResponseIsSuccessful();
         self::assertSame(0, $this->entityManager->getRepository(User::class)->count(['email' => 'attack@example.com']));
     }
+
+    public function testInvitationIsDeniedToCounterAndAllowedToAdminUnderLocks(): void
+    {
+        $hall = $this->createSalle('Invitations', ['Parterre'=>['A'=>1]]);
+        $rep = $this->createRepresentation($this->createEvenement(), $hall, '2099-12-01T19:00:00Z');
+        $tariff = $this->createTarif($rep, 'Invitation', CategorieTarif::Invitation, 0);
+        $choices = [['inventaire'=>$rep->getInventairePlaces()->first()->getId(), 'tarif'=>$tariff->getId()]];
+        $staff = $this->createUser('invitation-staff@example.com', 'ROLE_GUICHETIER');
+        $sales = static::getContainer()->get(TicketingService::class);
+        try { $sales->reserve($rep->getId(), $choices, 'guest@example.com', CanalCommande::Guichet, $staff); self::fail('Invitation interdite au guichetier.'); }
+        catch (\App\Exception\SaleConflict $e) { self::assertStringContainsString('rôle', $e->getMessage()); }
+        self::assertSame(0, $this->entityManager->getRepository(Commande::class)->count([]));
+        $admin = $this->entityManager->getRepository(User::class)->findOneBy(['email'=>'admin@example.com']);
+        $order = $sales->reserve($rep->getId(), $choices, 'guest@example.com', CanalCommande::Guichet, $admin);
+        $sales->confirm($order->getId());
+        self::assertSame(0, $order->getBillets()->first()->getPrixPayeCentimes());
+    }
 }

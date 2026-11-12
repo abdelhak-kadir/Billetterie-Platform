@@ -54,7 +54,7 @@ final class SeatMapTest extends AdminTestCase
         self::assertCount(2, $crawler->filter('select[name="form[inventaires][]"] option[selected]'));
         self::assertSame(0, $this->entityManager->getRepository(Commande::class)->count([]));
         $form = $crawler->selectButton('Réserver les places')->form();
-        $form['form[email]'] = 'demo@example.com'; $form['form[canal]'] = 'guichet';
+        $form['form[email]'] = 'demo@example.com';
         $form['form[tarif]'] = (string) $tariff->getId();
         $this->client->submit($form);
         self::assertResponseRedirects();
@@ -71,7 +71,7 @@ final class SeatMapTest extends AdminTestCase
         $ids = array_map(static fn ($i) => $i->getId(), $rep->getInventairePlaces()->toArray());
         $crawler = $this->client->request('GET', '/admin/representations/'.$rep->getId().'/reservation?'.http_build_query(['from_plan' => 1, 'seats' => $ids]));
         $form = $crawler->selectButton('Réserver les places')->form();
-        $form['form[email]'] = 'first@example.com'; $form['form[canal]'] = 'guichet';
+        $form['form[email]'] = 'first@example.com';
         $form['form[tarif]'] = (string) $tariff->getId();
         static::getContainer()->get(TicketingService::class)->reserve($rep->getId(), [['inventaire' => $ids[0], 'tarif' => $tariff->getId()]], 'other@example.com', CanalCommande::EnLigne);
         $this->client->submit($form);

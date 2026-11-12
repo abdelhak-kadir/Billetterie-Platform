@@ -20,7 +20,7 @@
         </dl>
     </div>
 
-    <section class="card" style="margin-bottom:24px" aria-label="Simulation de vente">
+    {% if demo_mode() %}<section class="card" style="margin-bottom:24px" aria-label="Simulation de vente">
         <h2>Simulation locale</h2>
         <p class="muted">Aucun mouvement bancaire réel. Remboursement simulé total : <strong>{{ refundTotal|mad }}</strong>.</p>
         {% if commande.reservationExpireA %}<p>Échéance exclusive : <strong>{{ commande.reservationExpireA|date('d/m/Y H:i:s', 'Africa/Casablanca') }}</strong> (Africa/Casablanca).</p>{% endif %}
@@ -43,7 +43,7 @@
             <h3>Places et prix acceptés à la réservation</h3>
             <ul>{% for item in reservationItems %}<li>{{ item.inventairePlace.place.libelle }} · {{ item.tarif.libelle }} · {{ item.prixCentimes|mad }}</li>{% endfor %}</ul>
         {% endif %}
-    </section>
+    </section>{% endif %}
     <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>

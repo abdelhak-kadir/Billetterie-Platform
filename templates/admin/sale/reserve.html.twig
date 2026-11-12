@@ -7,7 +7,8 @@
         <p class="muted">Aucun paiement réel. Le prix accepté est fixé à la réservation ; l’échéance exacte sera affichée sur la commande.</p>
         {{ form_start(form) }}
         {{ form_errors(form) }}
-        {% for field in [form.email, form.canal, form.inventaires, form.tarif] %}
+        <p>Canal : guichet, déterminé par le serveur.</p>
+        {% for field in [form.email, form.inventaires, form.tarif] %}
             <div class="field">{{ form_label(field) }}{{ form_widget(field) }}{{ form_help(field) }}{{ form_errors(field) }}</div>
         {% endfor %}
         <button class="btn btn-primary" type="submit">Réserver les places</button>

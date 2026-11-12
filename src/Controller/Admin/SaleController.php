@@ -12,7 +12,7 @@ use App\Repository\{CommandeRepository, InventairePlaceRepository, Representatio
 use App\Service\TicketingService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\{EmailType, EnumType};
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -28,7 +28,6 @@ final class SaleController extends AbstractController
         $representation = $representations->find($id) ?? throw $this->createNotFoundException();
         $form = $this->createFormBuilder(null, ['csrf_message' => 'Le jeton de sécurité est invalide.'])
             ->add('email', EmailType::class, ['label' => 'E-mail du client fictif', 'constraints' => [new Assert\NotBlank(), new Assert\Email(), new Assert\Length(max: 180)]])
-            ->add('canal', EnumType::class, ['class' => CanalCommande::class, 'label' => 'Canal', 'choice_label' => static fn (CanalCommande $c) => $c->label(), 'constraints' => [new Assert\NotNull()]])
             ->add('inventaires', EntityType::class, [
                 'class' => InventairePlace::class, 'multiple' => true, 'label' => 'Places (sélection multiple)',
                 'choice_label' => static fn (InventairePlace $i) => $i->getPlace()->getLibelle().' — '.$i->getStatut()->label(),
