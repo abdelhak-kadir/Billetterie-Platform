@@ -14,23 +14,28 @@
     <div class="card form-card">
         {{ form_start(form) }}
             {{ form_errors(form) }}
-            <div class="field">
-                {{ form_label(form.titre) }}
-                {{ form_widget(form.titre) }}
-                {{ form_errors(form.titre) }}
-            </div>
-            <div class="field">
-                {{ form_label(form.type) }}
-                {{ form_widget(form.type) }}
-                {{ form_errors(form.type) }}
-            </div>
-            <div class="field">
-                {{ form_label(form.description) }}
-                {{ form_widget(form.description) }}
-                {{ form_errors(form.description) }}
+            <p class="eyebrow">Informations générales</p>
+            <div class="form-grid">
+                <div class="field">
+                    {{ form_label(form.titre) }}
+                    {{ form_widget(form.titre) }}
+                    {{ form_errors(form.titre) }}
+                </div>
+                <div class="field">
+                    {{ form_label(form.type) }}
+                    {{ form_widget(form.type) }}
+                    {{ form_errors(form.type) }}
+                </div>
+                <div class="field field-span-2">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    {{ form_errors(form.description) }}
+                    <span class="help">Visible dans le détail de l’événement.</span>
+                </div>
             </div>
             <div class="actions">
                 <button class="btn btn-primary" type="submit">Enregistrer</button>
+                <a class="btn btn-secondary" href="{{ evenement ? path('admin_evenement_show', {id: evenement.id}) : path('admin_evenement_index') }}">Annuler</a>
             </div>
         {{ form_end(form) }}
     </div>

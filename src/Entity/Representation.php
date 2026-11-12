@@ -41,6 +41,7 @@ class Representation
 
     /** @var Collection<int, Tarif> */
     #[ORM\OneToMany(mappedBy: 'representation', targetEntity: Tarif::class)]
+    #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $tarifs;
 
     public function __construct(

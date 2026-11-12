@@ -28,7 +28,8 @@ final class InventaireController extends AbstractController
             ->join('i.representation', 'r')->addSelect('r')
             ->join('r.evenement', 'e')->addSelect('e')
             ->join('i.place', 'p')->addSelect('p')
-            ->join('p.zone', 'z')->addSelect('z');
+            ->join('p.zone', 'z')->addSelect('z')
+            ->join('z.salle', 'sa')->addSelect('sa');
 
         $representationId = $request->query->getInt('representation', 0);
         if ($representationId > 0) {
@@ -61,7 +62,8 @@ final class InventaireController extends AbstractController
 
         $items = $queryBuilder
             ->orderBy('r.debut', 'ASC')
-            ->addOrderBy('z.nom', 'ASC')
+            ->addOrderBy('sa.nom', 'ASC')
+            ->addOrderBy('z.id', 'ASC')
             ->addOrderBy('p.rangee', 'ASC')
             ->addOrderBy('p.numero', 'ASC')
             ->setMaxResults($pagination->limit)
@@ -78,9 +80,52 @@ final class InventaireController extends AbstractController
         $zoneChoices = $zones->createQueryBuilder('z')
             ->join('z.salle', 's')->addSelect('s')
             ->orderBy('s.nom', 'ASC')
-            ->addOrderBy('z.nom', 'ASC')
+            ->addOrderBy('z.id', 'ASC')
             ->getQuery()
             ->getResult();
+
+        $selectedRepresentation = $representationId > 0 ? $representations->find($representationId) : null;
+        $mapZones = [];
+
+        if ($selectedRepresentation !== null) {
+            $mapQuery = $inventaires->createQueryBuilder('i')
+                ->join('i.place', 'p')->addSelect('p')
+                ->join('p.zone', 'z')->addSelect('z')
+                ->andWhere('i.representation = :representation')
+                ->setParameter('representation', $selectedRepresentation);
+
+            if ($zoneId > 0) {
+                $mapQuery->andWhere('z.id = :mapZone')->setParameter('mapZone', $zoneId);
+            }
+
+            $mapItems = $mapQuery
+                ->orderBy('z.id', 'ASC')
+                ->addOrderBy('p.rangee', 'ASC')
+                ->addOrderBy('p.numero', 'ASC')
+                ->getQuery()
+                ->getResult();
+
+            foreach ($mapItems as $item) {
+                $place = $item->getPlace();
+                $zone = $place->getZone();
+                $zoneIdForMap = (int) $zone->getId();
+                $mapZones[$zoneIdForMap] ??= ['zone' => $zone, 'rows' => [], 'counts' => []];
+                $mapZones[$zoneIdForMap]['rows'][$place->getRangee()][$place->getNumero()] = $item;
+                $status = $item->getStatut()->value;
+                $mapZones[$zoneIdForMap]['counts'][$status] = ($mapZones[$zoneIdForMap]['counts'][$status] ?? 0) + 1;
+            }
+
+            foreach ($mapZones as &$zoneData) {
+                $maxSeat = 0;
+                foreach ($zoneData['rows'] as $row) {
+                    $maxSeat = max($maxSeat, max(array_keys($row)));
+                }
+                $zoneData['maxSeat'] = max(1, $maxSeat);
+                $zoneData['rowCount'] = count($zoneData['rows']);
+                $zoneData['total'] = array_sum($zoneData['counts']);
+            }
+            unset($zoneData);
+        }
 
         return $this->render('admin/inventaire/index.html.twig', [
             'inventaires' => $items,
@@ -92,6 +137,8 @@ final class InventaireController extends AbstractController
             'zoneId' => $zoneId,
             'statut' => $statut,
             'q' => $query,
+            'selectedRepresentation' => $selectedRepresentation,
+            'mapZones' => $mapZones,
         ]);
     }
 }

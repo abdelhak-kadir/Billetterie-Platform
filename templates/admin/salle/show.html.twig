@@ -15,7 +15,7 @@
         <h2 style="margin-top: 0; font-size: 1.05rem;">Zones</h2>
         <div class="actions">
             {% for zone in zones %}
-                <span class="badge badge-terminee">{{ zone.nom }} · {{ zone.places|length }} places</span>
+                <span class="badge badge-terminee">{{ zone.nom }} · {{ zoneCounts[zone.id]|default(0) }} places</span>
             {% else %}
                 <span class="muted">Aucune zone.</span>
             {% endfor %}

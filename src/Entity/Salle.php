@@ -23,6 +23,7 @@ class Salle
 
     /** @var Collection<int, Zone> */
     #[ORM\OneToMany(mappedBy: 'salle', targetEntity: Zone::class)]
+    #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $zones;
 
     /** @var Collection<int, Representation> */

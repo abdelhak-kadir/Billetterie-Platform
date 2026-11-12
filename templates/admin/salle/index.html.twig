@@ -14,8 +14,8 @@
         {% for salle in salles %}
             <a class="card stat" href="{{ path('admin_salle_show', {id: salle.id}) }}">
                 <span class="eyebrow">Salle culturelle</span><h2>{{ salle.nom }}</h2>
-                <strong>{{ salle.capacite }} <small>places</small></strong>
-                <span>{{ salle.zones|length }} zone(s) · Consulter le plan physique ↗</span>
+                <strong>{{ placeCounts[salle.id]|default(0) }} <small>places</small></strong>
+                <span>{{ zoneCounts[salle.id]|default(0) }} zone(s) · Consulter le plan physique ↗</span>
             </a>
         {% else %}<p class="empty">Aucune salle.</p>{% endfor %}
     </div>

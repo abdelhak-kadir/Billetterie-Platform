@@ -28,6 +28,7 @@ class Zone
 
     /** @var Collection<int, Place> */
     #[ORM\OneToMany(mappedBy: 'zone', targetEntity: Place::class)]
+    #[ORM\OrderBy(['rangee' => 'ASC', 'numero' => 'ASC'])]
     private Collection $places;
 
     public function __construct(Salle $salle, string $nom)
