@@ -90,7 +90,7 @@ abstract class DatabaseTestCase extends KernelTestCase
         }
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
 
-        foreach (['reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement'] as $table) {
+        foreach (['reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement', 'app_user'] as $table) {
             $connection->executeStatement(sprintf('TRUNCATE TABLE %s', $table));
         }
 

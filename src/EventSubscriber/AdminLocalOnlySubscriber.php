@@ -11,8 +11,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Le back-office n'a pas encore d'authentification (Niveau 3).
- * Il reste donc limité aux environnements de développement et de test.
+ * Symfony Security protège désormais /admin. Les anciennes routes de vente
+ * simulée restent, elles, limitées à dev/test.
  */
 final class AdminLocalOnlySubscriber implements EventSubscriberInterface
 {
@@ -41,8 +41,9 @@ final class AdminLocalOnlySubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($this->environment === 'prod') {
-            throw new NotFoundHttpException('Le back-office local n’est pas disponible en production sans authentification.');
+        if (!in_array($this->environment, ['dev', 'test'], true)
+            && preg_match('~/(reservation|simulation/(confirm|fail|cancel)|annulation)$~', $path)) {
+            throw new NotFoundHttpException('La simulation est désactivée dans cet environnement.');
         }
     }
 }

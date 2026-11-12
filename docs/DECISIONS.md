@@ -231,3 +231,24 @@ Précision D12 : pour cette simulation locale, l'annulation intégrale d'une com
 payée est acceptée sans délai ni frais, même après le début. Aucune place n'est
 remise en vente après le début ou sur une représentation annulée/terminée. Cette
 hypothèse ne constitue pas une politique commerciale pour le futur produit.
+
+## D14 — Niveau 3 : identité, propriété et tarifs (12 novembre 2026)
+
+- **Contexte :** les ventes historiques n'ont pas de compte ; D07 proposait une
+  matrice de droits sans critères commerciaux détaillés.
+- **Décision :** inscription publique client uniquement. Le client achète au
+  plein tarif et consulte ses commandes liées par clé étrangère, jamais par
+  simple égalité d'email. Le guichetier vend au plein, réduit et groupe ;
+  l'administrateur peut aussi émettre une invitation. Les catégories autorisées
+  sont revérifiées dans la transaction de réservation après verrou du tarif.
+- **Justification :** éviter l'appropriation d'un historique et les contournements
+  de prix par requête modifiée. Aucun âge, justificatif ni seuil de groupe n'est
+  ajouté : la vérification des conditions reste une responsabilité du personnel.
+- **Conséquences :** table de comptes et propriétaire nullable ajoutés par
+  migration additive. Les anciennes commandes restent sans propriétaire et
+  consultables par le personnel. Le personnel peut consulter une commande et
+  ses billets pour son travail ; les listes de gestion et indicateurs sont
+  réservés à l'administrateur. Les canaux sont déterminés par les contrôleurs.
+  Le garde local de l'administration cède la place à Symfony Security après
+  tests des rôles ; les paiements, ventes et remboursements simulés restent
+  réservés aux environnements `dev` et `test`. Pas d'intégration bancaire réelle.

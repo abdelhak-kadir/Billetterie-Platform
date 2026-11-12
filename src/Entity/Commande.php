@@ -22,6 +22,10 @@ class Commande
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    private ?User $owner = null;
+
     #[ORM\Column(length: 64)]
     private string $reference;
 
@@ -55,7 +59,7 @@ class Commande
     #[ORM\OneToMany(mappedBy: 'commande', targetEntity: ReservationItem::class)]
     private Collection $reservationItems;
 
-    public function __construct(string $reference, string $emailClient, CanalCommande $canal, ?\DateTimeImmutable $creeA = null)
+    public function __construct(string $reference, string $emailClient, CanalCommande $canal, ?\DateTimeImmutable $creeA = null, ?User $owner = null)
     {
         $reference = trim($reference);
         $emailClient = trim($emailClient);
@@ -71,6 +75,7 @@ class Commande
         $this->reference = $reference;
         $this->emailClient = $emailClient;
         $this->canal = $canal;
+        $this->owner = $owner;
         $this->statut = StatutCommande::EnAttente;
         $this->creeA = ($creeA ?? new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
             ->setTimezone(new \DateTimeZone('UTC'));
@@ -83,6 +88,8 @@ class Commande
     {
         return $this->id;
     }
+
+    public function getOwner(): ?User { return $this->owner; }
 
     public function getReference(): string
     {

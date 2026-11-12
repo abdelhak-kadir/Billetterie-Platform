@@ -8,6 +8,8 @@ use App\Clock\Clock;
 use App\Entity\{Billet, Commande, InventairePlace, Representation, ReservationItem, Tarif};
 use App\Enum\{CanalCommande, CategorieTarif, StatutBillet, StatutCommande, StatutInventairePlace, StatutRemboursement, StatutRepresentation};
 use App\Exception\SaleConflict;
+use App\Entity\User;
+use App\Security\TariffAccess;
 use Doctrine\DBAL\{ArrayParameterType, LockMode};
 use Doctrine\DBAL\Exception\{RetryableException, UniqueConstraintViolationException};
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +28,7 @@ final class TicketingService
     }
 
     /** @param list<array{inventaire: int, tarif: int}> $choices */
-    public function reserve(int $representationId, array $choices, string $email, CanalCommande $canal): Commande
+    public function reserve(int $representationId, array $choices, string $email, CanalCommande $canal, ?User $actor = null): Commande
     {
         if ($choices === [] || count($choices) > 400) {
             throw new SaleConflict('Choisissez entre une et 400 places.');
@@ -41,7 +43,7 @@ final class TicketingService
             $tariffIds[$choice['tarif']] = $choice['tarif'];
         }
 
-        return $this->transaction(function () use ($representationId, $choices, $email, $canal, $inventoryIds, $tariffIds): Commande {
+        return $this->transaction(function () use ($representationId, $choices, $email, $canal, $inventoryIds, $tariffIds, $actor): Commande {
             $representation = $this->lock(Representation::class, $representationId);
             $holders = $this->ids('SELECT DISTINCT commande_reservation_id FROM inventaire_place WHERE id IN (?) AND commande_reservation_id IS NOT NULL', $inventoryIds);
             $orders = $this->lockMany(Commande::class, $holders);
@@ -65,8 +67,11 @@ final class TicketingService
                     throw new SaleConflict('Une place choisie n’est plus disponible. Aucune place n’a été réservée.');
                 }
                 $this->assertTariff($tariffs[$choice['tarif']], $representationId);
+                if ($actor !== null && !in_array($tariffs[$choice['tarif']]->getCategorie(), TariffAccess::categories($actor), true)) {
+                    throw new SaleConflict('Ce tarif n’est pas autorisé pour votre rôle.');
+                }
             }
-            $order = new Commande('CMD-'.bin2hex(random_bytes(12)), $email, $canal, $now);
+            $order = new Commande('CMD-'.bin2hex(random_bytes(12)), $email, $canal, $now, $canal === CanalCommande::EnLigne ? $actor : null);
             $deadline = $now->modify('+'.$this->reservationTtlSeconds.' seconds');
             $order->definirEcheance($deadline);
             $this->em->persist($order);

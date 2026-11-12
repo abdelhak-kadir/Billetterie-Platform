@@ -63,7 +63,7 @@ final class SaleController extends AbstractController
             try {
                 $choices = [];
                 foreach ($data['inventaires'] as $inventory) { $choices[] = ['inventaire' => $inventory->getId(), 'tarif' => $data['tarif']->getId()]; }
-                $order = $sales->reserve($id, $choices, $data['email'], $data['canal']);
+                $order = $sales->reserve($id, $choices, $data['email'], CanalCommande::Guichet, $this->getUser());
                 $this->addFlash('success', 'Places réservées. Le paiement reste simulé, à confirmer avant l’échéance.');
                 return $this->redirectToRoute('admin_commande_show', ['id' => $order->getId()]);
             } catch (SaleConflict|\InvalidArgumentException $error) {

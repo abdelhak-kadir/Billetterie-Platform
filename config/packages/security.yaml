@@ -1,0 +1,41 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: auto
+    providers:
+        app_users:
+            entity:
+                class: App\Entity\User
+                property: email
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_GUICHETIER, ROLE_CLIENT]
+        ROLE_GUICHETIER: [ROLE_CLIENT]
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js|admin/(admin\.css|seat-map[^/]*\.(css|js)|media/|fonts/))
+            security: false
+        main:
+            lazy: true
+            provider: app_users
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                default_target_path: /compte
+            logout:
+                path: app_logout
+                target: /
+                enable_csrf: true
+    access_control:
+        - { path: ^/admin(?:/|$), roles: ROLE_ADMIN }
+        - { path: ^/guichet(?:/|$), roles: ROLE_GUICHETIER }
+        - { path: ^/compte(?:/|$), roles: ROLE_CLIENT }
+        - { path: ^/commandes(?:/|$), roles: ROLE_CLIENT }
+        - { path: ^/billets(?:/|$), roles: ROLE_CLIENT }
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

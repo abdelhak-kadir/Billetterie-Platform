@@ -22,12 +22,14 @@
                     <a href="{{ path('admin_inventaire_index') }}" {% if currentRoute starts with 'admin_inventaire_' %}aria-current="page"{% endif %}>Inventaire</a>
                     <a href="{{ path('admin_commande_index') }}" {% if currentRoute starts with 'admin_commande_' %}aria-current="page"{% endif %}>Commandes</a>
                     <a href="{{ path('admin_billet_index') }}" {% if currentRoute starts with 'admin_billet_' %}aria-current="page"{% endif %}>Billets</a>
+                    <a href="/compte">Mon compte</a>
+                    <a href="/guichet">Guichet</a>
                 </nav>
             </div>
         </header>
 
         <div class="notice">
-            <div class="container"><span><span class="local-dot" aria-hidden="true">●</span>Espace de gestion · Démonstration locale</span><span class="notice-detail">Accès local uniquement · Ne pas exposer publiquement</span></div>
+            <div class="container"><span><span class="local-dot" aria-hidden="true">●</span>Espace administrateur</span><span class="notice-detail">{{ app.user ? app.user.userIdentifier : '' }} · {{ demo_mode() ? 'Paiements et remboursements simulés' : 'Simulation désactivée' }}</span></div>
         </div>
 
         <main id="contenu" class="container" tabindex="-1">

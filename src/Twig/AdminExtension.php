@@ -6,9 +6,13 @@ namespace App\Twig;
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
+use App\Service\DemoMode;
 
 final class AdminExtension extends AbstractExtension
 {
+    public function __construct(private readonly DemoMode $demo) {}
+    public function getFunctions(): array { return [new TwigFunction('demo_mode', $this->demo->enabled(...))]; }
     private const DISPLAY_TIMEZONE = 'Africa/Casablanca';
 
     public function getFilters(): array

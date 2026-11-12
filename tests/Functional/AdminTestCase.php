@@ -13,6 +13,7 @@ use App\Entity\Representation;
 use App\Entity\Salle;
 use App\Entity\Tarif;
 use App\Entity\Zone;
+use App\Entity\User;
 use App\Enum\CanalCommande;
 use App\Enum\CategorieTarif;
 use App\Enum\TypeEvenement;
@@ -32,6 +33,7 @@ abstract class AdminTestCase extends WebTestCase
         $this->client = static::createClient();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->truncateTables();
+        $this->client->loginUser($this->createUser('admin@example.com', 'ROLE_ADMIN'));
     }
 
     protected function tearDown(): void
@@ -69,6 +71,14 @@ abstract class AdminTestCase extends WebTestCase
         $this->entityManager->flush();
 
         return $salle;
+    }
+
+    protected function createUser(string $email, string $role = 'ROLE_CLIENT'): User
+    {
+        $user = new User($email, $role);
+        $user->setPassword(static::getContainer()->get(\Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface::class)->hashPassword($user, 'HorizonDemo2026!'));
+        $this->entityManager->persist($user); $this->entityManager->flush();
+        return $user;
     }
 
     protected function createEvenement(string $titre = 'Concert de test'): Evenement
@@ -164,7 +174,7 @@ abstract class AdminTestCase extends WebTestCase
         }
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
 
-        foreach (['reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement'] as $table) {
+        foreach (['reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement', 'app_user'] as $table) {
             $connection->executeStatement(sprintf('TRUNCATE TABLE %s', $table));
         }
 

@@ -14,9 +14,9 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class AdminLocalOnlySubscriberTest extends TestCase
 {
-    public function testAdminIsBlockedInProduction(): void
+    public function testSimulationIsBlockedInProduction(): void
     {
-        $event = $this->requestEvent('/admin/evenements');
+        $event = $this->requestEvent('/admin/commandes/1/simulation/confirm');
         $subscriber = new AdminLocalOnlySubscriber('prod');
 
         $this->expectException(NotFoundHttpException::class);
@@ -39,6 +39,12 @@ final class AdminLocalOnlySubscriberTest extends TestCase
         $subscriber = new AdminLocalOnlySubscriber('prod');
         $subscriber->onKernelRequest($this->requestEvent('/'));
 
+        self::assertTrue(true);
+    }
+
+    public function testAuthenticatedAdminPagesAreDelegatedToSecurityInProduction(): void
+    {
+        (new AdminLocalOnlySubscriber('prod'))->onKernelRequest($this->requestEvent('/admin/evenements'));
         self::assertTrue(true);
     }
 
