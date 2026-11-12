@@ -1,6 +1,7 @@
 {% extends 'admin/base.html.twig' %}
 {% block title %}Accueil{% endblock %}
 {% block body %}
+    <p><a class="btn btn-primary" href="{{ path('admin_report') }}">Remplissage et recettes par tarif ↗</a></p>
     {% if featured %}
         <section class="hero" aria-labelledby="hero-title">
             <img class="hero-image" src="{{ event_art(featured) }}" alt="" fetchpriority="high" width="1536" height="1024">

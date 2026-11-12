@@ -1180,3 +1180,8 @@ input::placeholder,textarea::placeholder{
         scrollbar-width:thin
     }
 }
+
+.report-totals { margin:24px 0 32px; }
+.report-totals .stat strong { overflow-wrap:anywhere; }
+
+.report-section { margin:32px 0 16px; }

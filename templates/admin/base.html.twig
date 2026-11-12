@@ -22,7 +22,7 @@
                     <a href="{{ path('admin_inventaire_index') }}" {% if currentRoute starts with 'admin_inventaire_' %}aria-current="page"{% endif %}>Inventaire</a>
                     <a href="{{ path('admin_commande_index') }}" {% if currentRoute starts with 'admin_commande_' %}aria-current="page"{% endif %}>Commandes</a>
                     <a href="{{ path('admin_billet_index') }}" {% if currentRoute starts with 'admin_billet_' %}aria-current="page"{% endif %}>Billets</a>
-                    <a href="/compte">Mon compte</a>
+                    <a href="{{ path('admin_report') }}">Indicateurs</a><a href="/compte">Mon compte</a>
                     <a href="/guichet">Guichet</a>
                 </nav>
             </div>
