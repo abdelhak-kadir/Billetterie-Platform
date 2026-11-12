@@ -175,11 +175,17 @@ final class TarifController extends AbstractController
 
             if (! $refused && $form->isValid()) {
                 try {
-                    // Le verrou du tarif est toujours le dernier groupe du protocole S2.
+                    // Les représentations précèdent le tarif, dernier groupe du protocole S2.
                     // Une réservation créée pendant le remplissage du formulaire est revérifiée ici.
                     $db = $entityManager->getConnection();
                     $db->beginTransaction();
                     try {
+                        $showIds = array_unique([$tarif->getRepresentation()->getId(), $data->representation?->getId()]);
+                        sort($showIds, SORT_NUMERIC);
+                        foreach ($showIds as $showId) {
+                            $show = $entityManager->find(\App\Entity\Representation::class, $showId);
+                            $entityManager->refresh($show, LockMode::PESSIMISTIC_WRITE);
+                        }
                         $entityManager->refresh($tarif, LockMode::PESSIMISTIC_WRITE);
                         if ($data->representation?->getId() !== $tarif->getRepresentation()->getId()
                             && ($billets->countByTarif($tarif) > 0 || $entityManager->getRepository(ReservationItem::class)->count(['tarif' => $tarif]) > 0)) {
