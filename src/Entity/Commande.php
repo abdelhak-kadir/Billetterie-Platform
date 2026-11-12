@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CommandeRepository::class)]
 #[ORM\Table(name: 'commande')]
 #[ORM\UniqueConstraint(name: 'uniq_commande_reference', columns: ['reference'])]
+#[ORM\Index(name: 'idx_commande_expiration', columns: ['reservation_expire_a'])]
 class Commande
 {
     #[ORM\Id]
@@ -47,6 +48,13 @@ class Commande
     #[ORM\OneToMany(mappedBy: 'commandeReservation', targetEntity: InventairePlace::class)]
     private Collection $reservations;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $reservationExpireA = null;
+
+    /** @var Collection<int, ReservationItem> */
+    #[ORM\OneToMany(mappedBy: 'commande', targetEntity: ReservationItem::class)]
+    private Collection $reservationItems;
+
     public function __construct(string $reference, string $emailClient, CanalCommande $canal, ?\DateTimeImmutable $creeA = null)
     {
         $reference = trim($reference);
@@ -68,6 +76,7 @@ class Commande
             ->setTimezone(new \DateTimeZone('UTC'));
         $this->billets = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->reservationItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -115,6 +124,32 @@ class Commande
     public function getReservations(): Collection
     {
         return $this->reservations;
+    }
+
+    public function getReservationExpireA(): ?\DateTimeImmutable { return $this->reservationExpireA; }
+
+    /** @return Collection<int, ReservationItem> */
+    public function getReservationItems(): Collection { return $this->reservationItems; }
+
+    public function definirEcheance(\DateTimeImmutable $expireA): void
+    {
+        if ($this->statut !== StatutCommande::EnAttente || $this->reservationExpireA !== null || $expireA <= $this->creeA) {
+            throw new \LogicException('L’échéance doit être fixée une seule fois après la création.');
+        }
+        $this->reservationExpireA = $expireA->setTimezone(new \DateTimeZone('UTC'));
+    }
+
+    public function annulerApresVente(): void
+    {
+        if ($this->statut !== StatutCommande::Payee) {
+            throw new \LogicException('Seule une vente payée peut être annulée.');
+        }
+        foreach ($this->billets as $billet) {
+            if ($billet->getStatut() === \App\Enum\StatutBillet::Valide) {
+                throw new \LogicException('Tous les billets doivent être invalidés avant l’annulation de la vente.');
+            }
+        }
+        $this->statut = StatutCommande::Annulee;
     }
 
     public function marquerPayee(?\DateTimeImmutable $payeA = null): void

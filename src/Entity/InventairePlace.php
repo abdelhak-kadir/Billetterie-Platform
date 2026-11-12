@@ -112,6 +112,14 @@ class InventairePlace
         $this->reservationExpireA = null;
     }
 
+    public function remettreEnVente(): void
+    {
+        if ($this->statut !== StatutInventairePlace::Vendue) {
+            throw new \LogicException('Seule une place vendue peut être remise en vente.');
+        }
+        $this->statut = StatutInventairePlace::Disponible;
+    }
+
     public function bloquer(): void
     {
         $this->statut = StatutInventairePlace::Bloquee;

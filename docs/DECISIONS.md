@@ -169,3 +169,44 @@ Les propositions initiales du 10 novembre 2026 sont conservées dans l'historiqu
 Git. Leur état de session (outils indisponibles, squelette encore prévu) décrivait
 ce moment et ne constitue pas une décision métier actuelle. La présente version
 remplace ces indications devenues périmées sans réécrire les commits précédents.
+
+## D11 — S2-01 : réservation et prix acceptés (12 novembre 2026)
+
+- **Contexte :** le Niveau 2 exige une réservation temporaire ; les décisions D04
+  et D05 laissaient le prix durant l'attente et la durée à valider.
+- **Décision :** hypothèse retenue : 600 secondes configurables par
+  `RESERVATION_TTL_SECONDS`. Une commande nouvelle couvre une représentation,
+  plusieurs places, chacune avec un tarif actif cohérent. Le prix est fixé au
+  moment de réserver, conservé dans une ligne immuable `ReservationItem`, puis
+  copié dans chaque billet. Cette décision remplace la proposition D04 de
+  réactualisation du prix lors de la confirmation.
+- **Justification :** l'acheteur confirme exactement le montant accepté ; le
+  service peut vérifier l'ensemble des places sans résultat partiel.
+- **Conséquences :** migration additive pour les lignes et l'échéance ; horloge
+  injectable UTC. À `now >= échéance`, la commande est expirée et toutes ses
+  réservations encore détenues sont libérées. L'heure est lue après les verrous.
+  Un échec tardif ne modifie jamais une commande déjà payée. Une notification de
+  succès sur commande expirée ne délivre aucun billet.
+
+## D12 — S2 : transactions, annulations et simulation (12 novembre 2026)
+
+- **Contexte :** unicité SQL, historique et concurrence doivent se compléter.
+- **Décision :** verrouiller les représentations concernées, les commandes, les
+  inventaires puis les tarifs, par identifiants croissants dans chaque groupe.
+  Toutes les opérations de vente utilisent le même service transactionnel.
+  Les lignes sont relues sous verrou ; l'index de billet valide reste conservé.
+  Une réservation expirée peut être récupérée avant le passage du nettoyage.
+- **Justification :** éviter double attribution et verrouillages incohérents ;
+  garder le nettoyage et les notifications rejouables.
+- **Conséquences :** une annulation en attente libère ses seules places. Une
+  vente annulée invalide les billets, rembourse intégralement le prix payé de
+  chaque billet positif, ne rembourse rien pour une invitation et conserve
+  l'historique. Une place annulée redevient disponible seulement si sa
+  représentation est encore programmée et non commencée, sinon elle est bloquée.
+  Annuler une représentation bloque tout son inventaire, annule les commandes
+  en attente concernées et rembourse ses billets vendus ; les billets d'autres
+  représentations d'une commande historique restent valides. Une commande payée
+  n'est annulée que lorsque tous ses billets le sont. Les remboursements sont
+  simulés et enregistrés sur les billets dans la même transaction, sans appel
+  réseau : un rejeu n'ajoute aucun montant. Pas de frais, seuil commercial,
+  remboursement partiel d'un billet, compte ou paiement externe ajouté.
