@@ -79,6 +79,8 @@ final class TicketingTest extends TicketingTestCase
         $this->entityManager->find(Tarif::class, $this->tariff)->changerPrix(12000);
         $this->entityManager->flush();
         $this->sales->confirm($id);
+        $this->entityManager->find(Tarif::class, $this->tariff)->changerPrix(15000);
+        $this->entityManager->flush();
         $this->sales->cancel($id); $this->sales->cancel($id); $this->sales->confirm($id);
         $this->entityManager->clear();
         $tickets = $this->entityManager->getRepository(Billet::class)->findAll();
@@ -88,6 +90,7 @@ final class TicketingTest extends TicketingTestCase
         self::assertSame(StatutRemboursement::Rembourse, $tickets[0]->getStatutRemboursement());
         self::assertSame(StatutCommande::Annulee, $tickets[0]->getCommande()->getStatut());
         $newId = $this->reserve()->getId(); $this->sales->confirm($newId);
+        $this->sales->cancel($id); // Une ancienne annulation ne libère jamais la nouvelle vente.
         self::assertSame(2, $this->entityManager->getRepository(Billet::class)->count([]));
         self::assertSame(1, $this->entityManager->getRepository(Billet::class)->count(['statut' => StatutBillet::Valide]));
     }
@@ -113,6 +116,14 @@ final class TicketingTest extends TicketingTestCase
         $this->sales->confirm($id); $this->clock->advance('+1 second');
         self::assertFalse($this->sales->expire($id));
         self::assertSame(StatutInventairePlace::Vendue, $this->entityManager->find(InventairePlace::class, $this->inventories[0])->getStatut());
+    }
+
+    public function testCancellationAtDeadlineKeepsTheExpiredState(): void
+    {
+        $id = $this->reserve()->getId();
+        $this->clock->advance('+600 seconds');
+        $this->sales->cancel($id);
+        self::assertSame(StatutCommande::Expiree, $this->entityManager->find(Commande::class, $id)->getStatut());
     }
 
     public function testCleanupCommandExpiresWholeOrdersAndCanBeReplayed(): void

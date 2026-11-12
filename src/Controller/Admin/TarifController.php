@@ -9,6 +9,8 @@ use App\Entity\Tarif;
 use App\Enum\CategorieTarif;
 use App\Form\Model\TarifFormData;
 use App\Form\Type\TarifType;
+use App\Entity\ReservationItem;
+use Doctrine\DBAL\LockMode;
 use App\Repository\BilletRepository;
 use App\Repository\RepresentationRepository;
 use App\Repository\TarifRepository;
@@ -143,7 +145,7 @@ final class TarifController extends AbstractController
     ): Response {
         $tarif = $tarifs->find($id) ?? throw $this->createNotFoundException('Tarif introuvable.');
         $usedCount = $billets->countByTarif($tarif);
-        $representationLocked = $usedCount > 0;
+        $representationLocked = $usedCount > 0 || $entityManager->getRepository(ReservationItem::class)->count(['tarif' => $tarif]) > 0;
         $data = TarifFormData::fromEntity($tarif);
 
         $form = $this->createForm(TarifType::class, $data, ['representation_locked' => $representationLocked]);
@@ -173,13 +175,28 @@ final class TarifController extends AbstractController
 
             if (! $refused && $form->isValid()) {
                 try {
-                    $tarif->modifier(
-                        $data->representation ?? throw new \LogicException('Représentation manquante.'),
-                        $data->libelle ?? '',
-                        $data->categorie ?? throw new \LogicException('Catégorie manquante.'),
-                        $data->prixCentimes ?? throw new \LogicException('Prix manquant.'),
-                    );
-                    $entityManager->flush();
+                    // Le verrou du tarif est toujours le dernier groupe du protocole S2.
+                    // Une réservation créée pendant le remplissage du formulaire est revérifiée ici.
+                    $db = $entityManager->getConnection();
+                    $db->beginTransaction();
+                    try {
+                        $entityManager->refresh($tarif, LockMode::PESSIMISTIC_WRITE);
+                        if ($data->representation?->getId() !== $tarif->getRepresentation()->getId()
+                            && ($billets->countByTarif($tarif) > 0 || $entityManager->getRepository(ReservationItem::class)->count(['tarif' => $tarif]) > 0)) {
+                            throw new \InvalidArgumentException('Un tarif déjà utilisé ne peut pas être réaffecté à une autre représentation.');
+                        }
+                        $tarif->modifier(
+                            $data->representation ?? throw new \LogicException('Représentation manquante.'),
+                            $data->libelle ?? '',
+                            $data->categorie ?? throw new \LogicException('Catégorie manquante.'),
+                            $data->prixCentimes ?? throw new \LogicException('Prix manquant.'),
+                        );
+                        $entityManager->flush();
+                        $db->commit();
+                    } catch (\Throwable $error) {
+                        if ($db->isTransactionActive()) { $db->rollBack(); }
+                        throw $error;
+                    }
 
                     $this->addFlash('success', 'Le tarif a été modifié. Les billets déjà émis conservent leur prix payé.');
 

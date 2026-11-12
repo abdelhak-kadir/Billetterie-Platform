@@ -20,6 +20,30 @@
         </dl>
     </div>
 
+    <section class="card" style="margin-bottom:24px" aria-label="Simulation de vente">
+        <h2>Simulation locale</h2>
+        <p class="muted">Aucun mouvement bancaire réel. Remboursement simulé total : <strong>{{ refundTotal|mad }}</strong>.</p>
+        {% if commande.reservationExpireA %}<p>Échéance exclusive : <strong>{{ commande.reservationExpireA|date('d/m/Y H:i:s', 'Africa/Casablanca') }}</strong> (Africa/Casablanca).</p>{% endif %}
+        <div class="actions">
+            {% if commande.statut.value == 'en_attente' %}
+                {% for action, label in {confirm: 'Simuler un paiement réussi', fail: 'Simuler un paiement échoué', cancel: 'Annuler la réservation'} %}
+                    <form method="post" action="{{ path('admin_sale_transition', {id: commande.id, action: action}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('sale-' ~ action ~ '-' ~ commande.id) }}">
+                        <button class="btn {{ action == 'confirm' ? 'btn-primary' : 'btn-secondary' }}" type="submit">{{ label }}</button>
+                    </form>
+                {% endfor %}
+            {% elseif commande.statut.value == 'payee' %}
+                <form method="post" action="{{ path('admin_sale_transition', {id: commande.id, action: 'cancel'}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('sale-cancel-' ~ commande.id) }}">
+                    <button class="btn btn-danger" type="submit">Annuler et rembourser (simulation)</button>
+                </form>
+            {% else %}<p>Commande terminée : aucun nouveau débit ou remboursement n’est effectué.</p>{% endif %}
+        </div>
+        {% if reservationItems|length %}
+            <h3>Places et prix acceptés à la réservation</h3>
+            <ul>{% for item in reservationItems %}<li>{{ item.inventairePlace.place.libelle }} · {{ item.tarif.libelle }} · {{ item.prixCentimes|mad }}</li>{% endfor %}</ul>
+        {% endif %}
+    </section>
     <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
         <table>
             <thead>

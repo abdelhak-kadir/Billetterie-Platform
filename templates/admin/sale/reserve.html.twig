@@ -1,0 +1,15 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Réserver des places{% endblock %}
+{% block body %}
+    <div class="page-head"><div><p class="eyebrow">Simulation locale · Sprint 2</p><h1>Réserver des places</h1><p>{{ representation.evenement.titre }} · {{ representation.debut|casablanca_date }}</p></div><a class="btn btn-secondary" href="{{ path('admin_representation_show', {id: representation.id}) }}">Annuler</a></div>
+    <div class="card form-card">
+        <p class="muted">Aucun paiement réel. Le prix accepté est fixé à la réservation ; l’échéance exacte sera affichée sur la commande.</p>
+        {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {% for field in [form.email, form.canal, form.inventaires, form.tarif] %}
+            <div class="field">{{ form_label(field) }}{{ form_widget(field) }}{{ form_help(field) }}{{ form_errors(field) }}</div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Réserver les places</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

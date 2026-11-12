@@ -72,6 +72,8 @@ final class CommandeController extends AbstractController
         return $this->render('admin/commande/show.html.twig', [
             'commande' => $commande,
             'billets' => $billets->findByCommandeWithDetails($commande),
+            'reservationItems' => $commande->getReservationItems(),
+            'refundTotal' => array_sum(array_map(static fn ($b) => $b->getMontantRembourseCentimes(), $billets->findByCommandeWithDetails($commande))),
         ]);
     }
 }

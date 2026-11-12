@@ -101,6 +101,9 @@ final class TicketingService
             foreach ($representations as $representation) {
                 $this->assertSaleOpen($representation, $now);
             }
+            if (count(array_filter($inventories, fn ($i) => $this->ownedBy($i, $order))) !== count($items)) {
+                throw new SaleConflict('L’ensemble des places réservées ne correspond pas à cette commande.');
+            }
             foreach ($items as $item) {
                 $inventory = $inventories[$item->getInventairePlace()->getId()];
                 if (!$this->ownedBy($inventory, $order) || $inventory->getReservationExpireA() <= $now) {
@@ -166,8 +169,10 @@ final class TicketingService
             [$order, $inventories, $representations] = $this->lockOrderContext($orderId);
             $now = $this->now();
             if ($order->getStatut() === StatutCommande::EnAttente) {
-                $this->releaseOwned($order, $inventories);
-                $order->annuler();
+                if (!$this->expireLocked($order, $inventories, $now)) {
+                    $this->releaseOwned($order, $inventories);
+                    $order->annuler();
+                }
             } elseif ($order->getStatut() === StatutCommande::Payee) {
                 $this->cancelTickets($order, $inventories, $representations, $now);
             }
@@ -193,8 +198,10 @@ final class TicketingService
             $representation->annuler();
             foreach ($orders as $order) {
                 if ($order->getStatut() === StatutCommande::EnAttente) {
-                    $this->releaseOwned($order, $inventories);
-                    $order->annuler();
+                    if (!$this->expireLocked($order, $inventories, $now)) {
+                        $this->releaseOwned($order, $inventories);
+                        $order->annuler();
+                    }
                 } elseif ($order->getStatut() === StatutCommande::Payee) {
                     $this->cancelTickets($order, $inventories, [$representationId => $representation], $now, $representationId);
                 }
