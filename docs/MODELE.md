@@ -37,7 +37,7 @@ obligatoires sauf mention « nullable ». Les noms sont conceptuels, avant mappi
 | Place | Identité physique stable : `zone_id`, `rangee`, `numero` positif. Ne porte aucun état de vente. Le libellé public inclut zone, rangée et numéro. |
 | Evenement | Décrit le programme : `titre`, `description`, `type` (concert, théâtre, conférence). |
 | Representation | Occurrence datée d'un événement dans une salle : `evenement_id`, `salle_id`, `debut`, `statut` (programmée, annulée, terminée). |
-| InventairePlace | Disponibilité d'une place pour une représentation : `representation_id`, `place_id`, `statut` (disponible, réservée, vendue, bloquée), `commande_reservation_id` nullable, `reservation_expire_a` nullable. « Bloquée » signifie représentation annulée. |
+| InventairePlace | Disponibilité d'une place pour une représentation : `representation_id`, `place_id`, `statut` (disponible, réservée, vendue, bloquée), `commande_reservation_id` nullable, `reservation_expire_a` nullable. « Bloquée » empêche une nouvelle vente : représentation annulée ou place annulée après fermeture des ventes. |
 | Tarif | Offre de prix pour une représentation : `representation_id`, `libelle`, `categorie` (plein, réduit, groupe, invitation), `prix_centimes` entier non négatif, `actif` booléen. Plusieurs offres d'une même catégorie sont possibles. |
 | Commande | Regroupe une opération d'achat : `reference`, `email_client`, `canal` (en ligne, guichet), `statut` (en attente, payée, échouée, expirée, annulée), `cree_a`, `paye_a` nullable. Son état de remboursement est calculé depuis ses billets, séparément du paiement. |
 | Billet | Trace immuable d'une place attribuée après achat confirmé : `reference`, `commande_id`, `inventaire_place_id`, `tarif_id`, `prix_paye_centimes` entier non négatif, `statut` (valide, annulé), `emis_a`, `annule_a` nullable ; `statut_remboursement` (sans objet, à rembourser, remboursé), `montant_rembourse_centimes` entier non négatif, `rembourse_a` nullable. |
@@ -189,3 +189,30 @@ actualisation du prix durant la réservation, critères du réduit/groupe, habil
 aux invitations, conditions et délais des remboursements volontaires, intégration
 du paiement et besoin éventuel de remboursements partiels par billet. Les propositions
 retenues pour avancer sont consignées dans DECISIONS.md ; aucune n'est implémentée ici.
+
+## Extension implémentée au Sprint 2 — 12 novembre 2026
+
+Les décisions D11–D13 et [SPRINT2.md](SPRINT2.md) précisent maintenant les cibles
+Niveau 2 de ce document. La durée retenue est de 600 secondes configurables et
+le prix est fixé lors de la réservation, remplaçant l'hypothèse D04 initiale.
+
+`Commande.reservationExpireA` (nullable pour les ventes S1 historiques) conserve
+l'échéance. `ReservationItem` conserve chaque ligne acceptée : clé primaire `id`,
+`commande_id`, `inventaire_place_id`, `tarif_id`, `prix_centimes` non négatif.
+Ces liens obligatoires ont des clés étrangères RESTRICT ; unicité
+`(commande_id, inventaire_place_id)`. Le service contrôle représentation, salle,
+tarif actif et prix d'invitation. Les lignes ne sont ni effacées ni réaffectées
+après expiration ou annulation. Les prix actuels des tarifs n'en changent pas le contenu.
+
+```mermaid
+erDiagram
+    COMMANDE ||--o{ RESERVATION_ITEM : accepte
+    INVENTAIRE_PLACE ||--o{ RESERVATION_ITEM : historique_des_demandes
+    TARIF ||--o{ RESERVATION_ITEM : offre_acceptee
+```
+
+Une commande S1 peut n'avoir aucune ligne acceptée ; une nouvelle réservation
+S2 en possède au moins une et concerne exactement une représentation. Les
+billets restent émis seulement lors de la confirmation payée et conservent
+leurs liens directs vers commande, inventaire et tarif. Leur unicité conditionnelle
+et l'historique des anciennes ventes ne sont pas modifiés par cette extension.

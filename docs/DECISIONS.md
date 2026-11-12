@@ -210,3 +210,24 @@ remplace ces indications devenues périmées sans réécrire les commits précé
   simulés et enregistrés sur les billets dans la même transaction, sans appel
   réseau : un rejeu n'ajoute aucun montant. Pas de frais, seuil commercial,
   remboursement partiel d'un billet, compte ou paiement externe ajouté.
+
+## D13 — S2 : intégration au back-office et héritage (12 novembre 2026)
+
+- **Contexte :** le Sprint 1 contient déjà des ventes fictives et des formulaires
+  protégés. Les nouveaux achats doivent garder les mêmes invariants.
+- **Décision :** conserver les ventes existantes sans rétrocréer de lignes de
+  réservation. Les nouvelles commandes sont mono-représentation, les commandes
+  historiques multi-représentations gardent l'annulation partielle par événement.
+  Les actions locales sont POST + CSRF sous `/admin`, toujours bloqué en production.
+- **Justification :** démontrer le cycle métier sans ajouter de paiement public,
+  rôle ou compte ; éviter de réécrire l'historique et les données S1-05.
+- **Conséquences :** le formulaire local applique un tarif aux places sélectionnées,
+  le service accepte un tarif par ligne. Un tarif référencé par une ligne acceptée
+  devient non réaffectable, avec relecture sous verrou à la modification. La
+  suite Demo Fixtures reste séparée. Les migrations sont additives ; les tests
+  refusent de vider une base autre que les bases de tests dédiées.
+
+Précision D12 : pour cette simulation locale, l'annulation intégrale d'une commande
+payée est acceptée sans délai ni frais, même après le début. Aucune place n'est
+remise en vente après le début ou sur une représentation annulée/terminée. Cette
+hypothèse ne constitue pas une politique commerciale pour le futur produit.

@@ -10,7 +10,8 @@ was found; the requested S1 scopes are recorded below.
 | S1-04 entities and migrations | Implemented | Nine Doctrine entities with SQL constraints and a generated conditional unique index; one migration applied to the development and isolated test databases; 13 MySQL integration tests passing. |
 | S1-05 demo data | Implemented and verified in Docker | Dedicated MySQL database, standard fixture loads, deterministic reload test. S1-05 tests pass in the standard suite; isolated `Demo Fixtures` suite (1 test, 16 175 assertions) passes. |
 | S1-06 basic back-office | Implemented and verified in Docker | French Symfony/Twig admin at `/admin`, read-only physical plan, events, representations, tariffs, inventory, orders and tickets. Standard suite 28 tests / 130 assertions; Demo Fixtures 1 test / 16 175 assertions; Chrome desktop and mobile check. `/admin` returns 404 in `prod` until authentication exists. |
-| S1–S2 remaining business scope | Not implemented | Payment flow, Level 2 reservation/refund workflows, authentication/roles (Niveau 3) and QR codes remain. |
+| Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
+| Niveau 3 remaining scope | Not implemented | Authentication/roles, public purchase journey and QR codes remain. |
 
 ## S1-02 verification
 
@@ -143,3 +144,54 @@ scrollables. Aucun chargement ni purge de base utilisateur.
 
 Voir [DESIGN.md](DESIGN.md) pour les captures avant/après, les contrastes, les
 sources des assets, la correction MIME du serveur PHP et les limites du contrôle.
+
+
+## Sprint 2 — Niveau 2 (12 novembre 2026)
+
+Branche `sprint-2-regles-metier` créée depuis `origin/sprint-1-modeliser` à
+`6b62a5e` après fetch. Aucun reset, rebase, squash ou force-push. Le changement
+préexistant de `config/reference.php` est conservé à l'identique et exclu des commits.
+
+| Tâche | Statut | Preuve |
+| --- | --- | --- |
+| S2-01 — Règles | Implémenté et documenté | D11–D13, SPRINT2.md, 600 secondes configurables, horloge injectable UTC à la seconde, prix accepté figé |
+| S2-02 — Réservation | Vérifié | Transaction mono-représentation multi-places, ordre de verrous déterministe, contrôle serveur et rollback de toute la demande en cas de conflit |
+| S2-03 — Vente | Vérifié | Émission/commande/inventaire atomiques, confirmation rejouée sans nouveau billet, échec tardif sans effet sur une vente payée |
+| S2-04 — Expiration | Vérifié | `app:reservations:expire`, récupération sans cron, échéance exclusive, nettoyage rejouable, protection du nouveau propriétaire |
+| S2-05 — Annulation/remboursement | Vérifié | Prix payé conservé, remboursement simulé unique, invitation à zéro, revente, blocage après début/annulation, cas historique multi-représentations |
+| S2-06 — Parcours local | Vérifié | Formulaire Horizon, paiement réussi/échoué, annulation, montants remboursés ; tests fonctionnels de parcours et refus CSRF |
+| S2-07 — Validation | Vérifié | MySQL 8 / PHP 8.3.36, migration additive sur base isolée, deux processus concurrents réellement bloqués, validations Docker et fixtures séparées |
+
+Résultats réellement observés :
+
+- Base effective `billetterie_s2_test` lue avant migration et avant purges ; la
+  migration `Version20261112010000` est additive (lignes acceptées + échéance).
+- Composer strict, conteneur Symfony, 23 templates Twig et schéma Doctrine : OK.
+- Suite standard dans Docker : **49 tests, 255 assertions**, aucun échec,
+  d'abord sur `billetterie_s2_test`, puis avec la commande standard sur
+  `billetterie_test` après sa migration. Les gardes des tests refusent toute
+  autre base avant de vider des tables.
+- `ConcurrencyTest` : **2 tests, 29 assertions**. Les deux workers sont observés
+  dans `SHOW FULL PROCESSLIST` en `FOR UPDATE` avant la libération de la
+  barrière. Course A1/R1 : une seule commande obtient la réservation ; une
+  seule vente et un seul billet sont ensuite confirmés en base. R2 reste
+  disponible. Course expiration/confirmation à l'échéance : commande expirée,
+  zéro billet, aucune place vendue.
+- Suite `Demo Fixtures` relancée séparément, avec le wrapper S1-05 et sa base
+  `billetterie_s105_verify_test` confirmée : **1 test, 16 175 assertions**, OK.
+  Les quantités et relations des fixtures sont conservées.
+- Base locale utilisateur `billetterie` identifiée avant migration : migration
+  additive appliquée, schéma validé. Aucune purge ou réécriture des ventes de
+  cette base ; aucun rechargement de fixtures dans cette base.
+
+Le premier essai groupé de préparation a été refusé par la revue automatique,
+qui n'avait pas établi le suffixe `_test`. Les étapes ont été séparées et
+`SELECT DATABASE()` a ensuite confirmé la base autorisée avant la migration.
+Ce blocage est résolu ; aucun succès de migration n'a été annoncé sur la seule
+base de la commande refusée.
+
+Les erreurs 403/404/405 affichées pendant PHPUnit correspondent aux tests des
+protections attendues ; la suite se termine sans échec. La simulation ne
+contacte aucun prestataire bancaire. Les comptes, rôles, QR codes et parcours
+public du Niveau 3 ne sont pas réalisés. Aucun Dockerfile ni migration Sprint 1
+n'a été modifié. Voir README.md et SPRINT2.md pour les commandes et limites.

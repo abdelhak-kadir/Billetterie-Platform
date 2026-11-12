@@ -155,7 +155,9 @@ en `APP_ENV=prod`, les routes `/admin` renvoient **404** tant que
 l’authentification et les rôles du Niveau 3 ne sont pas implémentés. Il ne faut
 pas exposer ce back-office publiquement.
 
-### Fonctionnalités
+### Fonctionnalités au terme du Sprint 1
+
+Les nouvelles actions de vente simulée du Sprint 2 sont décrites plus bas.
 
 - **Salles** : liste et détail en consultation seule, avec zones, rangées,
   numéros et pagination des places. Le plan physique n’est pas modifiable.
@@ -214,3 +216,90 @@ sont décrits dans [docs/DESIGN.md](docs/DESIGN.md).
 Les visuels des trois événements S1-05 sont associés à leurs titres dans
 `EventPresentationExtension` ; un visuel de secours est prévu pour tout nouveau
 programme. Aucun service d'image externe n'est appelé à l'affichage.
+
+## Sprint 2 — Réservations, ventes et remboursements simulés
+
+Branche : `sprint-2-regles-metier`, issue du Sprint 1 distant `6b62a5e`.
+Les règles et transitions sont détaillées dans [docs/SPRINT2.md](docs/SPRINT2.md)
+et les décisions D11–D13 de [docs/DECISIONS.md](docs/DECISIONS.md).
+
+Une réservation couvre plusieurs places d'une seule représentation, pour
+**600 secondes configurables** via `RESERVATION_TTL_SECONDS`. Elle expire dès
+`now >= échéance` (secondes UTC). Les prix acceptés sont figés à la réservation,
+conservés sur les lignes et copiés dans les billets ; annulation et remboursement
+utilisent le prix réellement payé, jamais le prix courant du catalogue.
+
+Après installation des dépendances existantes, appliquer la nouvelle migration
+additive (aucune purge ni rechargement des fixtures nécessaire) :
+
+```sh
+docker compose exec app php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
+# Vérifier que la connexion est bien celle que vous souhaitez faire évoluer.
+docker compose exec app php bin/console doctrine:migrations:migrate --no-interaction
+```
+
+### Démonstration locale
+
+1. Ouvrir `/admin/representations`, puis une représentation programmée et future.
+2. Choisir **Réserver (simulation)**, saisir `client@example.com`, sélectionner
+   plusieurs places et un tarif. La disponibilité est revérifiée sous verrou :
+   une seule place indisponible fait échouer toute la demande.
+3. La commande affiche ses places, les prix acceptés et son échéance exacte.
+   **Simuler un paiement réussi** émet les billets et vend les places atomiquement.
+   Un rejeu conserve les billets déjà émis. **Simuler un paiement échoué** libère
+   uniquement les places encore détenues par cette commande.
+4. **Annuler la réservation** libère ses places. Après paiement, **Annuler et
+   rembourser (simulation)** conserve les billets annulés et affiche le montant
+   remboursé. Une invitation à zéro ne crée aucun remboursement ; les appels
+   répétés n'ajoutent pas de montant. Une place ne revient à la vente que si la
+   représentation est encore programmée et non commencée.
+5. Depuis le détail d'une représentation, ouvrir **Annulation de la représentation**
+   pour invalider ses billets, simuler les remboursements et bloquer ses places.
+   Les autres représentations d'une commande historique restent indépendantes.
+
+Aucun paiement ou remboursement réel, compte client ou QR code n'est ajouté.
+Les actions restent protégées par CSRF et validation serveur, avec `/admin`
+inaccessible en production. La modification d'un tarif après réservation ou
+vente ne change pas le prix accepté ni le prix payé. Un tarif déjà référencé
+par une réservation ou un billet ne peut plus changer de représentation.
+
+### Nettoyer les réservations expirées
+
+```sh
+docker compose exec app php bin/console app:reservations:expire
+```
+
+Planifier cette commande régulièrement (par exemple chaque minute) sur la base
+appropriée. Elle est rejouable et ne touche pas aux commandes payées. Même sans
+ce nettoyage, une nouvelle réservation peut récupérer une place expirée. Une
+notification de succès arrivée à l'échéance ou après ne crée aucun billet.
+
+### Vérifications isolées du Sprint 2
+
+Pour ne jamais purger la base utilisateur, préparer `billetterie_s2_test`,
+puis employer ce wrapper. Doctrine ajoute `_test` à l'URL en environnement test :
+
+```sh
+docker compose exec -T database sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot -e "CREATE DATABASE IF NOT EXISTS billetterie_s2_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON billetterie_s2_test.* TO '\''billetterie'\''@'\''%'\'';"'
+s2() {
+  docker compose exec -T -e APP_ENV=test \
+    -e 'DATABASE_URL=mysql://billetterie:billetterie@database:3306/billetterie_s2?serverVersion=8.0&charset=utf8mb4' \
+    app "$@"
+}
+s2 php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
+# Poursuivre uniquement si le résultat est billetterie_s2_test.
+s2 php bin/console doctrine:migrations:migrate --no-interaction
+s2 composer validate --strict
+s2 php bin/console lint:container
+s2 php bin/console lint:twig templates
+s2 php bin/console doctrine:schema:validate
+s2 php bin/phpunit
+s2 php bin/phpunit --filter ConcurrencyTest
+```
+
+Les bases de tests sont jetables : la suite standard vide uniquement
+`billetterie_test` ou `billetterie_s2_test`, avec garde avant toute purge.
+La suite `Demo Fixtures` reste exclue par défaut ; pour la relancer, utiliser
+le wrapper `s105` documenté ci-dessus après avoir appliqué les migrations sur
+sa base dédiée. Le changement de modèle ne demande pas de modifier ses données.
+Ne pas utiliser `--append` pour corriger un problème de chargement.
