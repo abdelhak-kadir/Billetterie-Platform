@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 /** Ligne immuable : conserve l'offre acceptée même après expiration ou annulation. */
 #[ORM\Entity]
 #[ORM\Table(name: 'reservation_item')]
+#[ORM\Index(name: 'IDX_RES_ORDER', columns: ['commande_id'])]
+#[ORM\Index(name: 'IDX_RES_INVENTORY', columns: ['inventaire_place_id'])]
+#[ORM\Index(name: 'IDX_RES_TARIFF', columns: ['tarif_id'])]
 #[ORM\UniqueConstraint(name: 'uniq_reservation_order_inventory', columns: ['commande_id', 'inventaire_place_id'])]
 class ReservationItem
 {
@@ -28,7 +31,12 @@ class ReservationItem
         #[ORM\Column]
         private int $prixCentimes,
     ) {
-        if ($prixCentimes < 0 || $inventairePlace->getRepresentation()->getId() !== $tarif->getRepresentation()->getId()) {
+        $inventoryShow = $inventairePlace->getRepresentation();
+        $tariffShow = $tarif->getRepresentation();
+        $sameShow = $inventoryShow->getId() !== null && $tariffShow->getId() !== null
+            ? $inventoryShow->getId() === $tariffShow->getId()
+            : $inventoryShow === $tariffShow;
+        if ($prixCentimes < 0 || !$sameShow) {
             throw new \InvalidArgumentException('Ligne de réservation incohérente.');
         }
     }

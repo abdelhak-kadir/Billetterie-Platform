@@ -85,9 +85,12 @@ abstract class DatabaseTestCase extends KernelTestCase
     private function truncateTables(): void
     {
         $connection = $this->entityManager->getConnection();
+        if (!in_array($connection->fetchOne('SELECT DATABASE()'), ['billetterie_test', 'billetterie_s2_test'], true)) {
+            throw new \RuntimeException('Refus de vider une base non dédiée aux tests.');
+        }
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
 
-        foreach (['billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement'] as $table) {
+        foreach (['reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement'] as $table) {
             $connection->executeStatement(sprintf('TRUNCATE TABLE %s', $table));
         }
 
