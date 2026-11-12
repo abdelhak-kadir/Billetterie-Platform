@@ -49,6 +49,7 @@
         <div class="h-selection-heading"><div><p class="h-eyebrow">Votre sélection locale</p><h3><span data-selected-count>{{ selected|length }}</span> <span>Sélectionnées</span></h3></div><button type="button" class="h-text-button" data-clear-selection {{ selected is empty ? 'disabled' : '' }}>Vider la sélection</button></div>
         <p class="h-selection-empty" data-selection-empty>Aucune place sélectionnée. Activez le mode Sélectionner pour commencer.</p>
         <ul data-selection-list class="h-selection-list"></ul>
+        {% block selection_extra %}{% endblock %}
         <p class="h-map-help">Aucune place n’est réservée avant confirmation du serveur. La disponibilité sera revérifiée lors de la réservation.</p>
         <button class="h-continue" data-seatmap-continue type="button" {{ selected is empty ? 'hidden' : '' }}>Continuer vers la réservation <span aria-hidden="true">→</span></button>
     </div>
