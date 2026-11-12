@@ -251,8 +251,8 @@ final class AdminTest extends AdminTestCase
         ]);
         $crawler = $this->client->request('GET', '/admin/inventaire?'.$query);
         self::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('.seat-map'));
-        self::assertGreaterThan(0, $crawler->filter('.seat-map .seat')->count());
+        self::assertCount(1, $crawler->filter('.h-seatmap'));
+        self::assertGreaterThan(0, $crawler->filter('.h-seatmap .h-seat')->count());
         self::assertCount(1, $crawler->filter('table tbody tr'));
         self::assertStringContainsString('Vendue', $crawler->filter('table tbody tr')->text());
 
@@ -264,8 +264,8 @@ final class AdminTest extends AdminTestCase
         ]);
         $crawler = $this->client->request('GET', '/admin/inventaire?'.$query);
         self::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('.seat-map'));
-        self::assertGreaterThan(0, $crawler->filter('.seat-map .seat')->count());
+        self::assertCount(1, $crawler->filter('.h-seatmap'));
+        self::assertGreaterThan(0, $crawler->filter('.h-seatmap .h-seat')->count());
         self::assertCount(1, $crawler->filter('table tbody tr'));
         self::assertStringContainsString('Disponible', $crawler->filter('table tbody tr')->text());
     }

@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Administration{% endblock %} — Billetterie</title>
         <link rel="stylesheet" href="/admin/admin.css">
+        {% block stylesheets %}{% endblock %}
     </head>
     <body>
         <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -42,5 +43,6 @@
         <footer class="container footer">
             <div class="footer-inner"><strong>HORIZON / SALLE CULTURELLE</strong><span>Africa/Casablanca · MAD · Plan physique en consultation seule</span></div>
         </footer>
+        {% block javascripts %}{% endblock %}
     </body>
 </html>

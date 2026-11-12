@@ -17,7 +17,7 @@
             <p class="hero-meta">{{ representation.debut|casablanca_date }} · {{ representation.salle.nom }}</p>
             <span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span>
             <div class="actions">
-                <a class="btn btn-primary" href="{{ path('admin_inventaire_index', {representation: representation.id}) }}">Voir l’inventaire ↗</a>
+                <a class="btn btn-primary" href="{{ path('admin_representation_plan', {id: representation.id}) }}">Plan de salle et sélection ↗</a><a class="btn btn-secondary" href="{{ path('admin_inventaire_index', {representation: representation.id}) }}">Vue tableau</a>
                 {% if representation.statut.value == 'programmee' %}<a class="btn btn-secondary" href="{{ path('admin_sale_reserve', {id: representation.id}) }}">Réserver (simulation)</a>{% endif %}
                 <a class="btn btn-secondary" href="#tarifs">Tarifs</a>
                 <a class="btn btn-secondary" href="{{ path('admin_representation_edit', {id: representation.id}) }}">Modifier</a>

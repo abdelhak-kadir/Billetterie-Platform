@@ -217,6 +217,27 @@ Les visuels des trois événements S1-05 sont associés à leurs titres dans
 `EventPresentationExtension` ; un visuel de secours est prévu pour tout nouveau
 programme. Aucun service d'image externe n'est appelé à l'affichage.
 
+## Sprint 3 — Plan de salle admin
+
+Depuis une fiche événement ou la liste des représentations, ouvrir la séance
+pour accéder à son **Plan de salle**. Le détail et l'inventaire en tableau restent
+accessibles depuis le panneau de résumé. Activer **Sélectionner**, choisir des
+places libres puis **Continuer vers la réservation** : le formulaire du Sprint 2
+reçoit les sièges choisis et revalide la réservation au moment du POST protégé
+par CSRF. Une sélection sur le plan reste locale jusqu'à ce POST.
+
+Le panneau **Dates et représentations** propose les séances réelles du même
+événement et demande confirmation avant d'effacer une sélection. Le plan
+schématique contient les 400 places de démonstration, Parterre et Balcon, avec
+défilement contenu et navigation par flèches. Sur les fixtures existantes,
+Parterre / A / 1 est vendue sur le concert du 1 décembre 2026 (R1), libre sur
+celui du 2 décembre (R2). Choisir **Concert Horizon** dans le catalogue puis ces
+deux dates permet de retrouver ce scénario, sans dépendre des identifiants SQL.
+
+Voir [le contrat du composant partagé, les limites et les captures](docs/SEAT_MAP.md).
+Cette première étape du Sprint 3 concerne l'admin local ; les parcours client,
+guichetier et leurs autorisations restent à réaliser.
+
 ## Sprint 2 — Réservations, ventes et remboursements simulés
 
 Branche : `sprint-2-regles-metier`, issue du Sprint 1 distant `6b62a5e`.

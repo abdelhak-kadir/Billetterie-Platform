@@ -1,0 +1,56 @@
+{# Contrat : instanceId unique, seatMap, selectable, initialMode, selected. Aucune route ni écriture ici. #}
+<section class="h-seatmap" data-seatmap data-mode="{{ selectable ? initialMode : 'inspect' }}" data-selectable="{{ selectable ? 'true' : 'false' }}" aria-labelledby="{{ instanceId }}-title">
+    <div class="h-map-heading">
+        <div><p class="h-eyebrow">Choisissez votre point de vue</p><h2 id="{{ instanceId }}-title">Plan de salle</h2><p><strong>{{ seatMap.available }}</strong> places libres sur {{ seatMap.total }} · plan schématique</p></div>
+        <fieldset class="h-modes"><legend>Mode d’utilisation</legend>
+            <label><input type="radio" name="{{ instanceId }}-mode" value="inspect" {{ not selectable or initialMode == 'inspect' ? 'checked' : '' }}> Inspecter</label>
+            {% if selectable %}<label><input type="radio" name="{{ instanceId }}-mode" value="select" {{ initialMode == 'select' ? 'checked' : '' }}> Sélectionner</label>{% endif %}
+        </fieldset>
+    </div>
+    <p class="h-map-help" id="{{ instanceId }}-help">Flèches : siège ou rangée voisine. Début/Fin : extrémités de la rangée. Entrée ou Espace : inspecter ou sélectionner. La sélection reste locale.</p>
+    <div class="h-legend" aria-label="Légende des sièges">
+        {% for state, label in {disponible: 'Libre', selected: 'Sélectionné', reservee: 'Réservé', vendue: 'Vendu', bloquee: 'Bloqué'} %}
+            <span><span class="h-legend-seat h-state-{{ state }}" aria-hidden="true">{{ state == 'selected' ? '✓' : (state == 'reservee' ? '◷' : (state == 'vendue' ? '×' : (state == 'bloquee' ? '−' : ''))) }}</span>{{ label }}</span>
+        {% endfor %}
+    </div>
+    {% set firstSeatId = (seatMap.seats|first).id|default(null) %}
+    <div class="h-map-viewport" tabindex="0" role="region" aria-label="Plan schématique défilant" aria-describedby="{{ instanceId }}-help">
+        <div class="h-stage"><span>SCÈNE</span><small>Orientation indicative</small></div>
+        {% for zone in seatMap.zones %}
+            <section class="h-zone" aria-labelledby="{{ instanceId }}-zone-{{ zone.id }}">
+                <div class="h-zone-title"><h3 id="{{ instanceId }}-zone-{{ zone.id }}">{{ zone.name }}</h3><span>{{ zone.total }} places · {{ zone.available }} libres</span></div>
+                <div class="h-seat-rows">
+                    <div class="h-row h-column-numbers" style="--columns:{{ zone.numbers|length }}" aria-hidden="true"><span></span>{% for number in zone.numbers %}<span>{{ number }}</span>{% endfor %}<span></span></div>
+                    {% for rowName, seats in zone.rows %}
+                        <div class="h-row" data-seat-row style="--columns:{{ zone.numbers|length }}" role="group" aria-label="{{ zone.name }}, rangée {{ rowName }}">
+                            <span class="h-row-label" aria-hidden="true">{{ rowName }}</span>
+                            {% for number in zone.numbers %}
+                                {% set seatInColumn = false %}
+                                {% for seat in seats %}{% if seat.number == number %}
+                                    {% set seatInColumn = true %}
+                                    {% set isSelected = seat.id in selected %}
+                                    <button class="h-seat h-state-{{ seat.status }} {{ isSelected ? 'h-is-selected' : '' }}" type="button" data-seat-id="{{ seat.id }}" data-status="{{ seat.status }}" data-label="{{ seat.label }}" data-status-label="{{ seat.statusLabel }}" data-number="{{ seat.number }}" data-initial-selected="{{ isSelected ? 'true' : 'false' }}" aria-label="{{ seat.label }}, {{ isSelected ? 'sélectionné' : seat.statusLabel }}" aria-pressed="{{ isSelected ? 'true' : 'false' }}" tabindex="{{ seat.id == firstSeatId ? '0' : '-1' }}" title="{{ seat.label }}, {{ seat.statusLabel }}">
+                                        <svg viewBox="0 0 32 34" aria-hidden="true"><path class="h-chair-back" d="M8 3h16a3 3 0 0 1 3 3v14H5V6a3 3 0 0 1 3-3Z"/><path d="M3 15h3v10h20V15h3v13H3Z"/><path d="M7 28h3v4H7zm15 0h3v4h-3z"/></svg>
+                                        <span class="h-seat-symbol" aria-hidden="true">{{ isSelected ? '✓' : (seat.status == 'reservee' ? '◷' : (seat.status == 'vendue' ? '×' : (seat.status == 'bloquee' ? '−' : ''))) }}</span>
+                                        <span class="h-seat-number" aria-hidden="true">{{ seat.number }}</span>
+                                    </button>
+                                {% endif %}{% endfor %}
+                                {% if not seatInColumn %}<span aria-hidden="true"></span>{% endif %}
+                            {% endfor %}
+                            <span class="h-row-label" aria-hidden="true">{{ rowName }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}<p class="h-empty">Aucun siège inventorié pour cette représentation.</p>{% endfor %}
+    </div>
+    <div class="h-inspection" data-inspection role="status">Choisissez un siège pour afficher sa zone, sa rangée, son numéro et son état.</div>
+    <div class="h-selection" {{ not selectable ? 'hidden' : '' }} id="{{ instanceId }}-selection" aria-label="Récapitulatif de la sélection">
+        <div class="h-selection-heading"><div><p class="h-eyebrow">Votre sélection locale</p><h3><span data-selected-count>{{ selected|length }}</span> <span>Sélectionnées</span></h3></div><button type="button" class="h-text-button" data-clear-selection {{ selected is empty ? 'disabled' : '' }}>Vider la sélection</button></div>
+        <p class="h-selection-empty" data-selection-empty>Aucune place sélectionnée. Activez le mode Sélectionner pour commencer.</p>
+        <ul data-selection-list class="h-selection-list"></ul>
+        <p class="h-map-help">Aucune place n’est réservée avant confirmation du serveur. La disponibilité sera revérifiée lors de la réservation.</p>
+        <button class="h-continue" data-seatmap-continue type="button" {{ selected is empty ? 'hidden' : '' }}>Continuer vers la réservation <span aria-hidden="true">→</span></button>
+    </div>
+    <noscript><p class="h-no-js">JavaScript est nécessaire pour la sélection sur le plan. L’écran de réservation accessible depuis le détail de la représentation conserve sa liste de sièges sans JavaScript.</p></noscript>
+</section>

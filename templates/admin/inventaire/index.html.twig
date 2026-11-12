@@ -2,6 +2,9 @@
 
 {% block title %}Inventaire{% endblock %}
 
+{% block stylesheets %}<link rel="stylesheet" href="/admin/seat-map.css">{% endblock %}
+{% block javascripts %}<script type="module" src="/admin/seat-map-admin.js"></script>{% endblock %}
+
 {% block body %}
     <div class="page-head">
         <div>
@@ -48,49 +51,10 @@
     </form>
 
     {% if selectedRepresentation %}
-        <section class="seat-map" aria-labelledby="seat-map-title">
-            <div class="seat-map-head">
-                <div>
-                    <p class="eyebrow">Plan de salle</p>
-                    <h2 id="seat-map-title">{{ selectedRepresentation.evenement.titre }}</h2>
-                    <p class="muted">{{ selectedRepresentation.debut|casablanca_date }} · {{ selectedRepresentation.salle.nom }} · {{ mapZones|length }} zone(s){% if zoneId %} · zone filtrée{% endif %}</p>
-                </div>
-                <a class="btn btn-secondary" href="{{ path('admin_representation_show', {id: selectedRepresentation.id}) }}">Détail de la représentation ↗</a>
-            </div>
-            <div class="seat-stage" aria-hidden="true">SCÈNE</div>
-            <div class="seat-legend" aria-label="Légende du plan">
-                <span><i class="seat-key key-disponible" aria-hidden="true"></i>Disponible</span>
-                <span><i class="seat-key key-vendue" aria-hidden="true"></i>Vendue</span>
-                <span><i class="seat-key key-reservee" aria-hidden="true"></i>Réservée</span>
-                <span><i class="seat-key key-bloquee" aria-hidden="true"></i>Bloquée</span>
-            </div>
-            {% if mapZones %}
-                <div class="seat-map-scroll">
-                    {% for zoneData in mapZones %}
-                        <section class="seat-zone zone-{{ loop.index }}">
-                            <h3>
-                                <span class="zone-dot" aria-hidden="true"></span>{{ zoneData.zone.nom }}
-                                <small>{{ zoneData.total }} places · {{ zoneData.counts.disponible|default(0) }} disponibles · {{ zoneData.counts.vendue|default(0) }} vendues</small>
-                            </h3>
-                            <svg class="seat-plan" viewBox="0 0 {{ 32 + zoneData.maxSeat * 16 }} {{ zoneData.rowCount * 18 + 18 }}" role="img" aria-label="Plan de la zone {{ zoneData.zone.nom }}">
-                                {% for rangee, row in zoneData.rows %}
-                                    {% set rowIndex = loop.index0 %}
-                                    <text class="seat-row-label" x="8" y="{{ rowIndex * 18 + 18 }}">{{ rangee }}</text>
-                                    {% for numero, inventaire in row %}
-                                        <circle class="seat seat-{{ inventaire.statut.value }}" cx="{{ 24 + (numero - 1) * 16 }}" cy="{{ rowIndex * 18 + 18 }}" r="5.5">
-                                            <title>{{ zoneData.zone.nom }} · rangée {{ rangee }} · place {{ numero }} · {{ inventaire.statut.label }}</title>
-                                        </circle>
-                                    {% endfor %}
-                                {% endfor %}
-                            </svg>
-                        </section>
-                    {% endfor %}
-                </div>
-                <p class="help">Plan complet de la représentation, tous statuts confondus. Survolez une place — ou consultez la liste ci-dessous — pour afficher sa référence et son état. Le tableau reste filtrable et paginé.</p>
-            {% else %}
-                <p class="empty">Aucune place pour cette représentation avec les filtres actuels.</p>
-            {% endif %}
-        </section>
+        <div class="actions" style="margin-bottom:24px"><a class="btn btn-primary" href="{{ path('admin_representation_plan', {id: selectedRepresentation.id}) }}">Ouvrir le plan et sélectionner des sièges ↗</a></div>
+        <div class="h-map-embedded">
+            {% include 'components/seat_map/_map.html.twig' with {instanceId: 'inventory-inspection', seatMap: seatMap, selectable: false, initialMode: 'inspect', selected: []} only %}
+        </div>
     {% elseif representationId > 0 %}
         <p class="empty">Représentation introuvable. Réinitialisez les filtres pour afficher l’inventaire.</p>
     {% else %}

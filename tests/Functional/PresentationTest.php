@@ -19,7 +19,7 @@ final class PresentationTest extends AdminTestCase
         self::assertCount(2, $crawler->filter('.date-nav a'));
         self::assertCount(1, $crawler->filter('.date-nav a[aria-current="date"]'));
         self::assertStringContainsString('2099-12-02', $crawler->filter('.date-nav a[aria-current="date"]')->attr('href'));
-        self::assertSame('/admin/representations/'.$r2->getId(), $crawler->filter('.session')->attr('href'));
+        self::assertSame('/admin/representations/'.$r2->getId().'/plan', $crawler->filter('.session')->attr('href'));
         self::assertCount(1, $crawler->filter('.session'));
         self::assertStringContainsString('2 places disponibles', $crawler->filter('.session')->text());
 

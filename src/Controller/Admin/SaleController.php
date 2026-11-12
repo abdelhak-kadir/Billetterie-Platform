@@ -7,13 +7,15 @@ namespace App\Controller\Admin;
 use App\Entity\{InventairePlace, Representation, Tarif};
 use App\Enum\CanalCommande;
 use App\Exception\SaleConflict;
-use App\Repository\{CommandeRepository, RepresentationRepository};
+use App\Presentation\SeatMapView;
+use App\Repository\{CommandeRepository, InventairePlaceRepository, RepresentationRepository};
 use App\Service\TicketingService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\{EmailType, EnumType};
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -21,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class SaleController extends AbstractController
 {
     #[Route('/representations/{id}/reservation', name: 'reserve', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function reserve(int $id, Request $request, RepresentationRepository $representations, TicketingService $sales): Response
+    public function reserve(int $id, Request $request, RepresentationRepository $representations, TicketingService $sales, SeatMapView $seatMapView, InventairePlaceRepository $inventories): Response
     {
         $representation = $representations->find($id) ?? throw $this->createNotFoundException();
         $form = $this->createFormBuilder(null, ['csrf_message' => 'Le jeton de sécurité est invalide.'])
@@ -41,6 +43,20 @@ final class SaleController extends AbstractController
                 'query_builder' => static fn ($r) => $r->createQueryBuilder('t')->andWhere('t.representation = :r AND t.actif = true')->setParameter('r', $representation)->orderBy('t.id', 'ASC'),
                 'constraints' => [new Assert\NotNull()],
             ])->getForm();
+        $fromPlan = $request->query->getBoolean('from_plan');
+        if ($request->isMethod('GET')) {
+            try { $requested = SeatMapView::parseSelection($request->query->all('seats')); }
+            catch (\InvalidArgumentException $error) { throw new BadRequestHttpException($error->getMessage(), $error); }
+            if ($requested !== []) {
+                $map = $seatMapView->build($representation);
+                $available = SeatMapView::availableSelection($requested, $map);
+                if ($fromPlan && count($available) !== count($requested)) {
+                    $this->addFlash('error', 'La disponibilité a changé. Aucun siège n’a été réservé ; le plan est actualisé.');
+                    return $this->redirectToRoute('admin_representation_plan', ['id' => $id, 'mode' => 'select', 'seats' => $requested]);
+                }
+                $form->get('inventaires')->setData($available === [] ? [] : $inventories->findBy(['id' => $available, 'representation' => $representation]));
+            }
+        }
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -51,6 +67,10 @@ final class SaleController extends AbstractController
                 $this->addFlash('success', 'Places réservées. Le paiement reste simulé, à confirmer avant l’échéance.');
                 return $this->redirectToRoute('admin_commande_show', ['id' => $order->getId()]);
             } catch (SaleConflict|\InvalidArgumentException $error) {
+                if ($fromPlan && $error instanceof SaleConflict) {
+                    $this->addFlash('error', $error->getMessage().' Le plan a été actualisé, revoyez votre sélection.');
+                    return $this->redirectToRoute('admin_representation_plan', ['id' => $id, 'mode' => 'select', 'seats' => array_column($choices, 'inventaire')]);
+                }
                 $form->addError(new FormError($error->getMessage()));
             }
         }

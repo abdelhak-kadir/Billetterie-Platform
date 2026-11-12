@@ -1,4 +1,4 @@
-# Sprint status — 11 November 2026
+# Sprint status — 12 November 2026
 
 This status is based on repository evidence. No existing S1–S2 task checklist
 was found; the requested S1 scopes are recorded below.
@@ -11,6 +11,7 @@ was found; the requested S1 scopes are recorded below.
 | S1-05 demo data | Implemented and verified in Docker | Dedicated MySQL database, standard fixture loads, deterministic reload test. S1-05 tests pass in the standard suite; isolated `Demo Fixtures` suite (1 test, 16 175 assertions) passes. |
 | S1-06 basic back-office | Implemented and verified in Docker | French Symfony/Twig admin at `/admin`, read-only physical plan, events, representations, tariffs, inventory, orders and tickets. Standard suite 28 tests / 130 assertions; Demo Fixtures 1 test / 16 175 assertions; Chrome desktop and mobile check. `/admin` returns 404 in `prod` until authentication exists. |
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
+| Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
 | Niveau 3 remaining scope | Not implemented | Authentication/roles, public purchase journey and QR codes remain. |
 
 ## S1-02 verification
@@ -195,3 +196,40 @@ protections attendues ; la suite se termine sans échec. La simulation ne
 contacte aucun prestataire bancaire. Les comptes, rôles, QR codes et parcours
 public du Niveau 3 ne sont pas réalisés. Aucun Dockerfile ni migration Sprint 1
 n'a été modifié. Voir README.md et SPRINT2.md pour les commandes et limites.
+
+## Sprint 3 — Première étape produit admin (12 novembre 2026)
+
+Branche `sprint-3-produit` créée depuis `origin/sprint-2-regles-metier` à
+`8e62b5e`, après fetch et vérification. Aucun historique réinitialisé. Le diff
+préexistant de `config/reference.php` reste inchangé et exclu du commit.
+
+Livré : écran de représentation avec résumé sombre et plan clair, 400 fauteuils
+schématiques regroupés par zone, cinq états avec symboles, inspection et
+sélection locale, récapitulatif et retrait multiple, panneau des vraies dates
+avec confirmation avant abandon de sélection. Les liens événement/programmation
+ouvrent directement le plan ; détail, tableau, filtres et pagination restent
+disponibles. Le composant Twig/JS commun sert aussi l'inspection de l'inventaire.
+
+La sélection rejoint le formulaire de réservation simulée du Sprint 2. Le POST
+CSRF et `TicketingService` gardent la validation sous verrou et l'atomicité.
+Un conflit renvoie au plan actualisé, conserve les seules places libres et
+n'effectue aucune réservation partielle. Aucune règle commerciale, entité,
+migration, fixture, dépendance ou configuration Docker n'est modifiée.
+
+Résultats vérifiés :
+
+- Docker PHP 8.3.36 : Composer strict, conteneur, 25 templates Twig et schéma OK.
+- `billetterie_test` confirmée avant la suite : **55 tests, 296 assertions**, OK,
+  dont six tests du plan et les tests métier/concurrence/CSRF existants.
+- Chrome 1440 × 1000 et 390 × 844, sur les fixtures existantes de la base dédiée
+  `billetterie_s105_verify_test` : A1 vendue sur R1, libre et sélectionnable sur
+  R2 ; multi-sélection, retrait, vidage, changement de date confirmé/annulé et
+  préremplissage du formulaire vérifiés. Aucun POST de vente sur ces fixtures.
+- Flèches, Début/Fin, Entrée, retour du focus après Échap et gestes tactiles
+  d'ajout/retrait contrôlés. Cibles mobiles 44 × 46 px ; pas de débordement global.
+- Captures inspectées et documentation de réutilisation : [SEAT_MAP.md](SEAT_MAP.md).
+
+La suite isolée Demo Fixtures n'a pas été relancée pour cette étape ; elle est
+inchangée. Aucune base utilisateur ni base de démonstration n'a été purgée.
+Cette étape ne clôt pas tout le Sprint 3 : comptes, rôles, parcours client et
+guichetier dédiés, QR codes et paiement externe restent hors de ce livrable.

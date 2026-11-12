@@ -1,7 +1,7 @@
 <div class="schedule-list">
     {% for representation in representations %}
         {% set availability = inventoryCounts[representation.id]|default({}) %}
-        <a class="schedule-row" href="{{ path('admin_representation_show', {id: representation.id}) }}">
+        <a class="schedule-row" href="{{ path('admin_representation_plan', {id: representation.id}) }}">
             <span class="schedule-date">{{ representation.debut|date('d', 'Africa/Casablanca') }}<small>{{ representation.debut|date('m / Y', 'Africa/Casablanca') }}</small></span>
             <span class="schedule-title"><strong>{{ representation.evenement.titre }}</strong><small>{{ representation.evenement.type.label }} · {{ representation.salle.nom }}</small></span>
             <span class="schedule-time">{{ representation.debut|date('H:i', 'Africa/Casablanca') }}<small>Africa/Casablanca</small></span>
