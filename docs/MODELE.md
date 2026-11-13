@@ -4,6 +4,13 @@ Version du 11 novembre 2026. Conception documentaire : aucune entité, migration
 fixture ou interface métier n'est créée par S1-03. Les mécanismes ci-dessous
 restent à implémenter et à tester.
 
+Évolution au Niveau 3 (12 novembre) : ce texte garde le cadrage S1-03.
+`ReservationItem` implémenté au Sprint 2 conserve chaque prix accepté.
+`User` ajouté au Sprint 3 porte email unique, hash du mot de passe et rôle ;
+une commande possède zéro ou un propriétaire, un compte zéro à plusieurs
+commandes. La liaison nullable protège les ventes historiques non attribuées.
+Voir [NIVEAU3.md](NIVEAU3.md) pour le modèle et les permissions effectivement livrés.
+
 ## Sources et périmètre
 
 Sources originales lues : `sujet-1-billetterie.md` et `00-demarche.md`, disponibles
@@ -81,6 +88,10 @@ erDiagram
     COMMANDE ||--o{ BILLET : conserve
     INVENTAIRE_PLACE ||--o{ BILLET : historique
     TARIF ||--o{ BILLET : applique
+    USER o|--o{ COMMANDE : possede
+    COMMANDE ||--o{ RESERVATION_ITEM : accepte
+    INVENTAIRE_PLACE ||--o{ RESERVATION_ITEM : concerne
+    TARIF ||--o{ RESERVATION_ITEM : prix_accepte
 ```
 
 ## Contraintes SQL prévues

@@ -2,7 +2,8 @@
 
 12 novembre 2026. Première étape du Sprint 3, sur `sprint-3-produit`, créée
 depuis le Sprint 2 vérifié à `8e62b5e`. Cette livraison concerne le back-office
-local ; les parcours client et guichetier restent à construire.
+local. Ce document conserve les résultats de ce premier jalon ; les parcours
+client et guichetier ont ensuite été ajoutés : voir [NIVEAU3.md](NIVEAU3.md).
 
 ## Parcours livré
 
@@ -34,8 +35,9 @@ originaux. Aucun asset Pathé n'a été ajouté.
   Fermer ou presser Échap conserve la séance active et la sélection. Changer
   de séance avec une sélection demande confirmation, puis charge un nouveau plan.
 - **Continuer vers la réservation** : ouvre le formulaire du Sprint 2 avec les
-  inventaires présélectionnés. L'email fictif, le canal et le tarif sont encore
-  choisis dans ce formulaire avant sa soumission protégée par CSRF.
+  inventaires présélectionnés. L'email fictif et le tarif sont encore choisis
+  dans ce formulaire avant sa soumission protégée par CSRF ; depuis le Niveau 3,
+  le canal de cette simulation admin est imposé à guichet par le serveur.
 
 La sélection ne vit que dans le composant de la page ; elle n'est pas conservée
 dans un cookie, une session de réservation ou un stockage navigateur. Recharger
@@ -65,9 +67,10 @@ réservation partielle n'est créée. Les erreurs CSRF et de formulaire conserve
 leur traitement Symfony. Une séance annulée, terminée ou déjà commencée reste
 consultable en inspection seulement.
 
-Les protections locales de `/admin`, notamment le refus en production tant que
-l'authentification n'existe pas, sont inchangées. Aucun rôle, paiement externe,
-QR code, migration ou changement de fixtures n'est ajouté.
+Ce premier jalon conservait le garde local de `/admin` et n'ajoutait ni rôle,
+paiement externe, QR, migration ou changement de fixtures. Le Niveau 3 a depuis
+remplacé ce garde global par les rôles Symfony Security ; seules les actions
+simulées restent réservées à dev/test. Voir [NIVEAU3.md](NIVEAU3.md).
 
 ## Contrat du composant partagé
 
@@ -103,7 +106,10 @@ parcours public, avec ses propres autorisations, tarif et validation serveur.
 Pour le futur **guichetier**, fournir la projection et un adaptateur vers son
 écran de vente autorisé. Le canal devra être fixé ou contrôlé côté serveur selon
 ses droits. Ne pas réutiliser les routes locales admin comme accès public.
-Ces deux adaptateurs et leurs autorisations ne sont pas implémentés ici.
+Ces deux adaptateurs n'étaient pas implémentés dans ce premier jalon. Ils le
+sont désormais via `public/store/seat-plan.js` et les contrôleurs Store,
+avec la même projection et le même composant. Le dialogue de dates a été
+extrait dans `seat-map-dates.js` pour éviter une duplication des interactions.
 
 ## Accessibilité et contrôles visuels
 

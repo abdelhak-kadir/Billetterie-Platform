@@ -1,0 +1,150 @@
+{
+  "browser": [
+    {
+      "page": "catalogue",
+      "label": "desktop",
+      "width": 1440,
+      "docWidth": 1440
+    },
+    {
+      "page": "event",
+      "label": "desktop",
+      "width": 1440,
+      "docWidth": 1440
+    },
+    {
+      "page": "checkout",
+      "label": "desktop",
+      "width": 1440,
+      "docWidth": 1440
+    },
+    {
+      "page": "counter",
+      "label": "desktop",
+      "width": 1440,
+      "docWidth": 1440
+    },
+    {
+      "page": "admin-plan",
+      "label": "desktop",
+      "width": 1440,
+      "docWidth": 1440
+    },
+    {
+      "page": "reports",
+      "label": "desktop",
+      "width": 1440,
+      "docWidth": 1440
+    },
+    {
+      "page": "purchase-scenario",
+      "label": "desktop",
+      "passed": true,
+      "customerSeats": [
+        "Parterre, rangée A, place 12",
+        "Parterre, rangée A, place 13"
+      ]
+    },
+    {
+      "page": "catalogue",
+      "label": "mobile",
+      "width": 390,
+      "docWidth": 390
+    },
+    {
+      "page": "event",
+      "label": "mobile",
+      "width": 390,
+      "docWidth": 390
+    },
+    {
+      "page": "checkout",
+      "label": "mobile",
+      "width": 390,
+      "docWidth": 390
+    },
+    {
+      "page": "counter",
+      "label": "mobile",
+      "width": 390,
+      "docWidth": 390
+    },
+    {
+      "page": "admin-plan",
+      "label": "mobile",
+      "width": 390,
+      "docWidth": 390
+    },
+    {
+      "page": "reports",
+      "label": "mobile",
+      "width": 390,
+      "docWidth": 390
+    },
+    {
+      "page": "purchase-scenario",
+      "label": "mobile",
+      "passed": true,
+      "customerSeats": [
+        "Parterre, rangée A, place 14",
+        "Parterre, rangée A, place 15"
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "kind": "counter",
+      "label": "desktop",
+      "physicalSeats": 400,
+      "localSelected": 387,
+      "keyboard": true,
+      "touch": false,
+      "dates": true,
+      "overflow": false
+    },
+    {
+      "kind": "admin",
+      "label": "desktop",
+      "physicalSeats": 400,
+      "localSelected": 387,
+      "keyboard": true,
+      "touch": false,
+      "dates": true,
+      "overflow": false
+    },
+    {
+      "kind": "counter",
+      "label": "mobile",
+      "physicalSeats": 400,
+      "localSelected": 387,
+      "keyboard": true,
+      "touch": true,
+      "dates": true,
+      "overflow": false
+    },
+    {
+      "kind": "admin",
+      "label": "mobile",
+      "physicalSeats": 400,
+      "localSelected": 387,
+      "keyboard": true,
+      "touch": true,
+      "dates": true,
+      "overflow": false
+    }
+  ],
+  "pdf": [
+    {
+      "viewport": "desktop",
+      "pages": 1,
+      "qr_decoded": true,
+      "personal_data": false
+    },
+    {
+      "viewport": "mobile",
+      "pages": 1,
+      "qr_decoded": true,
+      "personal_data": false
+    }
+  ]
+}

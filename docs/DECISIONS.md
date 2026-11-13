@@ -252,3 +252,40 @@ hypothèse ne constitue pas une politique commerciale pour le futur produit.
   Le garde local de l'administration cède la place à Symfony Security après
   tests des rôles ; les paiements, ventes et remboursements simulés restent
   réservés aux environnements `dev` et `test`. Pas d'intégration bancaire réelle.
+
+## D15 — Billet PDF et QR signé (12 novembre 2026)
+
+- **Contexte :** le Niveau 3 demande un billet téléchargeable avec QR, sans
+  définir de politique de contrôle d'entrée.
+- **Décision :** PDF A5 paysage généré à la demande après paiement confirmé,
+  accessible au propriétaire ou au personnel. QR contenant une référence opaque
+  et un HMAC SHA-256, sans email ni détail de commande. Le lien du QR conduit
+  à un contrôle authentifié réservé au personnel, avec relecture de l'état.
+- **Justification :** un fichier déjà téléchargé ne peut pas être rappelé ;
+  c'est l'état courant du billet qui décide de sa validité.
+- **Conséquences :** billet annulé conservé en HTML mais téléchargement refusé
+  par 410 ; une ancienne copie reste invalide. Le QR n'accorde aucun droit de
+  téléchargement et ne marque pas une entrée. Pas de contrôle d'usage unique ou
+  de scanner caméra ajouté. Une rotation d'`APP_SECRET` invalide les anciennes
+  signatures ; le propriétaire peut générer un nouveau PDF si son billet est
+  toujours valide. La clé réelle reste hors Git. Dompdf ne charge aucune ressource
+  réseau ; SVG du QR généré localement, HTML échappé, PDF privé sans cache.
+
+## D16 — Indicateurs et filtres (12 novembre 2026)
+
+- **Contexte :** le remplissage et les recettes ne doivent pas confondre stock
+  courant, historique de revente et remboursements.
+- **Décision :** capacité = inventaires distincts de chaque représentation/zone,
+  y compris bloqués/réservés ; vendues = inventaires vendus avec billet valide.
+  Pourcentage = vendues / capacité. Brut = somme des prix payés des billets
+  émis par commandes ayant été payées ; remboursé = montants effectivement
+  enregistrés sur ces billets ; net = brut moins remboursé.
+- **Justification :** l'historique peut contenir plusieurs billets d'une même
+  place ; un changement de prix courant ne change pas les recettes passées.
+- **Conséquences :** invitations comptées dans le remplissage pour zéro recette.
+  Annulations conservées dans le brut ; remboursements déduits du net. Une
+  représentation annulée garde sa capacité et son historique financier, avec
+  zéro place vendue courante. Le filtre canal restreint les ventes et recettes,
+  sans réduire la capacité ; le filtre zone restreint aussi le dénominateur.
+  Les libellés de tarifs affichés sont les libellés actuels, les montants sont
+  historiques. Aucun regroupement par date de mouvement comptable n'est ajouté.

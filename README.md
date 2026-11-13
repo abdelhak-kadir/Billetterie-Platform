@@ -1,5 +1,9 @@
 # Billetterie-Platform
 
+Horizon : billetterie Symfony 7.4 / PHP 8.3 / MySQL 8. Le Niveau 3 ajoute
+comptes, achat client, vente au guichet, billets PDF avec QR signé et indicateurs.
+Voir [le guide et les preuves du Niveau 3](docs/NIVEAU3.md).
+
 ## Setup
 
 Requirements: Docker Engine with Compose v2 and permission to access the Docker daemon.
@@ -36,7 +40,7 @@ The development container runs PHP 8.3 with PDO MySQL, Intl, Zip and OPcache.
    docker compose exec app php bin/console doctrine:migrations:status
    ```
 
-The nine business entities and the S1-04 migration are available. Apply migrations with `docker compose exec app php bin/console doctrine:migrations:migrate --no-interaction`.
+The ticketing model and additive migrations, including account ownership, are available. Apply migrations with `docker compose exec app php bin/console doctrine:migrations:migrate --no-interaction`.
 
 The credentials in `.env.example` are for local development. Keep `MYSQL_DATABASE`,
 `MYSQL_USER`, `MYSQL_PASSWORD` and `DATABASE_URL` consistent when changing them;
@@ -150,10 +154,10 @@ pour laisser le jeu de démonstration en place.
 Le back-office est accessible à **http://localhost:8080/admin** avec
 `docker compose up -d`.
 
-Il est volontairement limité aux environnements de développement et de test :
-en `APP_ENV=prod`, les routes `/admin` renvoient **404** tant que
-l’authentification et les rôles du Niveau 3 ne sont pas implémentés. Il ne faut
-pas exposer ce back-office publiquement.
+Depuis le Niveau 3, Symfony Security exige le rôle administrateur sur `/admin`.
+Le garde local historique ne bloque plus les pages de gestion en production ;
+les actions de paiement, vente et remboursement simulés restent interdites hors
+des environnements `dev` et `test`.
 
 ### Fonctionnalités au terme du Sprint 1
 
@@ -186,8 +190,8 @@ Les nouvelles actions de vente simulée du Sprint 2 sont décrites plus bas.
 - Validation serveur de tous les formulaires, protection CSRF des formulaires
   et de la désactivation d’un tarif, échappement Twig par défaut.
 - Les actions interdites sont refusées côté serveur, pas seulement masquées.
-- Aucune authentification, aucun rôle, aucun parcours d’achat, paiement,
-  réservation temporaire, remboursement ou QR code dans ce jalon.
+- Ce jalon S1-06 n'ajoutait ni authentification ni vente ; ces fonctions sont
+  désormais disponibles dans les Sprints 2 et 3 décrits ci-dessous.
 - Aucune migration ni configuration Docker n’a été modifiée par S1-06.
 
 ### Vérifications
@@ -235,8 +239,41 @@ celui du 2 décembre (R2). Choisir **Concert Horizon** dans le catalogue puis ce
 deux dates permet de retrouver ce scénario, sans dépendre des identifiants SQL.
 
 Voir [le contrat du composant partagé, les limites et les captures](docs/SEAT_MAP.md).
-Cette première étape du Sprint 3 concerne l'admin local ; les parcours client,
-guichetier et leurs autorisations restent à réaliser.
+Ce premier jalon admin est maintenant réutilisé dans les parcours client et
+guichetier du Niveau 3, décrits dans [NIVEAU3.md](docs/NIVEAU3.md).
+
+### Comptes et démonstration du Niveau 3
+
+Après les migrations, créer les comptes fictifs sans purge :
+
+```sh
+docker compose exec -T app php bin/console app:demo:users
+```
+
+| Compte de démonstration | Rôle | Mot de passe de démonstration |
+| --- | --- | --- |
+| `client@example.com` | Client | `HorizonDemo2026!` |
+| `guichet@example.com` | Guichetier | `HorizonDemo2026!` |
+| `admin@example.com` | Administrateur | `HorizonDemo2026!` |
+
+La commande est réservée à `dev`/`test` et conserve les comptes préexistants
+sans changer leurs mots de passe ou rôles. Ces identifiants publics servent
+uniquement à la démonstration. L'inscription publique crée exclusivement un client.
+
+Ouvrir `/` pour le catalogue, `/guichet` pour la vente rapide et
+`/admin/indicateurs` pour le remplissage et les recettes. Choisir une place
+**initialement libre** de R1, acheter en ligne et simuler un paiement réussi.
+La place devient vendue au guichet et dans l'admin pour R1 ; la même place reste
+libre sur R2. A1 reste le scénario historique S1-05, déjà vendue sur R1 : utiliser
+par exemple A4 si elle est encore libre. Télécharger le PDF depuis la commande.
+Le QR signé ouvre un contrôle réservé au personnel ; une annulation rend le
+billet invalide et bloque les nouveaux téléchargements (410).
+
+Les achats de validation ont été effectués sur `billetterie_s3_demo_test`,
+distincte de la base utilisateur. Aucune fixture n'a été chargée dans cette
+dernière ; si elle est vide, le catalogue y affiche un état vide. Le guide
+[Niveau 3](docs/NIVEAU3.md) explique comment préparer et afficher le jeu isolé.
+Les montants encaissés, remboursés et nets sont des montants de **simulation**.
 
 ## Sprint 2 — Réservations, ventes et remboursements simulés
 
@@ -278,9 +315,10 @@ docker compose exec app php bin/console doctrine:migrations:migrate --no-interac
    pour invalider ses billets, simuler les remboursements et bloquer ses places.
    Les autres représentations d'une commande historique restent indépendantes.
 
-Aucun paiement ou remboursement réel, compte client ou QR code n'est ajouté.
-Les actions restent protégées par CSRF et validation serveur, avec `/admin`
-inaccessible en production. La modification d'un tarif après réservation ou
+Le Sprint 2 n'ajoutait aucun compte ni QR : ces fonctions sont maintenant
+livrées au Niveau 3. Aucun paiement ou remboursement bancaire réel n'est ajouté.
+Les actions restent protégées par CSRF et validation serveur ; la simulation
+est désactivée en production. La modification d'un tarif après réservation ou
 vente ne change pas le prix accepté ni le prix payé. Un tarif déjà référencé
 par une réservation ou un billet ne peut plus changer de représentation.
 

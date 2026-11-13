@@ -1,4 +1,4 @@
-# Sprint status — 12 November 2026
+# Sprint status — 13 November 2026
 
 This status is based on repository evidence. No existing S1–S2 task checklist
 was found; the requested S1 scopes are recorded below.
@@ -12,7 +12,8 @@ was found; the requested S1 scopes are recorded below.
 | S1-06 basic back-office | Implemented and verified in Docker | French Symfony/Twig admin at `/admin`, read-only physical plan, events, representations, tariffs, inventory, orders and tickets. Standard suite 28 tests / 130 assertions; Demo Fixtures 1 test / 16 175 assertions; Chrome desktop and mobile check. `/admin` returns 404 in `prod` until authentication exists. |
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
 | Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
-| Niveau 3 remaining scope | Not implemented | Authentication/roles, public purchase journey and QR codes remain. |
+| Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 71 standard tests / 429 assertions, isolated Demo Fixtures and Chrome 1440/390. See NIVEAU3.md. |
+| Niveaux 4 et 5 | Not delivered in this scope | Google Sheets integration and complete deployment/INSTALL workflow are outside this delivery. |
 
 ## S1-02 verification
 
@@ -233,3 +234,46 @@ La suite isolée Demo Fixtures n'a pas été relancée pour cette étape ; elle 
 inchangée. Aucune base utilisateur ni base de démonstration n'a été purgée.
 Cette étape ne clôt pas tout le Sprint 3 : comptes, rôles, parcours client et
 guichetier dédiés, QR codes et paiement externe restent hors de ce livrable.
+
+## Sprint 3 — Niveau 3 complet (validation finale le 13 novembre 2026)
+
+Suite du premier jalon admin sur la même branche, sans réécriture de l'historique.
+Les limites « comptes/rôles/QR à venir » ci-dessus décrivent les jalons précédents,
+et sont remplacées pour l'état actuel par les résultats suivants.
+
+| Tâche | Résultat vérifié |
+| --- | --- |
+| S3-01 — Comptes et droits | Symfony Security 7.4, inscription client seule, hash des mots de passe, rôles et accès directs contrôlés, propriété par FK nullable ; matrice tarifaire vérifiée sous verrou. |
+| S3-02 — Achat client | Catalogue réel, plan partagé, sélection conservée pendant la connexion, tarifs par siège, récapitulatif, réservation temporaire, paiement simulé, commandes et billets privés. |
+| S3-03 — Guichet | Même plan et service, trois catégories autorisées, total permanent, canal serveur, confirmation de vente simulée, refus des invitations au guichetier. |
+| S3-04 — PDF/QR | PDF privé A5, QR signé sans données personnelles, contrôle réservé au personnel, état relu ; téléchargement annulé refusé par 410, historique conservé. |
+| S3-05 — Indicateurs | Remplissage par représentation/zone avec capacité visible ; brut, remboursements, net par tarif depuis les prix payés, filtres représentation/zone/canal. |
+| S3-06 — Validation | 71 tests / 429 assertions, Demo Fixtures 1 / 16 175, Composer/Symfony/Doctrine et Chrome desktop/mobile, vrais QR décodés après rendu PDF. |
+
+Migration additive des comptes appliquée d'abord aux bases isolées puis à la
+base locale `billetterie` identifiée. Compteurs commandes/billets/inventaires
+inchangés : 0/0/0 avant et après. Trois comptes de démonstration ajoutés sans
+purge ; aucune fixture chargée dans la base utilisateur. Le diff utilisateur
+de `config/reference.php` est conservé et exclu des commits.
+
+Les tests standard utilisent exclusivement `billetterie_test` (garde avant
+purge). La suite Demo Fixtures, relancée après changement des dépendances,
+utilise sa seule base `billetterie_s105_verify_test`, confirmée avant migration
+et avant les deux rechargements. Les achats Chrome utilisent une troisième base
+jetable `billetterie_s3_demo_test`, initialisée depuis les fixtures existantes.
+
+PHP 8.3.36 et MySQL 8.0 ; Composer strict et exigences plateforme OK,
+conteneur OK, **39 templates Twig** valides, schéma Doctrine synchronisé.
+Les scénarios couvrent l'achat multi-places, l'expiration, le paiement échoué,
+le conflit entre canaux et les tests de concurrence MySQL existants.
+
+Chrome : 1440×1000 et 390×844, trois interfaces sans débordement global,
+clavier/toucher, conservation de sélection et contrôle R1 vendu/R2 libre après
+achat. Stress local : 387 places sélectionnées sur le plan de 400, dernier siège
+visible au clavier et liste du récapitulatif défilante. Deux PDF d'une page,
+texte et mise en page inspectés, QR réellement décodés depuis les rendus PNG.
+
+Voir [NIVEAU3.md](NIVEAU3.md) pour les comptes, les commandes de préparation,
+les captures, les définitions de calcul et les limites. Aucun paiement bancaire,
+critère commercial inventé, scanner d'entrée à usage unique, intégration Sheets
+ou livraison Niveau 5 ajouté.
