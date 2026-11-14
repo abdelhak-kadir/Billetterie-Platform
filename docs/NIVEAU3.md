@@ -2,8 +2,9 @@
 
 Livraison sur `sprint-3-produit`, depuis le Sprint 2 vérifié à `8e62b5e`, puis
 le plan admin `8a82262`. Comptes, achats client, guichet, PDF/QR et indicateurs
-réutilisent le modèle et les transactions du Sprint 2. Aucun travail des
-Niveaux 4 et 5 n'est inclus.
+réutilisent le modèle et les transactions du Sprint 2. Le bilan cumulatif actuel
+se trouve dans le [README](../README.md#fonctionnalités-et-niveaux-atteints) ;
+l'installation locale est décrite dans [INSTALL.md](../INSTALL.md).
 
 ## Comptes, droits et historique
 
@@ -123,50 +124,20 @@ séparent inventaire et billets pour qu'une revente ne multiplie pas la capacit�
 
 ## Préparer une démonstration isolée
 
-La base utilisateur n'est jamais purgée. Pour un jeu jetable complet, utiliser
-les identifiants locaux par défaut ci-dessous ou adapter le compte à son Compose :
+Suivre [INSTALL.md](../INSTALL.md#installation-sur-un-clone-neuf) dans un autre
+clone, avec un nom de projet Compose neuf et un volume jetable. Ce guide
+centralise les migrations, le chargement des données et les
+[comptes de démonstration](../INSTALL.md#comptes-de-démonstration).
+Le [README](../README.md#démonstration) donne le scénario court client → PDF →
+vérification au guichet ; les [instructions de tests](../tests/README.md)
+séparent la suite principale de Demo Fixtures.
 
-```sh
-docker compose exec -T database sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot -e "CREATE DATABASE IF NOT EXISTS billetterie_s3_demo_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON billetterie_s3_demo_test.* TO '\''billetterie'\''@'\''%'\'';"'
-s3() {
-  docker compose exec -T -e APP_ENV=test \
-    -e 'DATABASE_URL=mysql://billetterie:billetterie@database:3306/billetterie_s3_demo?serverVersion=8.0&charset=utf8mb4' \
-    app "$@"
-}
-s3 php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
-```
-
-Continuer **uniquement** si le résultat vaut `billetterie_s3_demo_test` et si
-cette base est jetable. Exécuter les étapes séquentiellement en attendant leur
-fin : un chargement standard **purge** la base ciblée. Ne pas utiliser `--append`.
-
-```sh
-s3 php bin/console doctrine:migrations:migrate --no-interaction
-s3 php bin/console doctrine:fixtures:load --no-interaction
-s3 php bin/console app:demo:users
-s3 php bin/console doctrine:schema:validate
-```
-
-Le jeu initial reste celui de S1-05 : 1 salle, 400 places, 3 événements,
-4 représentations, 1 600 inventaires, 16 tarifs, 4 commandes et 6 billets,
-dont une invitation gratuite. Les comptes sont créés séparément, sans modifier
-les fixtures ni les comptes existants. Mot de passe public de démonstration
-`HorizonDemo2026!` pour `client@example.com`, `guichet@example.com`,
-`admin@example.com`. Une nouvelle inscription ne crée jamais du personnel.
-
-Pour afficher ce jeu via le serveur habituel, choisir explicitement cette base
-dans sa configuration locale **en préservant les autres réglages** : en `dev`,
-`DATABASE_URL` doit alors viser `billetterie_s3_demo_test` (sans suffixe ajouté
-par Doctrine en dev). Ne pas commiter `.env.local`. Le travail de validation
-n'a pas changé la configuration locale de l'utilisateur ; son catalogue peut
-rester vide si sa propre base ne contient pas de programmation.
-
-Scénario : client → Concert Horizon → R1 (1 décembre 2026) → deux places
-initialement libres, par exemple A4/A5 après chargement neuf → réservation →
-paiement réussi → PDF. Vérifier les mêmes places vendues au guichet et dans
-l'admin pour R1 et libres sur R2 (2 décembre). A1 est déjà vendue sur R1 dans
-les fixtures, donc ne pas la prendre comme nouvel achat. Tester ensuite une
-vente au guichet avec réduit/groupe, un paiement échoué et une annulation.
+Pour approfondir la démonstration, acheter deux places libres sur R1, vérifier
+leur indisponibilité au guichet et dans l'admin pour R1, puis leur disponibilité
+sur R2. Rejouer ensuite une vente au guichet avec réduit/groupe, un paiement
+échoué et une annulation. Les captures et résultats ci-dessous proviennent de
+la validation historique sur `billetterie_s3_demo_test` ; ils ne supposent pas
+que cette base existe dans une nouvelle installation.
 
 ## Résultats observés
 
@@ -229,7 +200,8 @@ ils ne constituent pas une certification lecteur d'écran ou multi-navigateur.
 
 L'email n'est pas vérifié par un envoi et il n'y a pas de récupération de mot de
 passe, de prestataire bancaire, de scanner d'entrée à usage unique, de synchronisation
-Google Sheets ou de livraison Niveau 5. Les conditions commerciales réduit/groupe
+Google Sheets. Le niveau 5 cumulatif reste non atteint ; voir le
+[bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). Les conditions commerciales réduit/groupe
 et une future politique d'entrée restent à définir ; aucune n'est ajoutée en silence.
 
 Documentation technique consultée : [Symfony Security 7.4](https://symfony.com/doc/7.4/security.html),

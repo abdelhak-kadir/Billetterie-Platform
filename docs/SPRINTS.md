@@ -13,7 +13,7 @@ was found; the requested S1 scopes are recorded below.
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
 | Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
 | Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 71 standard tests / 429 assertions, isolated Demo Fixtures and Chrome 1440/390. See NIVEAU3.md. |
-| Niveaux 4 et 5 | Not delivered in this scope | Google Sheets integration and complete deployment/INSTALL workflow are outside this delivery. |
+| Niveaux 4 et 5 | Non atteints | Google Sheets absent. Docker et [INSTALL.md](../INSTALL.md) sont disponibles ; l'initialisation reste manuelle et les niveaux sont cumulatifs. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
 
 ## S1-02 verification
 
@@ -27,7 +27,7 @@ PHP 8.3 container startup, MySQL 8.0 health, Doctrine connectivity and the S1-05
 fixture/test workflow were then verified in Docker. Host PHP 8.5 results are not
 used as proof of PHP 8.3 compatibility.
 
-Run the README verification commands with Docker access. To check persistence
+Run the [installation](../INSTALL.md) and [test](../tests/README.md) commands with Docker access. To check persistence
 without adding business data, initialize migration metadata using
 `docker compose exec app php bin/console doctrine:migrations:sync-metadata-storage`,
 recreate services with `docker compose down` then `docker compose up -d --wait`,
@@ -196,7 +196,8 @@ Les erreurs 403/404/405 affichées pendant PHPUnit correspondent aux tests des
 protections attendues ; la suite se termine sans échec. La simulation ne
 contacte aucun prestataire bancaire. Les comptes, rôles, QR codes et parcours
 public du Niveau 3 ne sont pas réalisés. Aucun Dockerfile ni migration Sprint 1
-n'a été modifié. Voir README.md et SPRINT2.md pour les commandes et limites.
+n'a été modifié. Voir [tests/README.md](../tests/README.md) pour les commandes
+et [SPRINT2.md](SPRINT2.md) pour les règles et limites.
 
 ## Sprint 3 — Première étape produit admin (12 novembre 2026)
 
