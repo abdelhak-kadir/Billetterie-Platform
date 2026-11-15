@@ -15,7 +15,7 @@ final class EventSetupType extends AbstractType
     {
         if (!$options['existing_event']) { $builder->add('evenement', EvenementType::class, ['label' => false]); }
         $builder->add('hall', EntityType::class, ['class' => Salle::class, 'choice_label' => 'nom', 'label' => 'Salle des spectacles', 'placeholder' => 'Choisir une salle'])
-            ->add('shows', CollectionType::class, ['entry_type' => ShowSetupType::class, 'entry_options' => ['label' => false], 'allow_add' => true, 'allow_delete' => true, 'by_reference' => false, 'label' => false, 'prototype' => true]);
+            ->add('shows', CollectionType::class, ['entry_type' => ShowSetupType::class, 'entry_options' => ['label' => false], 'allow_add' => true, 'allow_delete' => true, 'by_reference' => false, 'label' => false, 'prototype' => true, 'prototype_data'=>new \App\Form\Model\ShowSetupData()]);
         $rows = $builder->create('rowCategories', FormType::class, ['label' => false]);
         foreach ($options['rows'] as $key => $row) {
             $rows->add($key, ChoiceType::class, ['label' => $row['label'], 'choices' => ['Standard' => 'standard', 'VIP' => 'vip', 'VVIP' => 'vvip'], 'attr' => ['data-category-row' => '', 'data-row-count' => $row['count'], 'data-row-zone' => $row['zone']]]);
