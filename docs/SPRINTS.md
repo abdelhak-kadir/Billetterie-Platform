@@ -304,10 +304,6 @@ base séparée. Le workflow CI reproduit l’installation et les contrôles sur 
 runner neuf et a réussi : voir les liens dans
 [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
 
-Le nouveau raccourci de fixtures a d’abord révélé un chargement incomplet de
-`.env.test`, puis une réécriture de la surcharge DATABASE_URL par Dotenv. Les
-gardes ont refusé l’exécution sur la mauvaise base. La surcharge est désormais
-explicite, et la suite dédiée passe. Aucun chargement n’a touché la base web.
 
 ## Synchronisation Sheets (15 novembre 2026)
 
@@ -357,3 +353,22 @@ Validation locale et CI : **110 tests, 718 assertions** ; Demo Fixtures :
 PDF, les inventaires indépendants et les ventes par spectacle en formats
 ordinateur et mobile. Voir [EVENEMENTS.md](EVENEMENTS.md) et
 [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
+
+## Démonstration au démarrage Docker (16 novembre 2026)
+
+Branche `chore/docker-demo-startup` : `docker compose up` prépare directement
+les dépendances, migrations, fixtures et comptes. L'app attend MySQL sain et
+ne lance HTTP qu'après succès ; un verrou partagé protège l'initialisation.
+Les données existantes sont conservées, les tests et la production exclus,
+et l'automatisme peut être désactivé. `bin/setup-demo` délègue à Compose et
+conserve l'activation optionnelle du worker Sheets.
+
+README pour l'évaluateur, six captures fictives recadrées et scénario A5
+vérifié. Suite principale : **120 tests, 771 assertions** ; Demo Fixtures :
+1 test, 16 175 assertions. Voir [DOCKER_STARTUP.md](DOCKER_STARTUP.md) pour
+les commandes, la recréation avec conservation d'un achat et les limites.
+
+Le nouveau raccourci de fixtures a d’abord révélé un chargement incomplet de
+`.env.test`, puis une réécriture de la surcharge DATABASE_URL par Dotenv. Les
+gardes ont refusé l’exécution sur la mauvaise base. La surcharge est désormais
+explicite, et la suite dédiée passe. Aucun chargement n’a touché la base web.

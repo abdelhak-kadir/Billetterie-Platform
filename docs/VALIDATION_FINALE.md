@@ -1,7 +1,10 @@
 # Validation finale Horizon
 
-État du 15 novembre 2026. Ce document distingue les résultats locaux, la
-validation sur un runner neuf et la recette réelle de l’API Google.
+La recette la plus récente, du **16 novembre 2026**, est le
+[démarrage Compose automatique](DOCKER_STARTUP.md) : installation isolée,
+conservation des achats, 120 tests et 771 assertions, puis captures du README.
+Les sections datées ci-dessous conservent les résultats précédents et distinguent
+les contrôles locaux, les runners neufs et la recette réelle de l'API Google.
 
 ## Socle et installation
 

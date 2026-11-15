@@ -2,10 +2,11 @@
 
 Ce dossier contient les explications métier, les choix techniques et les
 preuves de validation. Pour lancer l'application, suivre [INSTALL.md](../INSTALL.md) ;
-pour la démonstration courte, ouvrir le [README principal](../README.md#démonstration).
+pour la démonstration courte, ouvrir le [README principal](../README.md#démonstration-en-deux-minutes).
 
 | Document | À consulter pour… |
 | --- | --- |
+| [DOCKER_STARTUP.md](DOCKER_STARTUP.md) | Voir la recette sur clone propre du démarrage Compose, de la conservation des achats et des captures du README. |
 | [EVENEMENTS.md](EVENEMENTS.md) | Créer un événement complet, nommer ses spectacles et fixer les catégories Standard/VIP/VVIP et leurs prix. |
 | [MODELE.md](MODELE.md) | Comprendre les entités, leurs relations et l'inventaire par représentation. |
 | [DECISIONS.md](DECISIONS.md) | Retrouver les hypothèses et les décisions sur les prix, annulations et droits. |
@@ -19,5 +20,5 @@ pour la démonstration courte, ouvrir le [README principal](../README.md#démons
 
 `screenshots/` conserve les captures et mesures référencées dans ces documents.
 Les sections historiques décrivent l'état de leur sprint ; pour le bilan
-actuel, partir du [tableau des niveaux](../README.md#fonctionnalités-et-niveaux-atteints).
+actuel, partir du [bilan des fonctionnalités](../README.md#fonctionnalités-et-documentation).
 Les commandes de tests sont centralisées dans [tests/README.md](../tests/README.md).

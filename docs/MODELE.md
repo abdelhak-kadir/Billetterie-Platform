@@ -30,7 +30,7 @@ Doctrine ORM et migrations, et demande de documenter les hypothèses.
 Les migrations, les fixtures et l’administration réalisent le niveau 1 ; le
 service transactionnel et ses tests réalisent le niveau 2 ; les comptes, le plan
 partagé, les PDF/QR et les rapports réalisent le niveau 3. Le bilan de livraison
-à jour est centralisé dans le [README](../README.md#fonctionnalités-et-niveaux-atteints).
+à jour est centralisé dans le [README](../README.md#fonctionnalités-et-documentation).
 
 La répartition Parterre 300 / Balcon 100 est une hypothèse de démonstration,
 pas une exigence supplémentaire du sujet.

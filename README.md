@@ -2,81 +2,126 @@
 
 ## Présentation
 
-Horizon est une billetterie pour une salle de spectacle de 400 places, réalisée
-avec Symfony 7.4, PHP 8.3 et MySQL 8. Les clients choisissent leurs places et
-obtiennent leurs billets ; les guichetiers vendent sur le même inventaire.
-Les administrateurs gèrent la programmation, les tarifs et le suivi des ventes.
+Horizon est une billetterie de salle de spectacle : les clients réservent leurs
+places en ligne et les guichetiers vendent sur **le même inventaire**, sans double
+vente. Les administrateurs organisent les événements et leurs spectacles,
+définissent les prix et suivent le remplissage et les recettes.
+
+![Catalogue public Horizon présentant les trois événements de démonstration](docs/screenshots/reviewer/catalogue.png)
+
+*Le catalogue public, avec les événements fictifs fournis au premier démarrage.*
+
+**Stack :** Symfony 7.4, PHP 8.3, Doctrine ORM, MySQL 8 et Docker Compose.
 
 ## Démarrage rapide
 
-Prérequis : Git, Docker Engine et Docker Compose v2 ou ultérieur. Depuis la
-racine d’un clone destiné à la démonstration :
+Avec Git, Docker et Docker Compose v2 installés, cloner la branche de livraison :
 
 ```sh
-./bin/setup-demo
+git clone --branch chore/docker-demo-startup https://github.com/abdelhak-kadir/Billetterie-Platform.git
+cd Billetterie-Platform
+docker compose up --build -d --wait
 ```
 
-Cette commande prépare les services, dépendances, migrations, fixtures et comptes.
-Elle initialise uniquement une base métier vide avec des comptes fictifs ; une
-relance conserve le jeu déjà installé et ses achats. Une base non vide inconnue
-est refusée, sans purge.
+Ouvrir **[http://localhost:8080](http://localhost:8080)**. Le premier démarrage
+installe les dépendances, applique les migrations et prépare la base, les données
+fictives et les trois comptes de démonstration ; les redémarrages les conservent.
+Aucune configuration Google n'est nécessaire. La durée du premier téléchargement
+dépend de la connexion ; `docker compose up` permet aussi de suivre les logs au
+premier plan.
 
-Ouvrir **[http://localhost:8080](http://localhost:8080)**.
-Voir [INSTALL.md](INSTALL.md) pour la configuration complète, les migrations,
-les comptes de démonstration, l'isolation des données et le dépannage.
+Voir [INSTALL.md](INSTALL.md) pour les [prérequis](INSTALL.md#prérequis),
+le [changement de port](INSTALL.md#installation-sur-un-clone-neuf),
+le [dépannage](INSTALL.md#arrêt-et-dépannage) et le
+[rechargement manuel des données](INSTALL.md#rechargement-manuel-des-données).
 
-## Démonstration
+## Démonstration en deux minutes
 
-1. Se connecter avec le compte client indiqué dans [INSTALL.md](INSTALL.md#comptes-de-démonstration).
-   Ouvrir **Concert Horizon**, puis la représentation du **1er décembre 2026 (R1)**.
-2. Sélectionner une place libre, par exemple **Parterre / A / 4** après un
-   chargement neuf. Continuer, choisir le plein tarif et cliquer sur
-   **Réserver ces places**, puis **Simuler un paiement réussi**.
-3. Depuis la commande confirmée, ouvrir le billet et télécharger son **PDF avec QR code**.
-4. Dans une autre session de navigateur, se connecter comme guichetier. Ouvrir
-   la même représentation et actualiser le plan : la place achetée est vendue
-   et ne peut plus être sélectionnée. Elle reste libre pour la représentation
-   du **2 décembre (R2)** si aucun autre achat ne l'a prise sur cette date.
+| Rôle | Compte fictif | Espace |
+| --- | --- | --- |
+| Client | `client@example.com` | [Mes commandes](http://localhost:8080/compte) |
+| Guichetier | `guichet@example.com` | [Guichet](http://localhost:8080/guichet) |
+| Administrateur | `admin@example.com` | [Administration](http://localhost:8080/admin) |
 
-Accès : [espace client](http://localhost:8080/compte),
-[guichet](http://localhost:8080/guichet),
-[administration](http://localhost:8080/admin) et
-[indicateurs](http://localhost:8080/admin/indicateurs).
-Le catalogue est public ; chaque espace demande le rôle correspondant.
-A1 est déjà vendue sur R1 dans le jeu initial : choisir une autre place pour l'achat.
+Les **[mots de passe de démonstration sont dans INSTALL.md](INSTALL.md#comptes-de-démonstration)**.
+Utiliser des profils de navigateur distincts pour comparer les trois espaces.
 
-Pour préparer votre propre programme, ouvrir **Administration → Créer un
-événement** : un seul formulaire rassemble l'affiche, les spectacles nommés,
-les catégories Standard/VIP/VVIP et leurs prix. Voir le
-[guide de gestion des événements](docs/EVENEMENTS.md).
+1. Se connecter comme client. Dans le catalogue, rechercher **Concert Horizon**,
+   puis choisir le spectacle du **1er décembre 2026 (R1)**.
+2. Sélectionner **Parterre / A / 5**, libre sur une installation neuve. Continuer,
+   garder le plein tarif de **100 MAD**, puis cliquer sur **Réserver ces places**
+   et **Simuler un paiement réussi**.
+3. Depuis la commande payée, ouvrir **Voir mon billet**, puis
+   **Télécharger le billet PDF** : le billet contient son QR code.
+4. Comme guichetier, ouvrir le même spectacle : **A5 est vendue et non
+   sélectionnable**. Elle reste libre sur le spectacle du **2 décembre (R2)**.
+5. Comme administrateur, ouvrir **Mes événements → Concert Horizon → spectacle
+   du 1er décembre**, puis **Ventes et billets**. Le plan confirme la place vendue ;
+   **Remplissage et recettes** affiche le bilan.
 
-## Fonctionnalités et niveaux atteints
+Le jeu neuf contient **400 places, 3 événements, 4 représentations, 1 600
+inventaires, 16 tarifs et 6 billets fictifs vendus**. A1 est déjà vendue sur R1.
+Après un premier essai, choisir une autre place libre : un redémarrage ne remet
+pas A5 en vente. Les dates des fixtures sont fixes ; effectuer l'achat avant le
+début du spectacle. Pour créer un autre programme avec Standard/VIP/VVIP,
+suivre le [formulaire guidé des événements](docs/EVENEMENTS.md).
 
-| Niveau | Fonctionnalités et état |
-| --- | --- |
-| 1 — Modéliser | Vérifié : salle et places, événements, représentations, tarifs, migrations, données de démonstration et administration. |
-| 2 — Règles métier | Vérifié : inventaire par représentation, réservation temporaire, protection contre les doubles ventes concurrentes, annulation et remboursement simulé. |
-| 3 — Produit | Vérifié : trois rôles, achat client et vente au guichet sur plan, billets PDF avec QR signé, remplissage et recettes. |
-| 4 — Google Sheets | Vérifié sur une feuille Google réelle : ventes et remboursements exportés automatiquement, sans doublon après relance. Reprise après panne couverte avec API simulée. |
-| 5 — Livraison | Vérifié : installation en une commande, relance sans purge, guide complet et contrôles sur runner neuf. |
+## Captures d'écran
 
-Les niveaux sont **cumulatifs** : les **niveaux 1 à 5 sont vérifiés** ; voir le
-[bilan de validation](docs/VALIDATION_FINALE.md). **Paiements et remboursements
-sont simulés**, sans mouvement bancaire.
-Le QR permet un contrôle authentifié par le personnel ; il ne gère pas une entrée
-à usage unique. Les [preuves et limites du niveau 3](docs/NIVEAU3.md) détaillent
-les vérifications réalisées.
+Toutes les vues ci-dessous proviennent d'une installation isolée et de comptes
+fictifs. Elles montrent des ventes simulées ; aucun compte réel ni lien externe
+privé n'est publié.
 
-## Tests et documentation
+### Plan de salle client
 
-Après la [préparation de la base de tests](tests/README.md#suite-principale) :
+![Plan client avec une place libre sélectionnée et son récapitulatif](docs/screenshots/reviewer/plan-client.png)
 
-```sh
-docker compose exec -T app php bin/phpunit
-```
+*La sélection précède la réservation ; le serveur vérifie à nouveau la disponibilité.*
 
-- [Tests et suite séparée Demo Fixtures](tests/README.md) : bases jetables, commandes et contrôles de concurrence.
+### Guichet
+
+![Plan de salle au guichet avec la place choisie et le résumé de sélection](docs/screenshots/reviewer/guichet-plan.png)
+
+*Le guichet partage les disponibilités du client pour le même spectacle.*
+
+![Récapitulatif d'une vente fictive au guichet avec le tarif réduit](docs/screenshots/reviewer/guichet-vente.png)
+
+*Le guichetier choisit le tarif autorisé avant le paiement simulé.*
+
+### Remplissage et recettes
+
+![Tableau de bord administrateur affichant le remplissage et les recettes des ventes fictives](docs/screenshots/reviewer/admin-indicateurs.png)
+
+*Les indicateurs distinguent capacité, places vendues, recettes et remboursements.*
+
+### Billet PDF
+
+![Billet PDF fictif Horizon avec la place, le prix et un QR code](docs/screenshots/reviewer/billet-pdf.png)
+
+*Exemple issu d'un achat simulé dans l'installation jetable ; son QR vise cette démo locale.*
+
+## Fonctionnalités et documentation
+
+Les réservations temporaires expirent automatiquement. Les transactions, verrous
+MySQL et contraintes SQL empêchent deux ventes concurrentes de la même place.
+Clients, guichetiers et administrateurs disposent de droits distincts ; les
+commandes donnent accès à des billets PDF privés avec QR signé. L'administration
+gère aussi les annulations, remboursements simulés et rapports de vente.
+
+**Le paiement et les remboursements sont simulés**, sans mouvement bancaire.
+La synchronisation Google Sheets utilise une file et un worker avec reprise ;
+elle est **facultative pour lancer la démo locale** et nécessite une configuration
+Google autorisée. La [validation finale](docs/VALIDATION_FINALE.md) distingue les
+contrôles locaux, CI et Google réels ; le QR ne marque pas une entrée à usage unique.
+
+- [Installation et dépannage](INSTALL.md).
 - [Modèle de données](docs/MODELE.md) et [décisions métier](docs/DECISIONS.md).
-- [Suivi des sprints](docs/SPRINTS.md) et [validation des parcours du niveau 3](docs/NIVEAU3.md).
-- [Google Sheets](docs/GOOGLE_SHEETS.md) et [validation finale](docs/VALIDATION_FINALE.md).
-- [Index de la documentation](docs/README.md) : règles, plan de salle et interface.
+- [Tests, concurrence MySQL et suite Demo Fixtures](tests/README.md).
+- [Gestion des événements](docs/EVENEMENTS.md), [Google Sheets](docs/GOOGLE_SHEETS.md)
+  et [index de la documentation](docs/README.md).
+
+Pour préparer les bases de tests jetables et lancer les suites après démarrage :
+
+```sh
+./bin/test-docker
+```
