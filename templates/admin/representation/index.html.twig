@@ -1,0 +1,40 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Représentations{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Représentations</h1>
+            <p>Chaque représentation possède un inventaire complet des places de sa salle.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ path('admin_representation_new') }}">Nouvelle représentation</a>
+    </div>
+
+    <form class="filters" method="get" action="{{ path('admin_representation_index') }}">
+        <div class="field">
+            <label for="evenement">Événement</label>
+            <select id="evenement" name="evenement">
+                <option value="">Tous</option>
+                {% for evenement in evenements %}
+                    <option value="{{ evenement.id }}" {% if evenementId == evenement.id %}selected{% endif %}>{{ evenement.titre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="salle">Salle</label>
+            <select id="salle" name="salle">
+                <option value="">Toutes</option>
+                {% for salle in salles %}
+                    <option value="{{ salle.id }}" {% if salleId == salle.id %}selected{% endif %}>{{ salle.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Filtrer</button>
+    </form>
+
+    <div class="inventory-summary"><span>{{ pagination.total }} représentation(s)</span><a href="{{ path('admin_representation_index') }}">Réinitialiser les filtres</a></div>
+    {% include 'admin/components/_schedule.html.twig' with {inventoryCounts: counts} %}
+
+    {% include 'admin/_pagination.html.twig' %}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Commande {{ commande.reference }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Commande {{ commande.reference }}</h1>
+            <p>{{ commande.emailClient }} · <span class="badge badge-{{ commande.statut.value }}">{{ commande.statut.label }}</span></p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('admin_commande_index') }}">← Retour aux commandes</a>
+    </div>
+
+    <div class="card" style="margin-bottom: 1rem;">
+        <dl class="detail-list">
+            <div><dt>Canal</dt><dd>{{ commande.canal.label }}</dd></div>
+            <div><dt>Créée le</dt><dd>{{ commande.creeA|casablanca_date }} <small>(Africa/Casablanca)</small></dd></div>
+            <div><dt>Payée le</dt><dd>{{ commande.payeA|casablanca_date }} <small>(Africa/Casablanca)</small></dd></div>
+            <div><dt>Statut</dt><dd>{{ commande.statut.label }}</dd></div>
+        </dl>
+    </div>
+
+    {% if demo_mode() %}<section class="card" style="margin-bottom:24px" aria-label="Simulation de vente">
+        <h2>Simulation locale</h2>
+        <p class="muted">Aucun mouvement bancaire réel. Remboursement simulé total : <strong>{{ refundTotal|mad }}</strong>.</p>
+        {% if commande.reservationExpireA %}<p>Échéance exclusive : <strong>{{ commande.reservationExpireA|date('d/m/Y H:i:s', 'Africa/Casablanca') }}</strong> (Africa/Casablanca).</p>{% endif %}
+        <div class="actions">
+            {% if commande.statut.value == 'en_attente' %}
+                {% for action, label in {confirm: 'Simuler un paiement réussi', fail: 'Simuler un paiement échoué', cancel: 'Annuler la réservation'} %}
+                    <form method="post" action="{{ path('admin_sale_transition', {id: commande.id, action: action}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('sale-' ~ action ~ '-' ~ commande.id) }}">
+                        <button class="btn {{ action == 'confirm' ? 'btn-primary' : 'btn-secondary' }}" type="submit">{{ label }}</button>
+                    </form>
+                {% endfor %}
+            {% elseif commande.statut.value == 'payee' %}
+                <form method="post" action="{{ path('admin_sale_transition', {id: commande.id, action: 'cancel'}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('sale-cancel-' ~ commande.id) }}">
+                    <button class="btn btn-danger" type="submit">Annuler et rembourser (simulation)</button>
+                </form>
+            {% else %}<p>Commande terminée : aucun nouveau débit ou remboursement n’est effectué.</p>{% endif %}
+        </div>
+        {% if reservationItems|length %}
+            <h3>Places et prix acceptés à la réservation</h3>
+            <ul>{% for item in reservationItems %}<li>{{ item.inventairePlace.place.libelle }} · {{ item.tarif.libelle }} · {{ item.prixCentimes|mad }}</li>{% endfor %}</ul>
+        {% endif %}
+    </section>{% endif %}
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
+        <table>
+            <thead>
+                <tr>
+                    <th>Billet</th>
+                    <th>Représentation</th>
+                    <th>Place</th>
+                    <th>Tarif</th>
+                    <th class="money">Prix payé</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for billet in billets %}
+                    <tr>
+                        <td class="reference">{{ billet.reference }}</td>
+                        <td>
+                            {{ billet.inventairePlace.representation.evenement.titre }}<br>
+                            <small>{{ billet.inventairePlace.representation.debut|casablanca_date }}</small>
+                        </td>
+                        <td>{{ billet.inventairePlace.place.zone.nom }} / {{ billet.inventairePlace.place.rangee }} / {{ billet.inventairePlace.place.numero }}</td>
+                        <td>{{ billet.tarif.libelle }}</td>
+                        <td class="money">{{ billet.prixPayeCentimes|mad }}</td>
+                        <td><span class="badge badge-{{ billet.statut.value }}">{{ billet.statut.label }}</span></td>
+                        <td><a href="{{ path('admin_billet_show', {id: billet.id}) }}">Détail</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="empty">Aucun billet pour cette commande.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

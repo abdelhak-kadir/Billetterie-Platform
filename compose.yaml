@@ -1,0 +1,38 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    image: billetterie-platform-app
+    init: true
+    working_dir: /app
+    volumes:
+      - .:/app
+      - composer-cache:/home/app/.composer/cache
+    ports:
+      - "8080:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-billetterie}
+      MYSQL_USER: ${MYSQL_USER:-billetterie}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-billetterie}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_PASSWORD}\" mysql --protocol=TCP -h 127.0.0.1 -u \"$${MYSQL_USER}\" \"$${MYSQL_DATABASE}\" -e 'SELECT 1' >/dev/null"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - database-data:/var/lib/mysql
+
+volumes:
+  composer-cache:
+  database-data:

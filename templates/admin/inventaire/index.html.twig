@@ -1,0 +1,106 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Inventaire{% endblock %}
+
+{% block stylesheets %}<link rel="stylesheet" href="/admin/seat-map.css">{% endblock %}
+{% block javascripts %}<script type="module" src="/admin/seat-map-admin.js"></script>{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Inventaire des places</h1>
+            <p>Consultation seule. Filtrez par représentation, zone et disponibilité pour retrouver rapidement une place.</p>
+        </div>
+    </div>
+
+    <form class="filters" method="get" action="{{ path('admin_inventaire_index') }}">
+        <div class="field field-wide">
+            <label for="q">Recherche</label>
+            <input id="q" name="q" value="{{ q }}" placeholder="Événement, zone, rangée ou numéro (ex. A1)">
+        </div>
+        <div class="field">
+            <label for="representation">Représentation</label>
+            <select id="representation" name="representation">
+                <option value="">Toutes</option>
+                {% for representation in representations %}
+                    <option value="{{ representation.id }}" {% if representationId == representation.id %}selected{% endif %}>
+                        {{ representation.evenement.titre }} — {{ representation.debut|casablanca_date }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="zone">Zone</label>
+            <select id="zone" name="zone">
+                <option value="">Toutes</option>
+                {% for zone in zones %}
+                    <option value="{{ zone.id }}" {% if zoneId == zone.id %}selected{% endif %}>{{ zone.salle.nom }} — {{ zone.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="statut">Disponibilité</label>
+            <select id="statut" name="statut">
+                <option value="">Toutes</option>
+                {% for choice in statuts %}
+                    <option value="{{ choice.value }}" {% if statut and statut.value == choice.value %}selected{% endif %}>{{ choice.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Filtrer</button>
+    </form>
+
+    {% if selectedRepresentation %}
+        <div class="actions" style="margin-bottom:24px"><a class="btn btn-primary" href="{{ path('admin_representation_plan', {id: selectedRepresentation.id}) }}">Ouvrir le plan et sélectionner des sièges ↗</a></div>
+        <div class="h-map-embedded">
+            {% include 'components/seat_map/_map.html.twig' with {instanceId: 'inventory-inspection', seatMap: seatMap, selectable: false, initialMode: 'inspect', selected: []} only %}
+        </div>
+    {% elseif representationId > 0 %}
+        <p class="empty">Représentation introuvable. Réinitialisez les filtres pour afficher l’inventaire.</p>
+    {% else %}
+        <p class="inventory-prompt">Sélectionnez une représentation dans les filtres pour afficher son plan de salle. La liste paginée reste disponible ci-dessous.</p>
+    {% endif %}
+
+    <div class="inventory-summary"><span><strong>{{ pagination.total }}</strong> résultat(s) · Consultation seule</span><a href="{{ path('admin_inventaire_index') }}">Réinitialiser les filtres</a></div>
+    {% if q or representationId or zoneId or statut %}
+        <div class="filter-tags" aria-label="Filtres actifs">
+            {% if q %}<span>Recherche : {{ q }}</span>{% endif %}
+            {% for representation in representations %}{% if representation.id == representationId %}<span>{{ representation.evenement.titre }} · {{ representation.debut|casablanca_date }}</span>{% endif %}{% endfor %}
+            {% for zone in zones %}{% if zone.id == zoneId %}<span>Zone : {{ zone.nom }}</span>{% endif %}{% endfor %}
+            {% if statut %}<span>Statut : {{ statut.label }}</span>{% endif %}
+        </div>
+    {% endif %}
+
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
+        <table>
+            <thead>
+                <tr>
+                    <th>Événement</th>
+                    <th>Date (Africa/Casablanca)</th>
+                    <th>Zone</th>
+                    <th>Rangée</th>
+                    <th>Numéro</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inventaire in inventaires %}
+                    <tr>
+                        <td>{{ inventaire.representation.evenement.titre }}</td>
+                        <td>{{ inventaire.representation.debut|casablanca_date }}</td>
+                        <td>{{ inventaire.place.zone.nom }}</td>
+                        <td>{{ inventaire.place.rangee }}</td>
+                        <td>{{ inventaire.place.numero }}</td>
+                        <td><span class="badge badge-{{ inventaire.statut.value }}">{{ inventaire.statut.label }}</span></td>
+                        <td><a href="{{ path('admin_representation_show', {id: inventaire.representation.id}) }}">Représentation</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="empty">Aucune ligne d’inventaire pour ces filtres.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'admin/_pagination.html.twig' %}
+{% endblock %}

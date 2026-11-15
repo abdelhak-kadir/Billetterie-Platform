@@ -1,0 +1,38 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ tarif.libelle }}{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>{{ tarif.libelle }}</h1>
+            <p>{{ tarif.representation.evenement.titre }} · {{ tarif.representation.debut|casablanca_date }} (Africa/Casablanca)</p>
+        </div>
+        <div class="actions">
+            <a class="btn btn-secondary" href="{{ path('admin_tarif_index') }}">← Retour</a>
+            <a class="btn btn-primary" href="{{ path('admin_tarif_edit', {id: tarif.id}) }}">Modifier</a>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1rem;">
+        <dl class="detail-list">
+            <div><dt>Catégorie</dt><dd>{{ tarif.categorie.label }}</dd></div>
+            <div><dt>Prix</dt><dd>{{ tarif.prixCentimes|mad }}</dd></div>
+            <div><dt>État</dt><dd>{% if tarif.actif %}<span class="badge badge-actif">Actif</span>{% else %}<span class="badge badge-inactif">Inactif</span>{% endif %}</dd></div>
+            <div><dt>Billets émis avec ce tarif</dt><dd>{{ usedCount }}</dd></div>
+        </dl>
+    </div>
+
+    {% if usedCount > 0 %}
+        <p class="help">Ce tarif a déjà été utilisé. Sa représentation ne peut plus être changée et les prix payés des billets existants restent inchangés.</p>
+    {% endif %}
+
+    {% if tarif.actif %}
+        <form method="post" action="{{ path('admin_tarif_deactivate', {id: tarif.id}) }}" onsubmit="return confirm('Désactiver ce tarif ? Les billets déjà émis ne seront pas modifiés.');">
+            <input type="hidden" name="_token" value="{{ csrf_token('tarif_desactiver_' ~ tarif.id) }}">
+            <button class="btn btn-danger" type="submit">Désactiver ce tarif</button>
+        </form>
+    {% else %}
+        <p class="muted">Ce tarif est inactif. Aucune suppression destructive n’est proposée.</p>
+    {% endif %}
+{% endblock %}

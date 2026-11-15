@@ -1,0 +1,24 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Salles{% endblock %}
+
+{% block body %}
+    <div class="page-head">
+        <div>
+            <h1>Salles</h1>
+            <p>Consultation du plan physique. Les zones et places ne sont pas modifiables dans ce jalon.</p>
+        </div>
+    </div>
+
+    <div class="grid">
+        {% for salle in salles %}
+            <a class="card stat" href="{{ path('admin_salle_show', {id: salle.id}) }}">
+                <span class="eyebrow">Salle culturelle</span><h2>{{ salle.nom }}</h2>
+                <strong>{{ placeCounts[salle.id]|default(0) }} <small>places</small></strong>
+                <span>{{ zoneCounts[salle.id]|default(0) }} zone(s) · Consulter le plan physique ↗</span>
+            </a>
+        {% else %}<p class="empty">Aucune salle.</p>{% endfor %}
+    </div>
+
+    {% include 'admin/_pagination.html.twig' %}
+{% endblock %}

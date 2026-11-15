@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}Administration{% endblock %} — Billetterie</title>
+        <link rel="stylesheet" href="/admin/admin.css">
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        <a class="skip-link" href="#contenu">Aller au contenu</a>
+        <header class="topbar">
+            <div class="container topbar-inner">
+                <a class="brand" href="{{ path('admin_index') }}" aria-label="Horizon — Billetterie, accueil"><span class="brand-mark" aria-hidden="true"></span><span><strong>HORIZON</strong><small>Salle culturelle · Billetterie</small></span></a>
+                <nav class="topnav" aria-label="Navigation principale">
+                    {% set currentRoute = app.request.attributes.get('_route') %}
+                    <a href="{{ path('admin_index') }}" {% if currentRoute == 'admin_index' %}aria-current="page"{% endif %}>Accueil</a>
+                    <a href="{{ path('admin_salle_index') }}" {% if currentRoute starts with 'admin_salle_' %}aria-current="page"{% endif %}>Salles</a>
+                    <a href="{{ path('admin_evenement_index') }}" {% if currentRoute starts with 'admin_evenement_' %}aria-current="page"{% endif %}>Événements</a>
+                    <a href="{{ path('admin_representation_index') }}" {% if currentRoute starts with 'admin_representation_' %}aria-current="page"{% endif %}>Représentations</a>
+                    <a href="{{ path('admin_tarif_index') }}" {% if currentRoute starts with 'admin_tarif_' %}aria-current="page"{% endif %}>Tarifs</a>
+                    <a href="{{ path('admin_inventaire_index') }}" {% if currentRoute starts with 'admin_inventaire_' %}aria-current="page"{% endif %}>Inventaire</a>
+                    <a href="{{ path('admin_commande_index') }}" {% if currentRoute starts with 'admin_commande_' %}aria-current="page"{% endif %}>Commandes</a>
+                    <a href="{{ path('admin_billet_index') }}" {% if currentRoute starts with 'admin_billet_' %}aria-current="page"{% endif %}>Billets</a>
+                    <a href="{{ path('admin_report') }}">Indicateurs</a><a href="/compte">Mon compte</a>
+                    <a href="/guichet">Guichet</a>
+                    <form method="post" action="{{ path('app_logout') }}" class="topnav-logout">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                        <button type="submit">Déconnexion</button>
+                    </form>
+                </nav>
+            </div>
+        </header>
+
+        <div class="notice">
+            <div class="container"><span><span class="local-dot" aria-hidden="true">●</span>Espace administrateur</span><span class="notice-detail">{{ app.user ? app.user.userIdentifier : '' }} · {{ demo_mode() ? 'Paiements et remboursements simulés' : 'Simulation désactivée' }}</span></div>
+        </div>
+
+        <main id="contenu" class="container" tabindex="-1">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="flash flash-{{ label }}" role="status">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="container footer">
+            <div class="footer-inner"><strong>HORIZON / SALLE CULTURELLE</strong><span>Africa/Casablanca · MAD · Plan physique en consultation seule</span></div>
+        </footer>
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

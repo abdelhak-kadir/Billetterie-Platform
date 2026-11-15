@@ -1,0 +1,72 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Représentation #{{ representation.id }}{% endblock %}
+
+{% block body %}
+    {% set disponibles = counts.disponible|default(0) %}
+    {% set vendues = counts.vendue|default(0) %}
+    {% set reservees = counts.reservee|default(0) %}
+    {% set bloquees = counts.bloquee|default(0) %}
+
+    <a class="back-link" href="{{ path('admin_evenement_show', {id: representation.evenement.id, date: representation.debut|date('Y-m-d', 'Africa/Casablanca')}) }}#programmation">← Retour à la programmation de l’événement</a>
+    <section class="hero detail-hero" aria-labelledby="representation-title">
+        <img class="hero-image" src="{{ event_art(representation.evenement) }}" alt="" width="1536" height="1024">
+        <div class="hero-content">
+            <p class="eyebrow">{{ representation.evenement.type.label }} / Représentation</p>
+            <h1 id="representation-title">{{ representation.evenement.titre }}</h1>
+            <p class="hero-meta">{{ representation.debut|casablanca_date }} · {{ representation.salle.nom }}</p>
+            <span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span>
+            <div class="actions">
+                <a class="btn btn-primary" href="{{ path('admin_representation_plan', {id: representation.id}) }}">Plan de salle et sélection ↗</a><a class="btn btn-secondary" href="{{ path('admin_inventaire_index', {representation: representation.id}) }}">Vue tableau</a>
+                {% if demo_mode() and representation.statut.value == 'programmee' %}<a class="btn btn-secondary" href="{{ path('admin_sale_reserve', {id: representation.id}) }}">Réserver (simulation)</a>{% endif %}
+                <a class="btn btn-secondary" href="#tarifs">Tarifs</a>
+                <a class="btn btn-secondary" href="{{ path('admin_representation_edit', {id: representation.id}) }}">Modifier</a>
+            </div>
+        </div>
+    </section>
+    {% if demo_mode() and representation.statut.value == 'programmee' %}
+        <details class="description-more"><summary>Annulation de la représentation</summary><p>Cette action annule ses billets, bloque ses places et enregistre les remboursements simulés au prix payé.</p>
+            <form method="post" action="{{ path('admin_sale_cancel_representation', {id: representation.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel-representation-' ~ representation.id) }}">
+                <button class="btn btn-danger" type="submit">Annuler la représentation (simulation)</button>
+            </form>
+        </details>
+    {% endif %}
+    <div class="operational" aria-label="Disponibilité de la représentation">
+        <span><strong>{{ disponibles }}</strong> disponibles</span><span><strong>{{ vendues }}</strong> vendues</span>
+        <span><strong>{{ reservees }}</strong> réservées</span><span><strong>{{ bloquees }}</strong> bloquées</span>
+    </div>
+    <div class="section-head section" id="tarifs"><h2>Les tarifs</h2><a href="{{ path('admin_tarif_index', {representation: representation.id}) }}">Gérer les tarifs ↗</a></div>
+    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tarif</th>
+                    <th>Catégorie</th>
+                    <th class="money">Prix</th>
+                    <th>État</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tarif in tarifs %}
+                    <tr>
+                        <td>{{ tarif.libelle }}</td>
+                        <td>{{ tarif.categorie.label }}</td>
+                        <td class="money">{{ tarif.prixCentimes|mad }}</td>
+                        <td>
+                            {% if tarif.actif %}
+                                <span class="badge badge-actif">Actif</span>
+                            {% else %}
+                                <span class="badge badge-inactif">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="{{ path('admin_tarif_show', {id: tarif.id}) }}">Détail</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="empty">Aucun tarif pour cette représentation.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
