@@ -174,7 +174,7 @@ abstract class AdminTestCase extends WebTestCase
         }
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
 
-        foreach (['reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement', 'app_user'] as $table) {
+        foreach (['sheets_sync_job', 'reservation_item', 'billet', 'inventaire_place', 'tarif', 'commande', 'representation', 'place', 'zone', 'salle', 'evenement', 'app_user'] as $table) {
             $connection->executeStatement(sprintf('TRUNCATE TABLE %s', $table));
         }
 

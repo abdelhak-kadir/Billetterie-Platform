@@ -17,6 +17,21 @@ services:
       database:
         condition: service_healthy
 
+  sheets-worker:
+    profiles: [sheets]
+    image: ${COMPOSE_PROJECT_NAME:-billetterie-platform}-app
+    init: true
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - .:/app
+    depends_on:
+      app:
+        condition: service_started
+      database:
+        condition: service_healthy
+    command: [php, bin/console, app:sheets:sync, --watch, --enqueue-existing]
+
   database:
     image: mysql:8.0
     environment:

@@ -139,6 +139,15 @@ suivre la [suite Demo Fixtures](tests/README.md#suite-demo-fixtures).
 Pour essayer la démonstration sans toucher à une base existante, utiliser un
 autre clone et un nom de projet Compose neuf, comme décrit ci-dessus.
 
+## Google Sheets (facultatif pour le lancement)
+
+La configuration, les colonnes, le worker automatique et les commandes de
+reprise sont décrits dans [GOOGLE_SHEETS.md](docs/GOOGLE_SHEETS.md). Une clé
+réelle reste dans `var/credentials/` et les réglages dans `.env.local`. Relancer
+`./bin/setup-demo` après configuration pour démarrer ou arrêter le worker.
+Les ventes continuent en cas de panne Google. Sans identifiants, l’application
+et les tests restent utilisables ; la recette API réelle reste à effectuer.
+
 ## Tests et entretien
 
 La [documentation des tests](tests/README.md) décrit la création des bases

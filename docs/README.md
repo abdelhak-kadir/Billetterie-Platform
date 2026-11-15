@@ -10,6 +10,8 @@ pour la démonstration courte, ouvrir le [README principal](../README.md#démons
 | [DECISIONS.md](DECISIONS.md) | Retrouver les hypothèses et les décisions sur les prix, annulations et droits. |
 | [SPRINT2.md](SPRINT2.md) | Lire les règles de réservation, vente, expiration, remboursement et concurrence. |
 | [NIVEAU3.md](NIVEAU3.md) | Examiner les parcours client et guichet, les accès, les PDF/QR, les indicateurs et leurs limites. |
+| [GOOGLE_SHEETS.md](GOOGLE_SHEETS.md) | Configurer la feuille, comprendre les colonnes et reprendre les envois en erreur. |
+| [VALIDATION_FINALE.md](VALIDATION_FINALE.md) | Distinguer les contrôles locaux, CI et Google réellement observés. |
 | [SPRINTS.md](SPRINTS.md) | Suivre les étapes, commits et résultats de validation consignés. |
 | [SEAT_MAP.md](SEAT_MAP.md) | Comprendre et réutiliser le composant de plan de salle. |
 | [DESIGN.md](DESIGN.md) | Retrouver les choix d'interface, les ressources visuelles et les contrôles effectués. |

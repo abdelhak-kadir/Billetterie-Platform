@@ -52,8 +52,8 @@ A1 est déjà vendue sur R1 dans le jeu initial : choisir une autre place pour l
 | 1 — Modéliser | Vérifié : salle et places, événements, représentations, tarifs, migrations, données de démonstration et administration. |
 | 2 — Règles métier | Vérifié : inventaire par représentation, réservation temporaire, protection contre les doubles ventes concurrentes, annulation et remboursement simulé. |
 | 3 — Produit | Vérifié : trois rôles, achat client et vente au guichet sur plan, billets PDF avec QR signé, remplissage et recettes. |
-| 4 — Google Sheets | Non implémenté : aucune synchronisation automatique des ventes ou remboursements, aucun appel réel vérifié. |
-| 5 — Livraison | Installation Docker automatisée et guide disponibles ; niveau cumulatif non revendiqué tant que le niveau 4 et la validation finale ne sont pas confirmés. |
+| 4 — Google Sheets | Implémenté et testé avec API simulée : file transactionnelle, worker automatique, reprise et prévention des doublons. Recette Google réelle encore en attente. |
+| 5 — Livraison | Installation en une commande et guide vérifiés localement et sur runner neuf ; niveau cumulatif non revendiqué tant que la recette du niveau 4 reste en attente. |
 
 Les niveaux sont **cumulatifs** : le niveau atteint est **3**, avec les niveaux
 1 et 2. **Paiements et remboursements sont simulés**, sans mouvement bancaire.
@@ -72,4 +72,5 @@ docker compose exec -T app php bin/phpunit
 - [Tests et suite séparée Demo Fixtures](tests/README.md) : bases jetables, commandes et contrôles de concurrence.
 - [Modèle de données](docs/MODELE.md) et [décisions métier](docs/DECISIONS.md).
 - [Suivi des sprints](docs/SPRINTS.md) et [validation des parcours du niveau 3](docs/NIVEAU3.md).
+- [Google Sheets](docs/GOOGLE_SHEETS.md) et [validation finale](docs/VALIDATION_FINALE.md).
 - [Index de la documentation](docs/README.md) : règles, plan de salle et interface.

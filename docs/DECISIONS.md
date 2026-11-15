@@ -299,3 +299,17 @@ hypothèse ne constitue pas une politique commerciale pour le futur produit.
   sans réduire la capacité ; le filtre zone restreint aussi le dénominateur.
   Les libellés de tarifs affichés sont les libellés actuels, les montants sont
   historiques. Aucun regroupement par date de mouvement comptable n'est ajouté.
+
+## D17 — Projection Sheets et panne externe (15 novembre 2026)
+
+- **Décision :** MySQL reste la source de vérité. Une demande durable par billet
+  est écrite dans la transaction de confirmation ou de remboursement. Un worker
+  séparé projette automatiquement les données métier sans e-mail ni identité.
+- **Reprise :** référence unique, révisions, plage stable et verrou de worker.
+  Un timeout ambigu réécrit la même ligne ; le succès d’une ancienne révision
+  ne valide pas un remboursement plus récent. Les erreurs sont visibles et
+  réessayées, sans annuler la vente.
+- **Limite :** un onglet est géré par une seule installation et ne doit pas être
+  trié ou déplacé physiquement ; des gardes évitent d’écraser des lignes étrangères.
+  La validation par client simulé reste distincte d’une synchronisation Google
+  réellement observée sur une feuille autorisée.

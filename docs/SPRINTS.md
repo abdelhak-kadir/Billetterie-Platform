@@ -13,7 +13,7 @@ was found; the requested S1 scopes are recorded below.
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
 | Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
 | Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 75 tests / 461 assertions relancés le 15 novembre ; Demo Fixtures et Chrome 1440/390 documentés aux jalons précédents. Voir NIVEAU3.md. |
-| Niveaux 4 et 5 | Non atteints | Google Sheets absent. L’installation Docker est automatisée et [INSTALL.md](../INSTALL.md) est disponible ; les niveaux restent cumulatifs et Google Sheets reste à valider. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
+| Niveaux 4 et 5 | Non atteints | Google Sheets implémenté et testé avec client simulé ; recette API réelle en attente. L’installation Docker est automatisée et [INSTALL.md](../INSTALL.md) est disponible ; les niveaux restent cumulatifs et Google Sheets reste à valider. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
 
 ## S1-02 verification
 
@@ -307,3 +307,19 @@ Le nouveau raccourci de fixtures a d’abord révélé un chargement incomplet d
 `.env.test`, puis une réécriture de la surcharge DATABASE_URL par Dotenv. Les
 gardes ont refusé l’exécution sur la mauvaise base. La surcharge est désormais
 explicite, et la suite dédiée passe. Aucun chargement n’a touché la base web.
+
+## Synchronisation Sheets (15 novembre 2026)
+
+Branche `sprint-4-google-sheets`, basée sur la livraison automatisée. Ajout
+d’une migration additive et d’une file par billet, transactionnelle avec les
+ventes et remboursements. Le worker automatique écrit une plage stable, contrôle
+les révisions, sérialise les workers et diffère les erreurs sans annuler la vente.
+L’authentification utilise la bibliothèque officielle `google/auth`. Les
+indicateurs admin montrent l’état des envois et les erreurs contrôlées.
+
+Les tests ciblés passent : 16 tests et 92 assertions. La suite intégrée passe
+avec 96 tests et 562 assertions ; Demo Fixtures reste séparée et passe avec
+16 175 assertions. Le garde supplémentaire interdisant un export réel depuis
+PHPUnit passe également. La recette réelle reste conditionnée à la feuille et
+aux identifiants autorisés ; aucun succès Google n’est déduit des mocks. Voir
+[VALIDATION_FINALE.md](VALIDATION_FINALE.md) pour la clôture intégrée.

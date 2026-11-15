@@ -233,3 +233,12 @@ S2 en possède au moins une et concerne exactement une représentation. Les
 billets restent émis seulement lors de la confirmation payée et conservent
 leurs liens directs vers commande, inventaire et tarif. Leur unicité conditionnelle
 et l'historique des anciennes ventes ne sont pas modifiés par cette extension.
+
+## Projection vers Google Sheets
+
+`SheetsSyncJob` conserve une ligne par référence de billet, avec payload métier
+JSON, révision, statut, nombre d’essais, prochaine tentative et preuve d’envoi
+par destination. Il n’exporte aucune identité de client. Sa création ou mise à
+jour appartient à la transaction de vente/annulation. Le worker utilise un
+identifiant de ligne stable et valide le succès uniquement pour la révision
+envoyée. Voir [GOOGLE_SHEETS.md](GOOGLE_SHEETS.md) pour le contrat d’export.

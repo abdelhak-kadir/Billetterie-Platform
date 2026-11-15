@@ -14,7 +14,7 @@ jobs:
       COMPOSE_PROJECT_NAME: horizon-ci
       HORIZON_HTTP_PORT: '8080'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - name: One-command installation and safe rerun
         run: |
           ./bin/setup-demo
