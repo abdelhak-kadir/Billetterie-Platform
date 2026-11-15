@@ -388,6 +388,20 @@
     cursor:default;
     text-decoration:none;
 }
+.h-selection-details {
+    margin:8px 0;
+}
+.h-selection-details summary {
+    display:flex;
+    align-items:center;
+    min-height:44px;
+    color:#344655;
+    cursor:pointer;
+    font-size:12px;
+}
+.h-selection-details[open] summary {
+    margin-bottom:4px;
+}
 .h-selection-list {
     max-height:88px;
     overflow:auto;
@@ -628,7 +642,10 @@
         font-size:10px;
     }
     .h-selection {
-        padding:16px;
+        padding:14px;
+    }
+    .h-selection > .h-map-help {
+        display:none;
     }
     .h-selection-list li {
         width:100%;

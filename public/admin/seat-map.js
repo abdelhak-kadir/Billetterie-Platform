@@ -17,6 +17,11 @@ export class SeatMap {
         this.seats.forEach((seat, index) => seat.tabIndex = index === 0 ? 0 : -1);
         // Le récapitulatif collant ne doit pas recouvrir le dernier siège au clavier.
         this.selection = root.querySelector('.h-selection');
+        this.selectionDetails = root.querySelector('[data-selection-details]');
+        // Sur téléphone, garder le récapitulatif compact tant que la liste n’est pas demandée.
+        if (this.selectionDetails && matchMedia('(max-width:700px)').matches) {
+            this.selectionDetails.open = false;
+        }
         if (typeof ResizeObserver !== 'undefined') {
             this.selectionObserver = new ResizeObserver(() => this.measureSelection());
             this.selectionObserver.observe(this.selection);
