@@ -191,3 +191,11 @@ Captures inspectées : [événement et ses spectacles](screenshots/events/deskto
 Les fixtures d'origine restent inchangées ; les anciennes représentations
 conservent leur nom de repli, leurs places et leurs tarifs sans catégorie.
 La [documentation fonctionnelle](EVENEMENTS.md) distingue ces cas des nouveaux spectacles.
+
+Déploiement sur `localhost:8080` : base `billetterie` confirmée, migration
+additive appliquée avant le changement des écrans, puis relance sans fixtures.
+Les empreintes des lignes préexistantes sont identiques avant/après, y compris
+les comptes, prix, réservations et quatorze billets. Un événement créé en
+parallèle est conservé aussi. Les trois connexions et les nouvelles pages
+sont vérifiées par HTTP sans créer de vente. Google reste à **14 synchronisés,
+0 en attente, 0 en erreur**. `config/reference.php` garde son contenu local initial.
