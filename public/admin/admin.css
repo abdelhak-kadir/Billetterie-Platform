@@ -1141,7 +1141,8 @@ td.reference{
         min-width:80px
     }
     .footer-inner{
-        display:block
+        flex-direction:column;
+        gap:8px
     }
     .footer p{
         margin:12px 0

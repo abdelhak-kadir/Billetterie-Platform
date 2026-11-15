@@ -25,8 +25,11 @@ def login(page, role):
 
 def capture(page, name):
     page.evaluate('document.fonts.ready')
+    page.evaluate("window.scrollTo({top: 0, left: 0, behavior: 'instant'})")
     overflow = page.evaluate('document.documentElement.scrollWidth - window.innerWidth')
     assert overflow <= 1, f'{name}: débordement horizontal global de {overflow}px'
+    for element in page.locator('.footer-inner > *').all():
+        assert element.evaluate('(el) => el.getBoundingClientRect().right <= window.innerWidth'), name + ': pied de page tronqué'
     page.screenshot(path=str(output / (name + '.png')), full_page=True)
 
 
