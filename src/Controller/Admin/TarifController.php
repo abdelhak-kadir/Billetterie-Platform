@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Entity\Tarif;
 use App\Enum\CategorieTarif;
@@ -35,7 +37,7 @@ final class TarifController extends AbstractController
             ->join('t.representation', 'r')->addSelect('r')
             ->join('r.evenement', 'e')->addSelect('e');
 
-        $representationId = $request->query->getInt('representation', 0);
+        $representationId = QueryFilters::positiveInt($request->query, 'representation');
         if ($representationId > 0) {
             $queryBuilder->andWhere('r.id = :representation')->setParameter('representation', $representationId);
         }
@@ -55,7 +57,7 @@ final class TarifController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 20, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 20, $total);
 
         $items = $queryBuilder
             ->orderBy('r.debut', 'ASC')

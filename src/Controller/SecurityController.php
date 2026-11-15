@@ -46,9 +46,16 @@ final class SecurityController extends AbstractController
     #[Route('/inscription', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
     {
-        $form = $this->createFormBuilder()
-            ->add('email', EmailType::class, ['label' => 'Votre e-mail', 'constraints' => [new Assert\NotBlank(), new Assert\Email(), new Assert\Length(max: 180)]])
-            ->add('password', PasswordType::class, ['label' => 'Mot de passe (12 caractères minimum)', 'constraints' => [new Assert\NotBlank(), new Assert\Length(min: 12, max: 4096)]])->getForm();
+        $form = $this->createFormBuilder(null, ['csrf_message' => 'Votre session a expiré. Rechargez la page puis réessayez.'])
+            ->add('email', EmailType::class, ['label' => 'Votre e-mail', 'constraints' => [
+                new Assert\NotBlank(message: 'Indiquez votre adresse e-mail.'),
+                new Assert\Email(message: 'Indiquez une adresse e-mail valide.'),
+                new Assert\Length(max: 180, maxMessage: 'L’adresse e-mail ne doit pas dépasser 180 caractères.'),
+            ]])
+            ->add('password', PasswordType::class, ['label' => 'Mot de passe', 'constraints' => [
+                new Assert\NotBlank(message: 'Choisissez un mot de passe.'),
+                new Assert\Length(min: 12, max: 4096, minMessage: 'Utilisez au moins 12 caractères.', maxMessage: 'Ce mot de passe est trop long.'),
+            ]])->getForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData(); $email = strtolower(trim($data['email']));

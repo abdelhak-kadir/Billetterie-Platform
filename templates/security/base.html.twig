@@ -1,0 +1,24 @@
+{% extends 'store/base.html.twig' %}
+{% block stylesheets %}<link rel="stylesheet" href="/store/auth.css">{% endblock %}
+{% block javascripts %}<script type="module" src="/store/auth.js"></script>{% endblock %}
+{% block body %}
+<section class="auth-layout" aria-label="Votre compte Horizon">
+    <aside class="auth-story">
+        <img src="/admin/media/concert.webp" alt="" class="auth-story-image">
+        <div class="auth-story-copy">
+            <span class="auth-kicker">La scène vous attend</span>
+            <h2>Vos places.<br> Vos moments.<br> <span>Votre Horizon.</span></h2>
+            <p>Concerts, théâtre, rencontres. Choisissez votre prochaine sortie et retrouvez vos billets au même endroit.</p>
+            <div class="auth-story-bottom"><span>Salle culturelle Horizon</span><span aria-hidden="true">400 places · Mille émotions</span></div>
+        </div>
+    </aside>
+    <div class="auth-panel">
+        <nav class="auth-tabs" aria-label="Accès au compte">
+            <a href="{{ path('app_login') }}" {{ app.request.attributes.get('_route') == 'app_login' ? 'aria-current=page' : '' }}>Connexion</a>
+            <a href="{{ path('app_register') }}" {{ app.request.attributes.get('_route') == 'app_register' ? 'aria-current=page' : '' }}>Créer un compte</a>
+        </nav>
+        {% block auth_content %}{% endblock %}
+        <a class="auth-back" href="/">← Découvrir les événements</a>
+    </div>
+</section>
+{% endblock %}

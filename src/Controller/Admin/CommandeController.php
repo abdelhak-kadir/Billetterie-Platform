@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Entity\Commande;
 use App\Enum\CanalCommande;
@@ -44,7 +46,7 @@ final class CommandeController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 20, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 20, $total);
 
         $items = $queryBuilder
             ->orderBy('c.creeA', 'DESC')

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Entity\Salle;
 use App\Entity\Zone;
@@ -25,7 +27,7 @@ final class SalleController extends AbstractController
         PlaceRepository $places,
         ZoneRepository $zones,
     ): Response {
-        $pagination = new Pagination($request->query->getInt('page', 1), 20, $salles->count([]));
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 20, $salles->count([]));
 
         $items = $salles->createQueryBuilder('s')
             ->orderBy('s.nom', 'ASC')
@@ -60,7 +62,7 @@ final class SalleController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 50, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 50, $total);
 
         $placesPage = $queryBuilder
             ->orderBy('z.id', 'ASC')

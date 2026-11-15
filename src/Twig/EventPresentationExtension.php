@@ -34,6 +34,9 @@ final class EventPresentationExtension extends AbstractExtension
 
     public function artwork(Evenement $evenement): string
     {
+        if ($evenement->getImageFilename() !== null) {
+            return '/media/events/'.$evenement->getImageFilename();
+        }
         return '/admin/media/'.(self::ARTWORK[$evenement->getTitre()] ?? 'fallback.svg');
     }
 

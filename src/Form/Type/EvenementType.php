@@ -8,6 +8,7 @@ use App\Enum\TypeEvenement;
 use App\Form\Model\EvenementFormData;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,6 +28,12 @@ final class EvenementType extends AbstractType
                 'label' => 'Type',
                 'choice_label' => static fn (TypeEvenement $type): string => $type->label(),
                 'placeholder' => 'Choisir un type',
+            ])
+            ->add('image', FileType::class, [
+                'label' => 'Visuel de l’événement',
+                'required' => false,
+                'attr' => ['accept' => 'image/jpeg,image/png,image/webp', 'data-event-image-input' => ''],
+                'invalid_message' => 'Le visuel n’a pas pu être chargé. Choisissez une image JPG, PNG ou WebP de 2 Mo maximum.',
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',

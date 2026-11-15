@@ -28,6 +28,9 @@ class Evenement
     #[ORM\Column(length: 20, enumType: TypeEvenement::class)]
     private TypeEvenement $type;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $imageFilename = null;
+
     /** @var Collection<int, Representation> */
     #[ORM\OneToMany(mappedBy: 'evenement', targetEntity: Representation::class)]
     private Collection $representations;
@@ -66,6 +69,16 @@ class Evenement
     public function getType(): TypeEvenement
     {
         return $this->type;
+    }
+
+    public function getImageFilename(): ?string { return $this->imageFilename; }
+
+    public function setImageFilename(string $filename): void
+    {
+        if (!preg_match('/^[a-f0-9]{32}\.(jpg|png|webp)$/D', $filename)) {
+            throw new \InvalidArgumentException('Nom de visuel invalide.');
+        }
+        $this->imageFilename = $filename;
     }
 
     /** @return Collection<int, Representation> */

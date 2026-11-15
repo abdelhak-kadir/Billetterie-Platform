@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>{{ status }} · {{ title }} · Horizon</title>
+    <link rel="stylesheet" href="/admin/admin.css">
+    <link rel="stylesheet" href="/store/auth.css">
+</head>
+<body class="error-page">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <header class="container error-header">
+        <a class="brand" href="/" aria-label="Horizon, catalogue"><span class="brand-mark" aria-hidden="true"></span><span><strong>HORIZON</strong><small>SALLE CULTURELLE · BILLETTERIE</small></span></a>
+        <a href="/connexion">Connexion</a>
+    </header>
+    <main class="container error-layout" id="contenu">
+        <div class="error-ticket" aria-hidden="true"><span>HORIZON</span><strong>{{ status }}</strong><span>LE SPECTACLE CONTINUE</span></div>
+        <div class="error-copy">
+            <p class="eyebrow">{{ status == 404 ? 'Page introuvable' : 'Une pause dans votre visite' }}</p>
+            <h1>{{ title }}</h1>
+            <p>{{ message }}</p>
+            <div class="error-actions"><a class="btn btn-primary" href="/">Voir les événements <span aria-hidden="true">→</span></a><a class="btn btn-secondary" href="/compte">Mon espace client</a></div>
+            <p class="error-note">Horizon · Votre prochaine sortie vous attend.</p>
+        </div>
+    </main>
+</body>
+</html>

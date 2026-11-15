@@ -1,1 +1,21 @@
-{% extends 'store/base.html.twig' %}{% block title %}Connexion{% endblock %}{% block body %}<div class="page-head"><div><p class="eyebrow">Bienvenue chez Horizon</p><h1>Connexion</h1><p>Votre sélection sera retrouvée après connexion, puis revérifiée.</p></div></div><form method="post" action="{{ path('app_login') }}" class="card form-card">{% if error %}<p role="alert" class="flash flash-error">Connexion refusée. Vérifiez vos identifiants.</p>{% endif %}<label for="email">E-mail</label><input id="email" type="email" name="_username" value="{{ lastEmail }}" required autocomplete="username"><label for="password">Mot de passe</label><input id="password" type="password" name="_password" required autocomplete="current-password"><input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"><button class="btn btn-primary" type="submit">Se connecter</button><p><a href="{{ path('app_register') }}">Créer un compte client</a></p></form>{% endblock %}
+{% extends 'security/base.html.twig' %}
+{% block title %}Connexion{% endblock %}
+{% block auth_content %}
+    <p class="eyebrow">Bienvenue chez Horizon</p>
+    <h1>Connexion</h1>
+    <p class="auth-intro">Retrouvez vos commandes et vos billets. Votre sélection vous attend après la connexion.</p>
+    <form method="post" action="{{ path('app_login') }}" class="auth-form">
+        {% if error %}<div id="login-error" role="alert" class="auth-alert">Connexion refusée. Vérifiez votre e-mail et votre mot de passe.</div>{% endif %}
+        <div class="auth-field">
+            <label for="email">Adresse e-mail</label>
+            <input id="email" type="email" name="_username" value="{{ lastEmail }}" required maxlength="180" autocomplete="username" placeholder="vous@exemple.fr" {{ error ? 'aria-describedby=login-error' : '' }}>
+        </div>
+        <div class="auth-field">
+            <label for="password">Mot de passe</label>
+            <div class="auth-password"><input id="password" type="password" name="_password" required autocomplete="current-password"><button type="button" data-password-toggle aria-controls="password" aria-pressed="false" aria-label="Afficher le mot de passe" hidden>Afficher</button></div>
+        </div>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <button class="btn btn-primary auth-submit" type="submit">Se connecter <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-switch">Première visite ? <a href="{{ path('app_register') }}">Créer un compte client</a></p>
+{% endblock %}

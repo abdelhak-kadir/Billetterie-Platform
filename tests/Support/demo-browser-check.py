@@ -37,6 +37,67 @@ def seat(page, number):
     return page.locator(f'[data-label="Parterre, rangée A, place {number}"]')
 
 
+def public_ui(page, device):
+    page.goto(base + '/connexion')
+    expect(page.locator('h1')).to_have_text('Connexion')
+    page.locator('[data-password-toggle]').click()
+    expect(page.locator('#password')).to_have_attribute('type', 'text')
+    page.locator('[data-password-toggle]').click()
+    expect(page.locator('#password')).to_have_attribute('type', 'password')
+    capture(page, device + '-connexion')
+    page.locator('#email').fill('client@example.com')
+    page.locator('#password').fill('mot-de-passe-incorrect')
+    page.get_by_role('button', name='Se connecter', exact=True).click()
+    expect(page.locator('#login-error')).to_contain_text('Connexion refusée')
+    capture(page, device + '-connexion-refusee')
+    page.goto(base + '/inscription')
+    expect(page.locator('h1')).to_have_text('Créer un compte')
+    capture(page, device + '-inscription')
+    email = 'nouveau-' + device + '@example.com'
+    page.locator('#form_email').fill(email)
+    page.locator('#form_password').fill('HorizonDemo2026!')
+    page.get_by_role('button', name='Créer mon compte', exact=True).click()
+    expect(page).to_have_url(base + '/connexion')
+    page.locator('#email').fill(email)
+    page.locator('#password').fill('HorizonDemo2026!')
+    page.get_by_role('button', name='Se connecter', exact=True).click()
+    expect(page).to_have_url(base + '/compte')
+    page.get_by_role('button', name='Déconnexion', exact=True).click()
+    response = page.goto(base + '/page-qui-nexiste-pas')
+    assert response.status == 404
+    expect(page.locator('h1')).to_have_text('Cette page est introuvable.')
+    capture(page, device + '-404')
+    page.get_by_role('link', name='Voir les événements').click()
+    expect(page).to_have_url(base + '/')
+
+
+def admin_ui(page, device):
+    for route in ('representations', 'tarifs', 'inventaire', 'indicateurs'):
+        page.goto(base + '/admin/' + route)
+        with page.expect_navigation() as response:
+            page.locator('form.filters button[type=submit]').click()
+        assert response.value.status == 200, route + ': filtre vide refusé'
+        assert page.locator('body.error-page').count() == 0
+    page.goto(base + '/admin/evenements/new')
+    title = 'Affiche test ' + device
+    page.locator('#evenement_form_titre').fill(title)
+    page.locator('#evenement_form_type').select_option('concert')
+    page.locator('#evenement_form_image').set_input_files('public/admin/media/concert.webp')
+    preview = page.locator('[data-event-image-preview] img')
+    expect(preview).to_be_visible()
+    page.wait_for_function('document.querySelector("[data-event-image-preview] img").naturalWidth > 0')
+    capture(page, device + '-evenement-visuel')
+    page.get_by_role('button', name='Enregistrer', exact=True).click()
+    expect(page.locator('h1')).to_have_text(title)
+    src = page.locator('.hero-image').get_attribute('src')
+    assert src.startswith('/media/events/')
+    response = page.request.get(base + src)
+    assert response.status == 200 and response.headers['content-type'] == 'image/webp'
+    capture(page, device + '-evenement-enregistre')
+    page.goto(base + '/')
+    expect(page.locator('.poster-link').filter(has_text=title).locator('img')).to_have_attribute('src', src)
+
+
 def buy(page, number, name, counter=False):
     chosen = seat(page, number)
     expect(chosen).to_have_attribute('data-status', 'disponible')
@@ -85,6 +146,7 @@ with sync_playwright() as playwright:
                        is_mobile=device == 'mobile', has_touch=device == 'mobile')
         client = browser.new_context(**options)
         client_page = client.new_page()
+        public_ui(client_page, device)
         login(client_page, 'client')
         client_page.goto(base + '/')
         capture(client_page, device + '-catalogue')
@@ -119,7 +181,9 @@ with sync_playwright() as playwright:
         expect(admin_page.locator('[data-report-gross]')).to_be_visible()
         expect(admin_page.get_by_role('heading', name='Google Sheets', exact=True)).to_be_visible()
         capture(admin_page, device + '-indicateurs')
+        admin_ui(admin_page, device)
         for context in (client, counter, admin):
             context.close()
         print(f'{device}: 3 connexions, achat client, vente guichet, PDF, clavier, stock R1/R2 et largeurs : OK')
+        print(f'{device}: inscription, connexion refusée, mot de passe affichable, 404, filtres vides, visuel créé et publié : OK')
     browser.close()

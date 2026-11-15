@@ -1,12 +1,13 @@
 {% extends 'admin/base.html.twig' %}
 
 {% block title %}{{ evenement ? 'Modifier l’événement' : 'Nouvel événement' }}{% endblock %}
+{% block javascripts %}<script type="module" src="/admin/event-form.js"></script>{% endblock %}
 
 {% block body %}
     <div class="page-head">
         <div>
             <h1>{{ evenement ? 'Modifier l’événement' : 'Nouvel événement' }}</h1>
-            <p>Le titre, la description et le type sont modifiables. Aucune suppression destructive n’est proposée.</p>
+            <p>Présentez l’événement et ajoutez son affiche. Le visuel est facultatif.</p>
         </div>
         <a class="btn btn-secondary" href="{{ evenement ? path('admin_evenement_show', {id: evenement.id}) : path('admin_evenement_index') }}">Annuler</a>
     </div>
@@ -25,6 +26,16 @@
                     {{ form_label(form.type) }}
                     {{ form_widget(form.type) }}
                     {{ form_errors(form.type) }}
+                </div>
+                <div class="field field-span-2">
+                    {{ form_label(form.image) }}
+                    {{ form_widget(form.image, {attr: {'aria-describedby': 'event-image-help event-image-errors', 'aria-invalid': form.image.vars.errors|length ? 'true' : 'false'}}) }}
+                    <div id="event-image-errors">{{ form_errors(form.image) }}</div>
+                    <span class="help" id="event-image-help">JPG, PNG ou WebP · 2 Mo maximum · 6 000 pixels par côté. Sans nouveau fichier, le visuel actuel est conservé.</span>
+                    <figure class="event-image-preview" data-event-image-preview {{ evenement and evenement.imageFilename ? '' : 'hidden' }}>
+                        <img data-event-image-preview-img {% if evenement and evenement.imageFilename %}src="{{ event_art(evenement) }}"{% endif %} alt="Aperçu du visuel de l’événement">
+                        <figcaption data-event-image-name aria-live="polite">Visuel actuel</figcaption>
+                    </figure>
                 </div>
                 <div class="field field-span-2">
                     {{ form_label(form.description) }}

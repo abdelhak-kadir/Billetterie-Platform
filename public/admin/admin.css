@@ -514,6 +514,11 @@ td.reference{
 .form-card .eyebrow{
     margin-bottom:20px
 }
+.event-image-preview{margin:16px 0 0;max-width:260px}
+.event-image-preview[hidden]{display:none}
+.event-image-preview img{display:block;width:100%;max-height:320px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.event-image-preview figcaption{margin-top:8px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.field input[type=file]{max-width:100%;padding:12px;white-space:normal}
 .field-span-2{
     grid-column:1/-1
 }
