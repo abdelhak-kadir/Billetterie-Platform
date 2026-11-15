@@ -10,6 +10,9 @@ commandes suivantes depuis la racine du dépôt, dans le même projet Compose.
 Elles utilisent les identifiants fictifs de `.env.example` ; adapter le compte
 et l'URL si la configuration locale a changé.
 
+Le bilan courant est dans [VALIDATION_FINALE.md](../docs/VALIDATION_FINALE.md).
+Les résultats datés plus bas conservent la preuve des versions précédentes.
+
 ## Vérification complète sous Docker
 
 ```sh
