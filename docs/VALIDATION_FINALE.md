@@ -163,3 +163,31 @@ Captures finales inspectées : [connexion ordinateur](screenshots/ui/desktop-con
 [inscription mobile](screenshots/ui/mobile-inscription.png),
 [404 mobile](screenshots/ui/mobile-404.png) et
 [formulaire avec visuel](screenshots/ui/mobile-evenement-visuel.png).
+
+## Programmation et catégories de places — 15 novembre 2026
+
+Branche `feat/event-workspace`, préparée sur une base Compose isolée, port 8083.
+Le formulaire guidé crée dans une transaction l'événement, ses spectacles nommés,
+leurs inventaires et trois pleins tarifs Standard/VIP/VVIP. Les cartes remplacent
+les tableaux dans le parcours principal : événement, spectacle, plan/prix/ventes.
+Le client choisit le spectacle et voit les catégories et leurs prix sur le plan.
+
+**110 tests, 718 assertions** passent sur PHP 8.3.36/MySQL 8 ; Demo Fixtures :
+**1 test, 16 175 assertions**. Les nouveaux contrôles couvrent la création
+groupée, le refus sans création partielle d'un prix invalide, les droits,
+le changement de salle, le refus d'un tarif étranger à la catégorie, le prix
+historique et la consultation des ventes limitée au spectacle.
+
+Le [workflow de cette évolution](https://github.com/abdelhak-kadir/Billetterie-Platform/actions/runs/43769918185)
+réussit sur runner neuf : installation et relance, suites MySQL, redémarrage
+avec conservation des volumes, puis Chromium ordinateur et mobile. Les parcours
+créent deux spectacles nommés, achètent une place VIP, téléchargent son PDF,
+vérifient qu'elle reste libre au second spectacle avec un prix différent,
+et contrôlent les ventes de chacun. Les anciens parcours sont conservés.
+
+Captures inspectées : [événement et ses spectacles](screenshots/events/desktop-espace-evenement.png),
+[création sur mobile](screenshots/events/mobile-creation-complete.png) et
+[catégories sur le plan](screenshots/events/mobile-plan-categories.png).
+Les fixtures d'origine restent inchangées ; les anciennes représentations
+conservent leur nom de repli, leurs places et leurs tarifs sans catégorie.
+La [documentation fonctionnelle](EVENEMENTS.md) distingue ces cas des nouveaux spectacles.
