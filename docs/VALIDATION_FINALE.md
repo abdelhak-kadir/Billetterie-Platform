@@ -103,7 +103,7 @@ Le dépôt de travail est maintenant sur `main`. L’instance
 de `SELECT DATABASE()` : base MySQL `billetterie`. La migration de la file est
 additive ; aucun chargement de fixtures ni aucune purge n’a été effectué.
 
-Une comparaison de toutes les lignes métier et des comptes avant/après confirme
+Avant la recette Google, une comparaison des lignes métier et des comptes avant/après confirmait
 leur conservation : **1 salle, 2 zones, 400 places, 3 événements,
 4 représentations, 1 600 inventaires, 16 tarifs, 5 commandes, 7 billets et
 3 comptes**. Les empreintes de comparaison restent locales.
@@ -123,7 +123,7 @@ Correctifs préparés dans un projet Compose distinct, port 8082, sans toucher
 à la démonstration existante ni à sa configuration Google :
 
 - Les sélecteurs numériques vides des recherches admin signifient désormais
-  « tous ». Les huit listes et les indicateurs acceptent les filtres vides ;
+  « tous ». Les listes et les indicateurs acceptent les filtres vides ;
   les identifiants invalides ne provoquent pas d’exception de conversion.
 - Page 404 Horizon avec retour au catalogue ; les erreurs 400, 403, 405, 410
   et 500 affichent aussi un message utilisable sans trace technique. Le code
@@ -137,7 +137,7 @@ Correctifs préparés dans un projet Compose distinct, port 8082, sans toucher
   accessibles, affichage/masquage du mot de passe et messages en français.
 - **104 tests, 637 assertions** sous PHP 8.3.36/MySQL 8 ; Demo Fixtures :
   **1 test, 16 175 assertions**. Composer strict, conteneur et 41 templates Twig : OK.
-- Le [workflow de cette évolution](https://github.com/abdelhak-kadir/Billetterie-Platform/actions/runs/43760359178)
+- Le [workflow final de cette évolution](https://github.com/abdelhak-kadir/Billetterie-Platform/actions/runs/43761621494)
   a réussi : inscription effective, connexion refusée, mot de passe affichable,
   404, recherches sans sélection et création/publication d’un visuel, en plus
   des achats et PDF précédents, en 1 440 × 1 000 et 390 × 844.
@@ -145,3 +145,21 @@ Correctifs préparés dans un projet Compose distinct, port 8082, sans toucher
 La migration de cette évolution ajoute seulement `evenement.image_filename`,
 nullable. Aucun changement du stock, des comptes, des ventes ou de Google Sheets
 n’est nécessaire.
+
+Mise à jour de `localhost:8080` : la colonne a été ajoutée avant le changement
+des écrans, puis `./bin/setup-demo` a installé les dépendances et relancé le
+worker. Aucune purge. La comparaison des valeurs préexistantes, hors nouvelle
+colonne nullable, confirme la conservation des données ajoutées par l’utilisateur :
+**1 salle, 2 zones, 400 places, 4 événements, 5 représentations,
+2 000 inventaires, 17 tarifs, 12 commandes, 13 billets et 3 comptes**.
+
+Les trois connexions, les pages de compte, la 404, les filtres vides et le
+champ image ont ensuite été vérifiés par HTTP sur cette instance, sans ajouter
+de données. Google affiche **13 synchronisés, 0 en attente, 0 en erreur**.
+Le fichier local généré `config/reference.php` est conservé à l’identique.
+
+Captures finales inspectées : [connexion ordinateur](screenshots/ui/desktop-connexion.png),
+[connexion mobile](screenshots/ui/mobile-connexion.png),
+[inscription mobile](screenshots/ui/mobile-inscription.png),
+[404 mobile](screenshots/ui/mobile-404.png) et
+[formulaire avec visuel](screenshots/ui/mobile-evenement-visuel.png).

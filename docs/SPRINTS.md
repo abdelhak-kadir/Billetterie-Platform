@@ -330,3 +330,17 @@ PDF, remboursement client sur la même ligne, puis rejeu et redémarrage du
 worker sans doublon. Résultat : neuf billets exportés, aucune attente ni erreur ;
 l’onglet d’origine est intact. Les niveaux 1 à 5 sont désormais vérifiés de
 manière cumulative. Voir [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
+
+## Recherche, visuels et pages de compte (15 novembre 2026)
+
+Branche `fix/demo-ui-polish`, puis fusion sans réécriture dans `main`.
+Filtres numériques vides tolérés, erreurs lisibles sans détails techniques,
+visuels facultatifs des événements avec aperçu et contrôles serveur, puis
+connexion/inscription adaptées au téléphone et à l’ordinateur.
+
+Validation : **104 tests, 637 assertions** ; Demo Fixtures : 1 test,
+16 175 assertions. Deux runs CI neufs ont réussi les parcours Chromium,
+y compris inscription réelle et image effectivement publiée. La version finale
+réduit aussi la hauteur du bandeau sur mobile. La migration additive et la mise
+à jour du port 8080 préservent toutes les données existantes et les treize
+exports Google. Détails dans [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
