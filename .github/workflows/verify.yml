@@ -22,6 +22,17 @@ jobs:
           python3 tests/Support/demo-http-check.py --base-url http://localhost:8080
           ./bin/setup-demo
           python3 tests/Support/demo-http-check.py --base-url http://localhost:8080 --expect-existing
+      - name: Chromium desktop and mobile journeys
+        run: |
+          python3 -m pip install --requirement tests/browser-requirements.txt
+          python3 -m playwright install --with-deps chromium
+          python3 tests/Support/demo-browser-check.py --output-dir /tmp/horizon-browser-qa
+      - name: Browser screenshots
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: horizon-browser-qa
+          path: /tmp/horizon-browser-qa/*.png
+          retention-days: 14
       - name: MySQL tests and isolated fixtures
         run: ./bin/test-docker
       - name: Preserve volumes across restart

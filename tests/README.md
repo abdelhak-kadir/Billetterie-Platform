@@ -36,6 +36,21 @@ Il achète A5 dans un jeu jetable ; `--expect-existing` vérifie ensuite que cet
 achat et son PDF ont survécu à une relance du setup. Ne pas l’exécuter sur une
 base à préserver.
 
+La CI lance aussi Chromium sur deux formats (1 440 × 1 000 et 390 × 844).
+Elle teste les trois connexions, un achat client et une vente au guichet,
+les PDF, le clavier, le stock commun à R1 et l’indépendance de R2. Les captures
+PNG sont jointes au run pendant 14 jours ; aucun billet PDF ni cookie n’est
+publié. Pour refaire ce contrôle dans un environnement **jetable** :
+
+```sh
+python3 -m pip install --requirement tests/browser-requirements.txt
+python3 -m playwright install --with-deps chromium
+python3 tests/Support/demo-browser-check.py --base-url http://localhost:8080
+```
+
+Ce script achète A6 et A7 côté client, puis A8 et A9 au guichet. Il attend
+le jeu initial ; il ne se relance pas sur la même base déjà modifiée.
+
 ## Suite principale
 
 Sur un volume neuf, créer la base de tests et accorder les droits au compte
