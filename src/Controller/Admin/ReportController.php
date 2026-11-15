@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 namespace App\Controller\Admin;
+
+use App\Admin\QueryFilters;
 use App\Repository\{RepresentationRepository, ZoneRepository};
 use App\Service\SalesReport;
 use App\Sheets\SheetsSynchronizer;
@@ -13,7 +15,7 @@ final class ReportController extends AbstractController
     #[Route('/admin/indicateurs', name: 'admin_report', methods: ['GET'])]
     public function index(Request $request, SalesReport $report, RepresentationRepository $reps, ZoneRepository $zones, SheetsSynchronizer $sheets): Response
     {
-        $representation = max(0, $request->query->getInt('representation')); $zone = max(0, $request->query->getInt('zone'));
+        $representation = max(0, QueryFilters::positiveInt($request->query, 'representation')); $zone = max(0, QueryFilters::positiveInt($request->query, 'zone'));
         $channel = $request->query->getString('canal');
         if (!in_array($channel, ['en_ligne','guichet'], true)) { $channel = ''; }
         return $this->render('admin/report.html.twig', [

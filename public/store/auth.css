@@ -1,0 +1,49 @@
+.auth-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.9fr);min-height:650px;margin:32px 0 64px;border:1px solid #35404b;border-radius:16px;overflow:hidden;background:#151c25}
+.auth-story{position:relative;isolation:isolate;min-width:0;overflow:hidden;background:#19150f}
+.auth-story-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 37%;z-index:-2;opacity:.65}
+.auth-story:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(8,13,19,.97),rgba(8,13,19,.25) 65%,rgba(8,13,19,.5))}
+.auth-story-copy{display:flex;flex-direction:column;justify-content:flex-end;height:100%;padding:48px}
+.auth-kicker{align-self:flex-start;padding:8px 12px;border:1px solid #b5893c;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#ffe2aa;margin-bottom:80px}
+.auth-story h2{font-size:clamp(38px,4.2vw,64px);line-height:1.05;margin:0 0 24px;text-transform:uppercase}
+.auth-story h2 span{color:#f4b942}
+.auth-story p{max-width:360px;color:#e3e6ea;line-height:1.7;font-size:15px}
+.auth-story-bottom{display:flex;flex-wrap:wrap;gap:8px 18px;border-top:1px solid #756344;margin-top:32px;padding-top:18px;color:#d7c6aa;font-size:11px}
+.auth-panel{padding:40px clamp(28px,4vw,60px);min-width:0;align-self:center}
+.auth-tabs{display:flex;gap:4px;border:1px solid #43505e;background:#0c121a;padding:4px;border-radius:8px;margin-bottom:36px}
+.auth-tabs a{flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:44px;padding:8px;border-radius:5px;font-size:13px;color:#aeb9c6;text-align:center}
+.auth-tabs a[aria-current=page]{background:#28333e;color:#fff;font-weight:700;box-shadow:0 2px 4px #0003}
+.auth-panel h1{font-size:36px;line-height:1.15;margin-bottom:12px}
+.auth-panel .eyebrow{font-size:10px;line-height:1.6;margin-bottom:12px}
+.auth-intro{font-size:14px;line-height:1.7;color:#b8c1cc;margin-bottom:28px}
+.auth-form{display:grid;gap:20px;margin:0}
+.auth-field{min-width:0}
+.auth-field label{display:block;margin:0 0 9px;font-size:13px;font-weight:600;color:#e5e9ed}
+.auth-field input{display:block;width:100%;min-width:0;min-height:50px;padding:12px 14px;border:1px solid #657383;border-radius:7px;background:#0d141d;color:#f6f5f2;font-size:16px}
+.auth-field input::placeholder{color:#8d9aab}
+.auth-field input:focus{outline:2px solid #f4b942;outline-offset:3px;border-color:#f4b942}
+.auth-password{position:relative}
+.auth-password input{padding-right:94px}
+.auth-password button{position:absolute;right:5px;top:3px;min-height:44px;min-width:80px;padding:8px;border:0;border-radius:4px;background:transparent;color:#f4cc79;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.auth-password button[hidden]{display:none}
+.auth-help{font-size:12px;color:#aab7c7;margin:8px 0 0;line-height:1.5}
+.auth-submit{width:100%;display:flex;align-items:center;justify-content:space-between;min-height:50px;border-radius:7px;padding:14px 18px;margin-top:4px}
+.auth-switch{font-size:13px;text-align:center;color:#b8c1cc;margin:24px 0 0;line-height:1.7}
+.auth-switch a{color:#f4cc79;font-weight:600}
+.auth-back{display:inline-flex;align-items:center;min-height:44px;color:#aab7c7;font-size:12px;text-decoration:none;margin-top:20px}
+.auth-alert{border:1px solid #a86f58;background:#35251f;color:#ffd8c5;padding:14px;border-radius:7px;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.auth-alert ul,.auth-field ul{margin:0;padding:0;list-style:none}
+.auth-field ul{margin-top:8px;color:#ffbdab;font-size:12px;line-height:1.5}
+.error-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:28px;border-bottom:1px solid #35404b}
+.error-header>a:last-child{font-size:13px;min-height:44px;display:flex;align-items:center}
+.error-layout{display:grid;grid-template-columns:minmax(200px,.75fr) minmax(0,1fr);align-items:center;gap:80px;min-height:calc(100svh - 125px);padding-block:60px}
+.error-ticket{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:340px;background:#f4b942;color:#18212a;border-radius:18px;box-shadow:14px 14px 0 #232e39;transform:rotate(-4deg);padding:36px 24px}
+.error-ticket:after{content:"";width:calc(100% - 40px);border-top:2px dashed #665025;position:absolute;bottom:72px}
+.error-ticket strong{font-family:Oswald,sans-serif;font-size:clamp(80px,10vw,150px);line-height:1.2}
+.error-ticket span{font-size:10px;letter-spacing:.22em;font-weight:700;text-align:center}
+.error-copy h1{font-size:clamp(32px,4vw,56px);line-height:1.13;max-width:650px;margin-bottom:24px}
+.error-copy>p:not(.eyebrow){color:#b8c1cc;font-size:15px;line-height:1.8;max-width:540px}
+.error-actions{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0}
+.error-actions .btn{min-height:48px;border-radius:6px}
+.error-copy .error-note{font-size:12px!important;color:#91a0b1!important;margin-top:36px}
+@media(max-width:1000px){.auth-story-copy{padding:32px}.auth-kicker{margin-bottom:64px}.auth-panel{padding:32px}.error-layout{gap:44px}}
+@media(max-width:700px){.auth-layout{grid-template-columns:1fr;margin:20px 0 40px;border-radius:12px;min-height:0}.auth-story{min-height:210px}.auth-story-copy{padding:24px;min-height:210px}.auth-kicker{margin:0 0 24px;padding:6px 9px;font-size:9px}.auth-story h2{font-size:26px;margin-bottom:0}.auth-story h2 br{display:none}.auth-story h2 span{display:block}.auth-story p,.auth-story-bottom{display:none}.auth-story-image{object-position:50% 34%}.auth-panel{padding:26px 22px}.auth-tabs{margin-bottom:28px}.auth-panel h1{font-size:32px}.auth-intro{font-size:13px;margin-bottom:24px}.auth-form{gap:20px}.auth-back{margin-top:16px}.error-header{padding-block:20px}.error-header .brand small{font-size:8px}.error-layout{grid-template-columns:1fr;gap:44px;padding-block:44px;min-height:0}.error-ticket{min-height:210px;gap:12px;max-width:280px;width:85%;margin-inline:auto;padding:22px}.error-ticket strong{font-size:88px}.error-ticket:after{bottom:49px}.error-ticket span{font-size:8px}.error-copy{text-align:center}.error-copy h1{font-size:32px}.error-copy>p{margin-inline:auto}.error-actions{justify-content:center}.error-actions .btn{width:100%;justify-content:center}}

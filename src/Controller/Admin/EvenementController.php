@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Entity\Evenement;
 use App\Enum\TypeEvenement;
@@ -12,11 +14,13 @@ use App\Form\Type\EvenementType;
 use App\Repository\EvenementRepository;
 use App\Repository\InventairePlaceRepository;
 use App\Repository\RepresentationRepository;
+use App\Service\EventImageStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin/evenements', name: 'admin_evenement_')]
@@ -42,7 +46,7 @@ final class EvenementController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 20, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 20, $total);
 
         $items = $queryBuilder
             ->orderBy('e.titre', 'ASC')
@@ -99,23 +103,31 @@ final class EvenementController extends AbstractController
     }
 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, EventImageStorage $images): Response
     {
         $data = new EvenementFormData();
         $form = $this->createForm(EvenementType::class, $data);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $filename = null;
             try {
+                $filename = $data->image !== null ? $images->store($data->image) : null;
                 $evenement = new Evenement($data->titre ?? '', $data->type ?? throw new \LogicException('Type manquant.'), $data->description);
+                if ($filename !== null) { $evenement->setImageFilename($filename); }
                 $entityManager->persist($evenement);
                 $entityManager->flush();
+                $filename = null;
 
                 $this->addFlash('success', 'L’événement a été créé.');
 
                 return $this->redirectToRoute('admin_evenement_show', ['id' => $evenement->getId()]);
+            } catch (FileException) {
+                $form->get('image')->addError(new FormError('Le visuel n’a pas pu être enregistré. Réessayez.'));
             } catch (\InvalidArgumentException $exception) {
                 $form->addError(new FormError($exception->getMessage()));
+            } finally {
+                if ($filename !== null) { $images->remove($filename); }
             }
         }
 
@@ -126,7 +138,7 @@ final class EvenementController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(int $id, Request $request, EvenementRepository $evenements, EntityManagerInterface $entityManager): Response
+    public function edit(int $id, Request $request, EvenementRepository $evenements, EntityManagerInterface $entityManager, EventImageStorage $images): Response
     {
         $evenement = $evenements->find($id) ?? throw $this->createNotFoundException('Événement introuvable.');
         $data = EvenementFormData::fromEntity($evenement);
@@ -134,15 +146,24 @@ final class EvenementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $filename = null;
+            $oldFilename = $evenement->getImageFilename();
             try {
+                $filename = $data->image !== null ? $images->store($data->image) : null;
                 $evenement->modifier($data->titre ?? '', $data->type ?? throw new \LogicException('Type manquant.'), $data->description);
+                if ($filename !== null) { $evenement->setImageFilename($filename); }
                 $entityManager->flush();
+                if ($filename !== null) { $images->remove($oldFilename); $filename = null; }
 
                 $this->addFlash('success', 'L’événement a été modifié.');
 
                 return $this->redirectToRoute('admin_evenement_show', ['id' => $evenement->getId()]);
+            } catch (FileException) {
+                $form->get('image')->addError(new FormError('Le visuel n’a pas pu être enregistré. Réessayez.'));
             } catch (\InvalidArgumentException $exception) {
                 $form->addError(new FormError($exception->getMessage()));
+            } finally {
+                if ($filename !== null) { $images->remove($filename); }
             }
         }
 

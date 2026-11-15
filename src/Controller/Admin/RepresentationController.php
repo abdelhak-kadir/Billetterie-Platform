@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Entity\Representation;
 use App\Form\Model\RepresentationFormData;
@@ -35,12 +37,12 @@ final class RepresentationController extends AbstractController
             ->join('r.evenement', 'e')->addSelect('e')
             ->join('r.salle', 's')->addSelect('s');
 
-        $evenementId = $request->query->getInt('evenement', 0);
+        $evenementId = QueryFilters::positiveInt($request->query, 'evenement');
         if ($evenementId > 0) {
             $queryBuilder->andWhere('e.id = :evenement')->setParameter('evenement', $evenementId);
         }
 
-        $salleId = $request->query->getInt('salle', 0);
+        $salleId = QueryFilters::positiveInt($request->query, 'salle');
         if ($salleId > 0) {
             $queryBuilder->andWhere('s.id = :salle')->setParameter('salle', $salleId);
         }
@@ -50,7 +52,7 @@ final class RepresentationController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 20, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 20, $total);
 
         $items = $queryBuilder
             ->orderBy('r.debut', 'ASC')

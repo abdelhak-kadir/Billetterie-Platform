@@ -1,1 +1,26 @@
-{% extends 'store/base.html.twig' %}{% block title %}Créer un compte{% endblock %}{% block body %}<h1>Créer un compte client</h1><div class="card form-card">{{ form_start(form) }}{{ form_widget(form) }}<button class="btn btn-primary" type="submit">Créer mon compte</button>{{ form_end(form) }}</div>{% endblock %}
+{% extends 'security/base.html.twig' %}
+{% block title %}Créer un compte{% endblock %}
+{% block auth_content %}
+    <p class="eyebrow">Une place pour vos prochaines sorties</p>
+    <h1>Créer un compte</h1>
+    <p class="auth-intro">Choisissez vos places, retrouvez vos commandes et téléchargez vos billets.</p>
+    {{ form_start(form, {attr: {class: 'auth-form'}}) }}
+        {% if form.vars.errors|length %}<div class="auth-alert" role="alert">{{ form_errors(form) }}</div>{% endif %}
+        <div class="auth-field">
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email, {attr: {autocomplete: 'email', placeholder: 'vous@exemple.fr', maxlength: 180}}) }}
+            {{ form_errors(form.email) }}
+        </div>
+        <div class="auth-field">
+            {{ form_label(form.password, 'Mot de passe') }}
+            <div class="auth-password">
+                {{ form_widget(form.password, {attr: {autocomplete: 'new-password', minlength: 12, 'aria-describedby': 'password-help'}}) }}
+                <button type="button" data-password-toggle aria-controls="{{ form.password.vars.id }}" aria-pressed="false" aria-label="Afficher le mot de passe" hidden>Afficher</button>
+            </div>
+            <p class="auth-help" id="password-help">12 caractères minimum.</p>
+            {{ form_errors(form.password) }}
+        </div>
+        <button class="btn btn-primary auth-submit" type="submit">Créer mon compte <span aria-hidden="true">→</span></button>
+    {{ form_end(form) }}
+    <p class="auth-switch">Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a></p>
+{% endblock %}

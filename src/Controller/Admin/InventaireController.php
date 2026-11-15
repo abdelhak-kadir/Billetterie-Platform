@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Presentation\SeatMapView;
 use App\Enum\StatutInventairePlace;
@@ -33,12 +35,12 @@ final class InventaireController extends AbstractController
             ->join('p.zone', 'z')->addSelect('z')
             ->join('z.salle', 'sa')->addSelect('sa');
 
-        $representationId = $request->query->getInt('representation', 0);
+        $representationId = QueryFilters::positiveInt($request->query, 'representation');
         if ($representationId > 0) {
             $queryBuilder->andWhere('r.id = :representation')->setParameter('representation', $representationId);
         }
 
-        $zoneId = $request->query->getInt('zone', 0);
+        $zoneId = QueryFilters::positiveInt($request->query, 'zone');
         if ($zoneId > 0) {
             $queryBuilder->andWhere('z.id = :zone')->setParameter('zone', $zoneId);
         }
@@ -60,7 +62,7 @@ final class InventaireController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 25, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 25, $total);
 
         $items = $queryBuilder
             ->orderBy('r.debut', 'ASC')

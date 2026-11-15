@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Admin\QueryFilters;
+
 use App\Admin\Pagination;
 use App\Entity\Billet;
 use App\Enum\StatutBillet;
@@ -43,7 +45,7 @@ final class BilletController extends AbstractController
             $queryBuilder->andWhere('b.statut = :statut')->setParameter('statut', $statut);
         }
 
-        $representationId = $request->query->getInt('representation', 0);
+        $representationId = QueryFilters::positiveInt($request->query, 'representation');
         if ($representationId > 0) {
             $queryBuilder->andWhere('r.id = :representation')->setParameter('representation', $representationId);
         }
@@ -53,7 +55,7 @@ final class BilletController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pagination = new Pagination($request->query->getInt('page', 1), 20, $total);
+        $pagination = new Pagination(QueryFilters::positiveInt($request->query, 'page', 1), 20, $total);
 
         $items = $queryBuilder
             ->orderBy('b.reference', 'ASC')
