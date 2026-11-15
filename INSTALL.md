@@ -34,28 +34,36 @@ l'autre application ou adapter le port publié dans `compose.yaml` si nécessair
 Un clone neuf ne garantit pas un volume neuf si le nom de projet a déjà servi.
 
 ```sh
-docker compose up --build -d --wait
-docker compose exec -T app composer install --no-interaction
-docker compose ps
-docker compose exec -T app php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
+./bin/setup-demo
 ```
 
-La base doit être `billetterie` avec les valeurs d'exemple. Avant de poursuivre,
-confirmer qu'il s'agit du volume neuf et jetable de cette installation.
-**`doctrine:fixtures:load` purge les tables de la base ciblée**, y compris les
-comptes et les ventes. Ne pas l'exécuter sur une base contenant des données à conserver.
+Le script construit et démarre PHP/MySQL, installe les dépendances de
+`composer.lock`, applique les migrations, prépare les fixtures et comptes,
+puis attend une réponse HTTP 200 du catalogue. Aucun PHP, Composer ou MySQL
+n’est requis sur l’hôte. Sous Linux, l’UID/GID est transmis à la construction.
+
+L’initialisation vérifie `SELECT DATABASE()` dans le même conteneur et le même
+environnement `dev` que le web. Elle est interdite sur une base PHPUnit. Si les
+tables métier sont vides, le chargement exclut `app_user` de la purge et refuse
+les comptes autres que les trois adresses fictives. Un jeu déjà installé est
+conservé, y compris ses achats et comptes. Une base non vide inconnue est
+refusée : utilisez un projet Compose isolé et un volume neuf.
+
+Ouvrir **[http://localhost:8080](http://localhost:8080)**. Pour conserver une
+instance déjà en service, installer le clone de démo avec un autre nom et port :
 
 ```sh
-docker compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
-docker compose exec -T app php bin/console doctrine:fixtures:load --no-interaction
-docker compose exec -T app php bin/console app:demo:users
-docker compose exec -T app php bin/console doctrine:schema:validate
+COMPOSE_PROJECT_NAME=horizon-evaluation HORIZON_HTTP_PORT=8081 ./bin/setup-demo
 ```
 
-Ouvrir **[http://localhost:8080](http://localhost:8080)**. Les migrations,
-fixtures et comptes sont installés par ces commandes explicites ; le démarrage
-Compose seul ne les installe pas. Conserver les dépendances de développement,
-nécessaires aux fixtures et aux tests.
+L’URL devient `http://localhost:8081`. Conserver les mêmes variables pour toutes
+les commandes Compose de cette installation, par exemple avec `export` dans
+le terminal. `app:demo:prepare` et `app:demo:users` peuvent être relancées sans
+purger un jeu reconnu ni changer les mots de passe existants.
+
+Pour une exécution détaillée ou une installation existante, les commandes de
+migration restent décrites ci-dessous. Le chargement manuel de fixtures purge
+la base ciblée : il n’est pas une mise à jour d’une base contenant des données.
 
 ## Configuration
 
@@ -160,7 +168,7 @@ supprime ces données et le cache Composer : réserver cette option à un projet
 | --- | --- |
 | Accès Docker refusé | Vérifier `docker info` et les droits d'accès au moteur ; aucune commande applicative ne corrige les droits de la machine. |
 | Port 8080 déjà utilisé | Arrêter le service concerné ou adapter `8080:8000` dans `compose.yaml`, puis utiliser l'URL correspondante. |
-| Écriture refusée dans le clone sous Linux | Si l'UID/GID diffère de 1000, lancer `UID=$(id -u) GID=$(id -g) docker compose build app`, puis `docker compose up -d --wait`. |
+| Écriture refusée dans le clone sous Linux | Si l'UID/GID diffère de 1000, lancer `HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose build app`, puis `docker compose up -d --wait`. |
 | Erreur MySQL | Consulter `docker compose logs database`, comparer `DATABASE_URL` aux variables MySQL et vérifier les surcharges de `.env.local`. Ne pas supprimer un volume contenant des données utiles. |
 | Dépendances manquantes ou page en erreur | Relancer `docker compose exec -T app composer install --no-interaction`, puis consulter `docker compose logs app`. |
 | Catalogue vide | Les migrations ne créent pas de programmation. Vérifier la base ciblée et préparer les fixtures uniquement dans une installation jetable. |

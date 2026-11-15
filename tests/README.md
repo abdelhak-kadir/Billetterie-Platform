@@ -10,6 +10,29 @@ commandes suivantes depuis la racine du dépôt, dans le même projet Compose.
 Elles utilisent les identifiants fictifs de `.env.example` ; adapter le compte
 et l'URL si la configuration locale a changé.
 
+## Vérification complète sous Docker
+
+```sh
+./bin/test-docker
+```
+
+Ce raccourci crée les deux bases jetables documentées ci-dessous, identifie
+les connexions et lance successivement les deux suites. Il utilise le compte
+MySQL local sans afficher son mot de passe. Les valeurs d’exemple doivent être
+cohérentes ; la suite principale attend `billetterie_test`.
+
+Le workflow `.github/workflows/verify.yml` lance l’installation sur un runner
+Ubuntu neuf, un achat HTTP, une relance sans purge et les tests MySQL. Le script
+HTTP utilise seulement la bibliothèque standard Python de l’hôte de contrôle :
+
+```sh
+python3 tests/Support/demo-http-check.py --base-url http://localhost:8080
+```
+
+Il achète A5 dans un jeu jetable ; `--expect-existing` vérifie ensuite que cet
+achat et son PDF ont survécu à une relance du setup. Ne pas l’exécuter sur une
+base à préserver.
+
 ## Suite principale
 
 Sur un volume neuf, créer la base de tests et accorder les droits au compte
