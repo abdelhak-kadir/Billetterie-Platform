@@ -1,11 +1,21 @@
-# Journal des décisions — S1-03
+# Journal des décisions Horizon
 
-Finalisation du 11 novembre 2026, à partir des propositions du 10 novembre.
-Sources : `sujet-1-billetterie.md` et `00-demarche.md`, lus dans
-`/home/kadir/Downloads/md/`. Le sujet fixe les besoins ; la démarche autorise à
-trancher les ambiguïtés en notant les hypothèses. Les décisions ci-dessous
-constituent une conception à implémenter, sans prétendre réaliser les Niveaux 2
-et 3. Le modèle détaillé et ses scénarios se trouvent dans [MODELE.md](MODELE.md).
+État du 15 novembre 2026. Ce journal conserve les décisions datées et leurs
+évolutions : les propositions initiales ne sont pas toutes les règles finales.
+Le [modèle actuel](MODELE.md) décrit les entités et contraintes implémentées.
+
+| Question du sujet | Décision actuelle | Référence |
+| --- | --- | --- |
+| Prix après modification d’un tarif | Prix accepté figé à la réservation et prix payé conservé sur le billet. | D03, D11 |
+| Autre configuration de salle | Plan initial fixe ; des variantes futures seront versionnées sans modifier l’historique. | D01 |
+| Paiement non abouti | Libération des seules places détenues ; expiration contrôlée sous verrou. | D05, D11–D12 |
+| Représentation annulée | Billets annulés conservés, remboursement simulé au prix payé et inventaire bloqué. | D06, D12 |
+| Droit de vendre par tarif | Client : plein ; guichetier : plein/réduit/groupe ; administrateur : aussi invitation. | D14 |
+
+D01–D10 ci-dessous sont les décisions de conception du 11 novembre. D11–D16
+consignent leur mise en œuvre aux sprints 2 et 3 et remplacent les hypothèses
+initiales lorsqu’elles diffèrent. Sources : sujet Billetterie et démarche du
+challenge, lus avant l’implémentation.
 
 ## D01 — Plan fixe et configurations alternatives
 

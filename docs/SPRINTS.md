@@ -1,4 +1,4 @@
-# Sprint status — 13 November 2026
+# Suivi des sprints — état du 15 novembre 2026
 
 This status is based on repository evidence. No existing S1–S2 task checklist
 was found; the requested S1 scopes are recorded below.
@@ -12,7 +12,7 @@ was found; the requested S1 scopes are recorded below.
 | S1-06 basic back-office | Implemented and verified in Docker | French Symfony/Twig admin at `/admin`, read-only physical plan, events, representations, tariffs, inventory, orders and tickets. Standard suite 28 tests / 130 assertions; Demo Fixtures 1 test / 16 175 assertions; Chrome desktop and mobile check. `/admin` returns 404 in `prod` until authentication exists. |
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
 | Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
-| Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 71 standard tests / 429 assertions, isolated Demo Fixtures and Chrome 1440/390. See NIVEAU3.md. |
+| Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 75 tests / 461 assertions relancés le 15 novembre ; Demo Fixtures et Chrome 1440/390 documentés aux jalons précédents. Voir NIVEAU3.md. |
 | Niveaux 4 et 5 | Non atteints | Google Sheets absent. Docker et [INSTALL.md](../INSTALL.md) sont disponibles ; l'initialisation reste manuelle et les niveaux sont cumulatifs. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
 
 ## S1-02 verification
@@ -278,3 +278,13 @@ Voir [NIVEAU3.md](NIVEAU3.md) pour les comptes, les commandes de préparation,
 les captures, les définitions de calcul et les limites. Aucun paiement bancaire,
 critère commercial inventé, scanner d'entrée à usage unique, intégration Sheets
 ou livraison Niveau 5 ajouté.
+
+## Intégration du socle validé (15 novembre 2026)
+
+Le Sprint 3 est intégré dans `main` par une fusion conservant les commits des
+trois sprints, sans squash ni réécriture. Les documents du modèle et des
+décisions présentent maintenant les règles implémentées avant l’historique.
+La suite principale a été relancée sur `billetterie_test` : 75 tests et
+461 assertions, sans échec. La base de démonstration reste distincte. Les
+travaux de livraison et Google Sheets sont suivis séparément et ne sont
+revendiqués qu’après leur vérification.

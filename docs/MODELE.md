@@ -1,41 +1,44 @@
-# Modèle métier — S1-03
+# Modèle métier Horizon
 
-Version du 11 novembre 2026. Conception documentaire : aucune entité, migration,
-fixture ou interface métier n'est créée par S1-03. Les mécanismes ci-dessous
-restent à implémenter et à tester.
+État du 15 novembre 2026 : modèle implémenté avec Doctrine et trois migrations
+MySQL. Les niveaux 1 à 3 comprennent le plan de salle, les inventaires par
+représentation, les réservations temporaires, les ventes et remboursements
+simulés, les comptes, les billets PDF/QR et les indicateurs.
 
-Évolution au Niveau 3 (12 novembre) : ce texte garde le cadrage S1-03.
-`ReservationItem` implémenté au Sprint 2 conserve chaque prix accepté.
-`User` ajouté au Sprint 3 porte email unique, hash du mot de passe et rôle ;
-une commande possède zéro ou un propriétaire, un compte zéro à plusieurs
-commandes. La liaison nullable protège les ventes historiques non attribuées.
-Voir [NIVEAU3.md](NIVEAU3.md) pour le modèle et les permissions effectivement livrés.
+`ReservationItem` conserve le prix accepté à la réservation. `User` porte
+l’identité et le rôle ; `Commande.owner_id` est nullable pour conserver les
+ventes historiques sans les attribuer par simple égalité d’e-mail. Les nouvelles
+commandes concernent une seule représentation ; les anciennes commandes
+multi-représentations restent prises en charge pour leur annulation.
+
+Le plan initial est fixe, les montants sont stockés en centimes de MAD et les
+inventaires sont indépendants d’une représentation à l’autre. Les décisions
+initiales du 11 novembre sont conservées dans [DECISIONS.md](DECISIONS.md) ;
+D11–D16 précisent les règles effectivement retenues. Voir [SPRINT2.md](SPRINT2.md)
+pour les transactions et [NIVEAU3.md](NIVEAU3.md) pour les droits et parcours.
 
 ## Sources et périmètre
 
 Sources originales lues : `sujet-1-billetterie.md` et `00-demarche.md`, disponibles
-localement dans `/home/kadir/Downloads/md/` (non copiées dans ce dépôt).
+dans les documents de cadrage du challenge (non copiés dans ce dépôt).
 Le sujet exige une salle de 400 places numérotées regroupées en zones ou
 catégories, un plan réutilisable, plusieurs événements avec une ou plusieurs
 représentations, plusieurs tarifs, la vente en ligne et au guichet, le suivi des
 ventes, recettes et remplissage. La démarche impose Symfony 7.4, MySQL 8,
 Doctrine ORM et migrations, et demande de documenter les hypothèses.
 
-Le Niveau 1 complet comprend aussi migrations, démonstration et back-office :
-ces travaux ultérieurs ne sont pas réalisés ici. Réservation temporaire,
-concurrence, annulation de commande, remboursement et leurs tests relèvent du
-Niveau 2. Comptes, rôles, parcours sur plan, QR code et tableaux de bord relèvent
-du Niveau 3. Leur description ci-dessous est une cible, pas un bilan de réalisation.
+Les migrations, les fixtures et l’administration réalisent le niveau 1 ; le
+service transactionnel et ses tests réalisent le niveau 2 ; les comptes, le plan
+partagé, les PDF/QR et les rapports réalisent le niveau 3. Le bilan de livraison
+à jour est centralisé dans le [README](../README.md#fonctionnalités-et-niveaux-atteints).
 
-Choix de conception : configuration initiale fixe, montants en centimes de MAD,
-tarifs par représentation, commandes pouvant couvrir plusieurs représentations.
 La répartition Parterre 300 / Balcon 100 est une hypothèse de démonstration,
-pas une exigence du sujet. Voir les décisions D01 à D10.
+pas une exigence supplémentaire du sujet.
 
 ## Objets, responsabilités et champs principaux
 
 Tous les objets ont une clé primaire `id`. Les clés étrangères ci-dessous sont
-obligatoires sauf mention « nullable ». Les noms sont conceptuels, avant mapping Doctrine.
+obligatoires sauf mention « nullable ». Les champs décrivent le schéma Doctrine/MySQL livré.
 
 | Objet | Responsabilité et champs |
 | --- | --- |
@@ -46,6 +49,8 @@ obligatoires sauf mention « nullable ». Les noms sont conceptuels, avant mappi
 | Representation | Occurrence datée d'un événement dans une salle : `evenement_id`, `salle_id`, `debut`, `statut` (programmée, annulée, terminée). |
 | InventairePlace | Disponibilité d'une place pour une représentation : `representation_id`, `place_id`, `statut` (disponible, réservée, vendue, bloquée), `commande_reservation_id` nullable, `reservation_expire_a` nullable. « Bloquée » empêche une nouvelle vente : représentation annulée ou place annulée après fermeture des ventes. |
 | Tarif | Offre de prix pour une représentation : `representation_id`, `libelle`, `categorie` (plein, réduit, groupe, invitation), `prix_centimes` entier non négatif, `actif` booléen. Plusieurs offres d'une même catégorie sont possibles. |
+| User | Compte avec e-mail unique, hash de mot de passe et rôle client, guichetier ou administrateur. |
+| ReservationItem | Ligne acceptée : commande, inventaire, tarif et prix en centimes figé à la réservation. |
 | Commande | Regroupe une opération d'achat : `reference`, `email_client`, `canal` (en ligne, guichet), `statut` (en attente, payée, échouée, expirée, annulée), `cree_a`, `paye_a` nullable. Son état de remboursement est calculé depuis ses billets, séparément du paiement. |
 | Billet | Trace immuable d'une place attribuée après achat confirmé : `reference`, `commande_id`, `inventaire_place_id`, `tarif_id`, `prix_paye_centimes` entier non négatif, `statut` (valide, annulé), `emis_a`, `annule_a` nullable ; `statut_remboursement` (sans objet, à rembourser, remboursé), `montant_rembourse_centimes` entier non négatif, `rembourse_a` nullable. |
 
@@ -94,7 +99,7 @@ erDiagram
     TARIF ||--o{ RESERVATION_ITEM : prix_accepte
 ```
 
-## Contraintes SQL prévues
+## Contraintes SQL implémentées
 
 - Clés étrangères InnoDB sur toutes les associations ; suppression `RESTRICT`
   pour préserver les objets référencés, sans cascade destructrice des ventes.
@@ -111,10 +116,10 @@ erDiagram
   l'historique : colonne technique générée nullable `inventaire_valide_id`,
   égale à `inventaire_place_id` si le billet est valide, sinon `NULL`, puis
   index UNIQUE sur cette colonne. MySQL permet plusieurs valeurs NULL dans cet
-  index. Ce choix de schéma devra être vérifié dans la future migration MySQL 8.
+  index. Cette contrainte est livrée dans la migration initiale et testée sur MySQL 8.
   Un UNIQUE direct sur `Billet.inventaire_place_id` interdirait la revente.
 
-## Invariants applicatifs et transactionnels prévus
+## Invariants applicatifs et transactionnels
 
 - Une place inventoriée appartient à la salle de la représentation, via sa Zone.
   Le Tarif du Billet concerne exactement cette même représentation.
@@ -125,11 +130,11 @@ erDiagram
   sera versionnée et ne réaffectera jamais les inventaires historiques (D01).
 - Vente autorisée seulement pour une représentation programmée non commencée,
   un tarif actif et une place disponible ou réservée par la commande courante
-  avant échéance. Ces conditions temporelles sont des choix proposés, pas des
+  avant échéance. Ces conditions temporelles sont des hypothèses de mise en œuvre, pas des
   règles commerciales précisées par le sujet.
-- Au Niveau 2, réserver, confirmer, expirer ou annuler s'effectuera dans une
+- Réserver, confirmer, expirer ou annuler s'effectue dans une
   transaction avec verrouillage des lignes d'inventaire concernées, dans un ordre
-  stable. L'annulation de représentation et les achats devront aussi sérialiser
+  stable. L'annulation de représentation et les achats sérialisent aussi
   le contrôle de son statut, avec le même ordre de verrouillage.
 - La confirmation vérifie à nouveau disponibilité, propriétaire, échéance,
   tarif et autorisations, crée les billets, copie le prix accepté et marque
@@ -137,14 +142,14 @@ erDiagram
   d'une commande déjà payée ne créent pas de nouveaux billets.
 - L'unicité de l'inventaire empêche deux lignes `(R1, A1)` ; elle ne protège pas
   deux achats simultanés sur la même ligne. Verrous, contrôles et index
-  conditionnel sur le billet se complètent. Leur efficacité reste à tester au Niveau 2.
+  conditionnel sur le billet se complètent. Leur complémentarité est vérifiée par les tests de concurrence à deux processus.
 
-## Statuts et transitions envisagés — Niveau 2
+## Statuts et transitions du niveau 2
 
 | Objet | Transitions et effets |
 | --- | --- |
-| Representation | programmée → terminée après la représentation ; programmée → annulée interdit toute nouvelle vente et bloque son inventaire. Pas de réactivation prévue. |
-| InventairePlace | disponible → réservée lors du choix ; réservée → vendue après confirmation ; réservée → disponible après échec, expiration ou abandon ; vendue → disponible après annulation du billet si la représentation reste vendable ; tout état → bloquée si la représentation est annulée. La fin normale ne libère pas les places vendues. |
+| Representation | `terminée` est un état prévu sans transition automatique ; programmée → annulée interdit toute nouvelle vente et bloque son inventaire. Pas de réactivation prévue. |
+| InventairePlace | disponible → réservée après validation du POST ; réservée → vendue après confirmation ; réservée → disponible après échec, expiration ou abandon ; vendue → disponible après annulation du billet si la représentation reste vendable ; tout état → bloquée si la représentation est annulée. La fin normale ne libère pas les places vendues. |
 | Commande | en attente → payée après confirmation de tous ses achats ; en attente → échouée, expirée ou annulée libère ses seules réservations. Une nouvelle tentative après état terminal crée une nouvelle commande. payée → annulée seulement si tous ses billets sont annulés ; une annulation partielle laisse la commande payée et conserve ses autres billets valides. |
 | Billet | créé valide uniquement lors de la confirmation ; valide → annulé retire définitivement le droit d'accès. Aucun retour à valide : une revente crée un nouveau billet et conserve l'ancien. |
 | Remboursement du billet | sans objet tant que valide ; après annulation, à rembourser si prix payé positif, sinon sans objet ; à rembourser → remboursé uniquement sur confirmation effective du remboursement intégral. |
@@ -169,8 +174,8 @@ ont été remboursés ; « partiel » signifie qu'une somme positive inférieure
 total payé a été remboursée, même si tous les billets annulés sont déjà remboursés.
 Le solde encore dû est affiché indépendamment de cette synthèse.
 
-Au guichet, une confirmation immédiate peut enchaîner réservation et vente dans
-la même transaction, sans supprimer les contrôles de disponibilité.
+Au guichet, la réservation puis la confirmation utilisent le même service que
+le parcours client ; chaque opération est atomique et revalide la disponibilité.
 
 Pour suivre les finances, distinguer ventes brutes (somme des prix payés des
 billets émis), remboursements confirmés et recette nette (brut moins remboursements).
@@ -178,10 +183,11 @@ Les montants encore à rembourser sont présentés séparément. Le remplissage
 compte les billets valides par représentation/zone ; les réservations temporaires
 sont un indicateur distinct. Annuler un billet ne fait pas disparaître l'encaissement.
 
-## Validation documentaire
+## Scénarios de référence et validation
 
-Ces scénarios sont vérifiés par raisonnement sur le modèle ; ce ne sont pas des
-tests exécutés ni une validation SQL réelle.
+Ces scénarios du cadrage initial sont désormais couverts par les suites
+`Integration` et `Functional`, dont les contraintes et verrous sont exécutés sur
+MySQL. Les résultats datés sont consignés dans [SPRINTS.md](SPRINTS.md).
 
 | Scénario | Résultat attendu et fondement |
 | --- | --- |
@@ -193,13 +199,13 @@ tests exécutés ni une validation SQL réelle.
 | Nouvelle représentation | Création atomique de 400 inventaires, un par Place de sa Salle, sans créer 400 nouvelles places physiques. |
 | Annulation puis revente d'A1 pour R1 | Ancien billet annulé reste attaché à la commande initiale ; nouveau billet rattaché à une nouvelle commande ; l'index conditionnel refuse un second billet valide. |
 
-## Hypothèses restant à valider
+## Limites et hypothèses métier
 
-Répartition et libellés des zones, durée configurable de réservation, maintien ou
-actualisation du prix durant la réservation, critères du réduit/groupe, habilitations
-aux invitations, conditions et délais des remboursements volontaires, intégration
-du paiement et besoin éventuel de remboursements partiels par billet. Les propositions
-retenues pour avancer sont consignées dans DECISIONS.md ; aucune n'est implémentée ici.
+La durée retenue est de 600 secondes configurables, le prix est figé à la
+réservation, et les invitations sont réservées à l’administrateur. Restent à
+valider avec un exploitant réel : conditions du réduit/groupe, politique de
+remboursement, variantes de salle et prestataire bancaire. Aucun seuil
+commercial ni paiement réel n’est ajouté implicitement.
 
 ## Extension implémentée au Sprint 2 — 12 novembre 2026
 
