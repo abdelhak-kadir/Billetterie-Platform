@@ -301,7 +301,8 @@ volumes neufs : installation OK, achat A5/PDF et trois connexions OK, puis
 relance sans purge et même billet toujours accessible. Suite principale :
 80 tests / 470 assertions. Demo Fixtures : 1 test / 16 175 assertions, sur sa
 base séparée. Le workflow CI reproduit l’installation et les contrôles sur un
-runner neuf ; son résultat distant sera consigné après exécution.
+runner neuf et a réussi : voir les liens dans
+[VALIDATION_FINALE.md](VALIDATION_FINALE.md).
 
 Le nouveau raccourci de fixtures a d’abord révélé un chargement incomplet de
 `.env.test`, puis une réécriture de la surcharge DATABASE_URL par Dotenv. Les
@@ -317,9 +318,11 @@ les révisions, sérialise les workers et diffère les erreurs sans annuler la v
 L’authentification utilise la bibliothèque officielle `google/auth`. Les
 indicateurs admin montrent l’état des envois et les erreurs contrôlées.
 
-Les tests ciblés passent : 16 tests et 92 assertions. La suite intégrée passe
-avec 96 tests et 562 assertions ; Demo Fixtures reste séparée et passe avec
-16 175 assertions. Le garde supplémentaire interdisant un export réel depuis
-PHPUnit passe également. La recette réelle reste conditionnée à la feuille et
+Les tests ciblés initiaux passent : 16 tests et 92 assertions. Après ajout du
+garde interdisant un export réel depuis PHPUnit, la suite intégrée passe
+avec **97 tests et 564 assertions** sur runner neuf ; Demo Fixtures reste
+séparée et passe avec 16 175 assertions. Les achats et PDF client/guichet sont
+également contrôlés avec Chromium en formats desktop et mobile. La recette
+Google réelle reste conditionnée à la feuille et
 aux identifiants autorisés ; aucun succès Google n’est déduit des mocks. Voir
 [VALIDATION_FINALE.md](VALIDATION_FINALE.md) pour la clôture intégrée.

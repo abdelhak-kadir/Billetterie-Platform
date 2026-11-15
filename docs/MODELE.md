@@ -1,6 +1,6 @@
 # Modèle métier Horizon
 
-État du 15 novembre 2026 : modèle implémenté avec Doctrine et trois migrations
+État du 15 novembre 2026 : modèle implémenté avec Doctrine et quatre migrations
 MySQL. Les niveaux 1 à 3 comprennent le plan de salle, les inventaires par
 représentation, les réservations temporaires, les ventes et remboursements
 simulés, les comptes, les billets PDF/QR et les indicateurs.
@@ -53,11 +53,17 @@ obligatoires sauf mention « nullable ». Les champs décrivent le schéma Doctr
 | ReservationItem | Ligne acceptée : commande, inventaire, tarif et prix en centimes figé à la réservation. |
 | Commande | Regroupe une opération d'achat : `reference`, `email_client`, `canal` (en ligne, guichet), `statut` (en attente, payée, échouée, expirée, annulée), `cree_a`, `paye_a` nullable. Son état de remboursement est calculé depuis ses billets, séparément du paiement. |
 | Billet | Trace immuable d'une place attribuée après achat confirmé : `reference`, `commande_id`, `inventaire_place_id`, `tarif_id`, `prix_paye_centimes` entier non négatif, `statut` (valide, annulé), `emis_a`, `annule_a` nullable ; `statut_remboursement` (sans objet, à rembourser, remboursé), `montant_rembourse_centimes` entier non négatif, `rembourse_a` nullable. |
+| SheetsSyncJob | File technique d’export : référence de billet unique, projection JSON sans identité client, révision, état d’envoi, tentatives, prochaine reprise et destination synchronisée. Aucun appel Google dans la transaction métier. |
 
 Les dates sont stockées en UTC et affichées dans `Africa/Casablanca` (D10).
 Le prix payé ne change jamais après émission, même lors d'un remboursement.
 Les champs de remboursement décrivent un remboursement intégral par billet ;
 les remboursements partiels d'un même billet ne sont pas prévus (hypothèse D06).
+La file Sheets est reliée au billet par sa référence naturelle, sans clé
+étrangère. Elle conserve une projection et ses révisions ; une vente et sa
+demande d’export sont validées dans la même transaction. Voir
+[GOOGLE_SHEETS.md](GOOGLE_SHEETS.md) pour les reprises et la gestion des lignes.
+Le diagramme ci-dessous représente les associations métier, hors file technique.
 
 ## Associations et cardinalités
 
