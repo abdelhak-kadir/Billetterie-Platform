@@ -1,37 +1,10 @@
 {% extends 'admin/base.html.twig' %}
 {% block title %}{{ evenement.titre }}{% endblock %}
 {% block body %}
-    <a class="back-link" href="{{ path('admin_evenement_index') }}">← Tous les événements</a>
-    <section class="hero detail-hero" aria-labelledby="event-title">
-        <img class="hero-image" src="{{ event_art(evenement) }}" alt="" fetchpriority="high" width="1536" height="1024">
-        <div class="hero-content">
-            <p class="eyebrow">{{ evenement.type.label }} <span aria-hidden="true">/</span> Horizon, salle culturelle</p>
-            <h1 id="event-title">{{ evenement.titre }}</h1>
-            <p class="hero-description">{{ evenement.description ? evenement.description|slice(0, 180) : 'La programmation de cet événement est à retrouver ci-dessous.' }}{{ evenement.description|length > 180 ? '…' : '' }}</p>
-            <a class="btn btn-primary" href="#programmation">Voir les représentations ↗</a>
-            <div class="actions"><span class="muted">Gestion de l’événement</span><a class="btn btn-secondary btn-small" href="{{ path('admin_evenement_edit', {id: evenement.id}) }}">Modifier</a></div>
-        </div>
-    </section>
-    {% if evenement.description|length > 180 %}<details class="description-more"><summary>Lire la description complète</summary><p>{{ evenement.description }}</p></details>{% endif %}
-    <section class="section" id="programmation" aria-labelledby="program-title">
-        <div class="section-head"><h2 id="program-title">Les représentations</h2><span class="muted">Horaires · Africa/Casablanca</span></div>
-        <nav class="date-nav" aria-label="Dates des représentations">
-            {% for key, date in dates %}
-                <a href="{{ path('admin_evenement_show', {id: evenement.id, date: key}) }}#programmation" {% if key == selectedDate %}aria-current="date"{% endif %} aria-label="{{ date|date('d/m/Y', 'Africa/Casablanca') }}">
-                    <span>{{ date|date('m / Y', 'Africa/Casablanca') }}</span><strong>{{ date|date('d', 'Africa/Casablanca') }}</strong><span>{{ key == selectedDate ? 'Sélectionnée' : 'Voir la date' }}</span>
-                </a>
-            {% endfor %}
-        </nav>
-        <div class="sessions">
-            {% for representation in representations %}
-                {% set availability = inventoryCounts[representation.id]|default({}) %}
-                <a class="session" href="{{ path('admin_representation_plan', {id: representation.id}) }}">
-                    <strong>{{ representation.debut|date('H:i', 'Africa/Casablanca') }}</strong>
-                    <span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span>
-                    <p>{{ representation.salle.nom }}</p><p>{{ availability.disponible|default(0) }} places disponibles · {{ availability.vendue|default(0) }} vendues</p>
-                    <span class="session-link">Plan de salle et sélection ↗</span>
-                </a>
-            {% else %}<p class="empty">Aucune représentation pour cet événement.</p>{% endfor %}
-        </div>
-    </section>
+<nav class="workspace-breadcrumb" aria-label="Fil d’Ariane"><a href="{{ path('admin_index') }}">Mes événements</a><span>›</span><span>{{ evenement.titre }}</span></nav>
+<section class="event-summary"><img class="hero-image" src="{{ event_art(evenement) }}" alt=""><div><p class="eyebrow">{{ evenement.type.label }} · Espace de gestion</p><h1>{{ evenement.titre }}</h1><p>{{ evenement.description ? evenement.description|slice(0,200) : 'Ajoutez les spectacles de cet événement et gérez chacun depuis sa fiche.' }}</p><div class="actions"><a class="btn btn-primary" href="{{ path('admin_event_add_shows',{id:evenement.id}) }}">+ Ajouter des spectacles et leurs prix</a><a class="btn btn-secondary" href="{{ path('admin_evenement_edit',{id:evenement.id}) }}">Modifier l’événement</a></div></div></section>
+<section id="programmation"><div class="section-head"><div><p class="eyebrow">Choisissez ce que vous voulez gérer</p><h2>Les spectacles de cet événement</h2></div><a href="{{ path('admin_evenement_show',{id:evenement.id}) }}#programmation">Tous les spectacles</a></div>
+<nav class="date-nav" aria-label="Dates des spectacles">{% for key,date in dates %}<a href="{{ path('admin_evenement_show',{id:evenement.id,date:key}) }}#programmation" {% if key == selectedDate %}aria-current="date"{% endif %}><span>{{ date|date('m / Y','Africa/Casablanca') }}</span><strong>{{ date|date('d','Africa/Casablanca') }}</strong><span>Voir cette date</span></a>{% endfor %}</nav>
+<div class="show-card-grid">{% for representation in representations %}{% set availability = inventoryCounts[representation.id]|default({}) %}<article class="show-card"><a class="session" href="{{ path('admin_representation_show',{id:representation.id}) }}"><span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span><h3>{{ representation.nom }}</h3><strong>{{ representation.debut|date('d/m/Y · H:i','Africa/Casablanca') }}</strong><p>{{ representation.salle.nom }}</p><p>{{ availability.disponible|default(0) }} places disponibles · {{ availability.vendue|default(0) }} vendues</p><span class="session-link">Gérer ce spectacle →</span></a><footer class="show-card-footer"><a href="{{ path('admin_representation_plan',{id:representation.id}) }}">Plan des places</a><a href="{{ path('admin_representation_show',{id:representation.id}) }}#tarifs">Catégories et prix</a><a href="{{ path('admin_show_sales',{id:representation.id}) }}">Ventes</a></footer></article>{% else %}<div class="card workspace-empty"><h3>Aucune représentation pour cet événement</h3><p>Ajoutez un spectacle avec son nom, son horaire et ses prix. Les places seront créées automatiquement.</p><a class="btn btn-primary" href="{{ path('admin_event_add_shows',{id:evenement.id}) }}">Ajouter le premier spectacle</a></div>{% endfor %}</div>
+</section>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'admin/base.html.twig' %}
 
-{% block title %}Représentation #{{ representation.id }}{% endblock %}
+{% block title %}{{ representation.nom }}{% endblock %}
 
 {% block body %}
     {% set disponibles = counts.disponible|default(0) %}
@@ -13,7 +13,7 @@
         <img class="hero-image" src="{{ event_art(representation.evenement) }}" alt="" width="1536" height="1024">
         <div class="hero-content">
             <p class="eyebrow">{{ representation.evenement.type.label }} / Représentation</p>
-            <h1 id="representation-title">{{ representation.evenement.titre }}</h1>
+            <h1 id="representation-title">{{ representation.nom }}</h1><p class="show-parent">{{ representation.evenement.titre }}</p>
             <p class="hero-meta">{{ representation.debut|casablanca_date }} · {{ representation.salle.nom }}</p>
             <span class="badge badge-{{ representation.statut.value }}">{{ representation.statut.label }}</span>
             <div class="actions">
@@ -37,36 +37,6 @@
         <span><strong>{{ reservees }}</strong> réservées</span><span><strong>{{ bloquees }}</strong> bloquées</span>
     </div>
     <div class="section-head section" id="tarifs"><h2>Les tarifs</h2><a href="{{ path('admin_tarif_index', {representation: representation.id}) }}">Gérer les tarifs ↗</a></div>
-    <div class="table-wrap" role="region" aria-label="Tableau de gestion" tabindex="0">
-        <table>
-            <thead>
-                <tr>
-                    <th>Tarif</th>
-                    <th>Catégorie</th>
-                    <th class="money">Prix</th>
-                    <th>État</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tarif in tarifs %}
-                    <tr>
-                        <td>{{ tarif.libelle }}</td>
-                        <td>{{ tarif.categorie.label }}</td>
-                        <td class="money">{{ tarif.prixCentimes|mad }}</td>
-                        <td>
-                            {% if tarif.actif %}
-                                <span class="badge badge-actif">Actif</span>
-                            {% else %}
-                                <span class="badge badge-inactif">Inactif</span>
-                            {% endif %}
-                        </td>
-                        <td><a href="{{ path('admin_tarif_show', {id: tarif.id}) }}">Détail</a></td>
-                    </tr>
-                {% else %}
-                    <tr><td colspan="5" class="empty">Aucun tarif pour cette représentation.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <div class="show-action-grid"><a href="{{ path('admin_representation_plan',{id:representation.id}) }}"><strong>Places et disponibilités</strong><span>Voir le plan de ce spectacle.</span></a><a href="{{ path('admin_show_sales',{id:representation.id}) }}"><strong>Ventes et billets</strong><span>Retrouver les commandes de ce spectacle.</span></a><a href="{{ path('admin_report',{representation:representation.id}) }}"><strong>Remplissage et recettes</strong><span>Consulter son bilan.</span></a></div>
+    <div class="tariff-card-grid">{% for tarif in tarifs %}<article class="tariff-card"><p class="eyebrow">{{ tarif.seatCategory ? tarif.seatCategory.nom : 'Toutes les places' }}</p><h3>{{ tarif.libelle }}</h3><strong>{{ tarif.prixCentimes|mad }}</strong><p>{{ tarif.categorie.label }} · {{ tarif.actif ? 'Actif' : 'Désactivé' }}</p><a href="{{ path('admin_tarif_edit',{id:tarif.id}) }}">Modifier ce tarif →</a></article>{% else %}<div class="card workspace-empty"><p>Aucun tarif pour ce spectacle.</p><a href="{{ path('admin_tarif_new',{representation:representation.id}) }}">Ajouter un tarif</a></div>{% endfor %}</div>
 {% endblock %}

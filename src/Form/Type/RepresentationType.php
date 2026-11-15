@@ -11,6 +11,7 @@ use App\Form\Model\RepresentationFormData;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -19,6 +20,7 @@ final class RepresentationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('nom', TextType::class, ['label' => 'Nom du spectacle', 'required' => false, 'attr' => ['maxlength' => 150], 'help' => 'Par exemple : concert principal, première partie ou session acoustique.'])
             ->add('evenement', EntityType::class, [
                 'class' => Evenement::class,
                 'label' => 'Événement',

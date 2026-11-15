@@ -114,7 +114,7 @@ export class SeatMap {
             seat.classList.toggle('h-is-selected', selected);
             seat.setAttribute('aria-pressed', String(selected));
             seat.setAttribute('aria-disabled', String(this.mode === 'select' && seat.dataset.status !== 'disponible'));
-            seat.setAttribute('aria-label', `${seat.dataset.label}, ${selected ? 'sélectionné' : seat.dataset.statusLabel}`);
+            seat.setAttribute('aria-label', `${seat.dataset.label}${seat.dataset.categoryName ? ', ' + seat.dataset.categoryName : ''}, ${selected ? 'sélectionné' : seat.dataset.statusLabel}`);
             seat.querySelector('.h-seat-symbol').textContent = selected ? '✓' : ({reservee: '◷', vendue: '×', bloquee: '−'}[seat.dataset.status] || '');
         }
         const list = this.root.querySelector('[data-selection-list]');

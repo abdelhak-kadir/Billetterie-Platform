@@ -1,0 +1,8 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Ventes · {{ representation.nom }}{% endblock %}
+{% block body %}
+<nav class="workspace-breadcrumb" aria-label="Fil d’Ariane"><a href="{{ path('admin_index') }}">Mes événements</a><span>›</span><a href="{{ path('admin_evenement_show',{id:representation.evenement.id}) }}">{{ representation.evenement.titre }}</a><span>›</span><a href="{{ path('admin_representation_show',{id:representation.id}) }}">{{ representation.nom }}</a><span>›</span><span>Ventes</span></nav>
+<div class="page-head"><div><p class="eyebrow">{{ representation.debut|casablanca_date }}</p><h1>Ventes de ce spectacle</h1><p>{{ representation.nom }} · {{ pagination.total }} commande(s)</p></div><a class="btn btn-secondary" href="{{ path('admin_representation_show',{id:representation.id}) }}">Retour au spectacle</a></div>
+<div class="show-card-grid">{% for order in orders %}<article class="tariff-card"><span class="badge">{{ order.statut.label }}</span><h2>{{ order.reference }}</h2><p>{{ order.creeA|casablanca_date }} · {{ order.canal.label }}</p><p>{{ order.billets|length }} billet(s) émis</p><a class="btn btn-secondary" href="{{ path('admin_commande_show',{id:order.id}) }}">Voir la commande et ses billets →</a></article>{% else %}<div class="card workspace-empty"><h2>Aucune vente pour le moment</h2><p>Les commandes de ce spectacle apparaîtront ici.</p><a href="{{ path('admin_representation_plan',{id:representation.id}) }}">Voir les places disponibles</a></div>{% endfor %}</div>
+{% include 'admin/_pagination.html.twig' %}
+{% endblock %}

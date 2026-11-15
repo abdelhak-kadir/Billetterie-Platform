@@ -6,6 +6,7 @@ namespace App\Form\Type;
 
 use App\Entity\Representation;
 use App\Entity\Tarif;
+use App\Entity\SeatCategory;
 use App\Enum\CategorieTarif;
 use App\Form\Model\TarifFormData;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -26,7 +27,7 @@ final class TarifType extends AbstractType
                 'choice_label' => static function (Representation $representation): string {
                     return sprintf(
                         '%s — %s (Africa/Casablanca)',
-                        $representation->getEvenement()->getTitre(),
+                        $representation->getNom(),
                         \DateTimeImmutable::createFromInterface($representation->getDebut())
                             ->setTimezone(new \DateTimeZone('Africa/Casablanca'))
                             ->format('d/m/Y H:i'),
@@ -47,9 +48,14 @@ final class TarifType extends AbstractType
             ])
             ->add('categorie', EnumType::class, [
                 'class' => CategorieTarif::class,
-                'label' => 'Catégorie',
+                'label' => 'Type de tarif',
                 'choice_label' => static fn (CategorieTarif $categorie): string => $categorie->label(),
                 'placeholder' => 'Choisir une catégorie',
+            ])
+            ->add('seatCategory', EntityType::class, ['class'=>SeatCategory::class,'label'=>'Catégorie de place','required'=>false,'placeholder'=>'Toutes les places sans catégorie (tarifs historiques)',
+                'choice_label'=>static fn(SeatCategory $c)=>$c->getRepresentation()->getEvenement()->getTitre().' · '.$c->getRepresentation()->getNom().' · '.$c->getNom(),
+                'help'=>'Choisissez Standard, VIP ou VVIP pour un spectacle configuré. Le type plein/réduit/groupe reste indépendant.',
+                'disabled'=>$options['representation_locked'],
             ])
             ->add('prixCentimes', MoneyMadType::class, [
                 'label' => 'Prix (MAD)',

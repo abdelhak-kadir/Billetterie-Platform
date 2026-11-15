@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InventairePlaceRepository::class)]
 #[ORM\Table(name: 'inventaire_place')]
+#[ORM\Index(name: 'IDX_INVENTORY_CATEGORY', columns: ['seat_category_id'])]
 #[ORM\UniqueConstraint(name: 'uniq_inventaire_representation_place', columns: ['representation_id', 'place_id'])]
 #[ORM\Index(name: 'idx_inventaire_place_place', columns: ['place_id'])]
 #[ORM\Index(name: 'idx_inventaire_commande_reservation', columns: ['commande_reservation_id'])]
@@ -37,6 +38,23 @@ class InventairePlace
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $reservationExpireA = null;
+
+    #[ORM\ManyToOne(targetEntity: SeatCategory::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    private ?SeatCategory $seatCategory = null;
+
+    public function getSeatCategory(): ?SeatCategory { return $this->seatCategory; }
+    public function classify(SeatCategory $category): void
+    {
+        if ($category->getRepresentation() !== $this->representation
+            && ($category->getRepresentation()->getId() === null || $category->getRepresentation()->getId() !== $this->representation->getId())) {
+            throw new \InvalidArgumentException('La catégorie appartient à un autre spectacle.');
+        }
+        if ($this->statut !== StatutInventairePlace::Disponible || $this->seatCategory !== null) {
+            throw new \LogicException('La catégorie se définit une fois, avant la mise en vente.');
+        }
+        $this->seatCategory = $category;
+    }
 
     public function __construct(Representation $representation, Place $place)
     {

@@ -1,0 +1,6 @@
+<article class="setup-show card" data-show-card>
+    <div class="setup-show-head"><h3>Spectacle <span data-show-number></span></h3><button type="button" class="btn btn-secondary btn-small" data-remove-show>Retirer</button></div>
+    <div class="form-grid"><div class="field">{{ form_row(show.nom) }}</div><div class="field">{{ form_row(show.debut) }}</div></div>
+    <p class="help">Horaires en Africa/Casablanca. Chaque spectacle possède ses propres billets et disponibilités.</p>
+    <div class="setup-prices"><div class="field tier-standard">{{ form_row(show.standardPrice) }}</div><div class="field tier-vip">{{ form_row(show.vipPrice) }}</div><div class="field tier-vvip">{{ form_row(show.vvipPrice) }}</div></div>
+</article>

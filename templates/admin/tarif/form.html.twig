@@ -19,6 +19,7 @@
             {{ form_errors(form) }}
             <p class="eyebrow">Tarification</p>
             <div class="form-grid">
+                <div class="field field-span-2">{{ form_row(form.seatCategory) }}</div>
                 <div class="field field-span-2">
                     {{ form_label(form.representation) }}
                     {{ form_widget(form.representation) }}

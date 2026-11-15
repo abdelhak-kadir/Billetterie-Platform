@@ -95,6 +95,7 @@ final class RepresentationController extends AbstractController
         Request $request,
         RepresentationInventoryService $inventoryService,
         InventairePlaceRepository $inventaires,
+        EntityManagerInterface $entityManager,
     ): Response {
         $data = new RepresentationFormData();
         $form = $this->createForm(RepresentationType::class, $data);
@@ -109,6 +110,8 @@ final class RepresentationController extends AbstractController
                 );
 
                 $count = $inventaires->countForRepresentation($representation);
+                $representation->nommer($data->nom);
+                $entityManager->flush();
                 $this->addFlash('success', sprintf('La représentation a été créée avec %d places inventoriées.', $count));
 
                 return $this->redirectToRoute('admin_representation_show', ['id' => $representation->getId()]);
@@ -159,6 +162,7 @@ final class RepresentationController extends AbstractController
                     $data->salle ?? throw new \LogicException('Salle manquante.'),
                     $data->debut ?? throw new \LogicException('Date manquante.'),
                 );
+                $representation->nommer($data->nom);
                 $entityManager->flush();
 
                 $this->addFlash('success', 'La représentation a été modifiée.');

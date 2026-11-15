@@ -14,7 +14,7 @@ final class SalesReport
         $channel = in_array($channel, ['en_ligne', 'guichet'], true) ? $channel : '';
         $params = ['representation'=>$representation, 'zone'=>$zone, 'channel'=>$channel];
         $occupancy = $this->db->fetchAllAssociative(<<<'SQL'
-SELECT r.id representation_id, e.titre, r.debut, r.statut, z.id zone_id, z.nom zone,
+SELECT r.id representation_id, COALESCE(r.nom,e.titre) AS titre, r.debut, r.statut, z.id zone_id, z.nom zone,
        COUNT(DISTINCT i.id) capacity,
        COUNT(DISTINCT CASE WHEN i.statut='vendue' AND b.statut='valide' AND (:channel='' OR c.canal=:channel) THEN i.id END) sold
 FROM representation r JOIN evenement e ON e.id=r.evenement_id
@@ -31,7 +31,7 @@ SQL, $params);
             $row['percent'] = $row['capacity'] > 0 ? round(100 * $row['sold'] / $row['capacity'], 2) : 0;
         } unset($row);
         $revenue = $this->db->fetchAllAssociative(<<<'SQL'
-SELECT r.id representation_id, e.titre, r.debut, t.id tariff_id, t.libelle, t.categorie,
+SELECT r.id representation_id, COALESCE(r.nom,e.titre) AS titre, r.debut, t.id tariff_id, t.libelle, t.categorie,
        SUM(CASE WHEN c.paye_a IS NOT NULL THEN 1 ELSE 0 END) issued,
        SUM(CASE WHEN c.paye_a IS NOT NULL AND b.statut='valide' THEN 1 ELSE 0 END) valid,
        COALESCE(SUM(CASE WHEN c.paye_a IS NOT NULL THEN b.prix_paye_centimes ELSE 0 END),0) gross,

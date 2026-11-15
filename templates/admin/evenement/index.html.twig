@@ -8,7 +8,7 @@
             <h1>Événements</h1>
             <p>Programme de la salle : concerts, théâtre et conférences.</p>
         </div>
-        <a class="btn btn-primary" href="{{ path('admin_evenement_new') }}">Nouvel événement</a>
+        <a class="btn btn-primary" href="{{ path('admin_event_setup') }}">Nouvel événement</a>
     </div>
 
     <form class="filters" method="get" action="{{ path('admin_evenement_index') }}">
@@ -30,15 +30,11 @@
 
     <div class="inventory-summary"><span>{{ pagination.total }} événement(s)</span><a href="{{ path('admin_evenement_index') }}">Réinitialiser les filtres</a></div>
     {% if evenements %}
-        <div class="poster-grid">
+        <div class="event-card-grid">
             {% for evenement in evenements %}
-                {% include 'admin/components/_poster.html.twig' %}
+                {% include 'admin/workspace/_event_card.html.twig' %}
             {% endfor %}
-            <a class="poster-cta" href="{{ path('admin_representation_index') }}">
-                <span class="plus" aria-hidden="true">↗</span>
-                <strong>Toutes les représentations</strong>
-                <span>Voir les dates, les salles et les disponibilités</span>
-            </a>
+
         </div>
     {% else %}
         <p class="empty">Aucun événement pour ces filtres. Essayez une autre recherche ou réinitialisez les filtres.</p>

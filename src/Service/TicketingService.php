@@ -71,6 +71,9 @@ final class TicketingService
                     throw new SaleConflict('Une place choisie n’est plus disponible. Aucune place n’a été réservée.');
                 }
                 $this->assertTariff($tariffs[$choice['tarif']], $representationId);
+                if (!$tariffs[$choice['tarif']]->appliesTo($inventory)) {
+                    throw new SaleConflict('Ce tarif ne correspond pas à la catégorie de cette place.');
+                }
                 if ($actor !== null && !in_array($tariffs[$choice['tarif']]->getCategorie(), TariffAccess::categories($actor), true)) {
                     throw new SaleConflict('Ce tarif n’est pas autorisé pour votre rôle.');
                 }

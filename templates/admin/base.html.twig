@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Administration{% endblock %} — Billetterie</title>
         <link rel="stylesheet" href="/admin/admin.css">
+        <link rel="stylesheet" href="/admin/workspace.css">
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
@@ -14,16 +15,11 @@
                 <a class="brand" href="{{ path('admin_index') }}" aria-label="Horizon — Billetterie, accueil"><span class="brand-mark" aria-hidden="true"></span><span><strong>HORIZON</strong><small>Salle culturelle · Billetterie</small></span></a>
                 <nav class="topnav" aria-label="Navigation principale">
                     {% set currentRoute = app.request.attributes.get('_route') %}
-                    <a href="{{ path('admin_index') }}" {% if currentRoute == 'admin_index' %}aria-current="page"{% endif %}>Accueil</a>
-                    <a href="{{ path('admin_salle_index') }}" {% if currentRoute starts with 'admin_salle_' %}aria-current="page"{% endif %}>Salles</a>
-                    <a href="{{ path('admin_evenement_index') }}" {% if currentRoute starts with 'admin_evenement_' %}aria-current="page"{% endif %}>Événements</a>
-                    <a href="{{ path('admin_representation_index') }}" {% if currentRoute starts with 'admin_representation_' %}aria-current="page"{% endif %}>Représentations</a>
-                    <a href="{{ path('admin_tarif_index') }}" {% if currentRoute starts with 'admin_tarif_' %}aria-current="page"{% endif %}>Tarifs</a>
-                    <a href="{{ path('admin_inventaire_index') }}" {% if currentRoute starts with 'admin_inventaire_' %}aria-current="page"{% endif %}>Inventaire</a>
-                    <a href="{{ path('admin_commande_index') }}" {% if currentRoute starts with 'admin_commande_' %}aria-current="page"{% endif %}>Commandes</a>
-                    <a href="{{ path('admin_billet_index') }}" {% if currentRoute starts with 'admin_billet_' %}aria-current="page"{% endif %}>Billets</a>
-                    <a href="{{ path('admin_report') }}">Indicateurs</a><a href="/compte">Mon compte</a>
+                    <a href="{{ path('admin_index') }}" {% if currentRoute == 'admin_index' %}aria-current="page"{% endif %}>Mes événements</a>
+                    <a href="{{ path('admin_event_setup') }}">Créer un événement</a>
+                    <a href="{{ path('admin_report') }}">Bilan des ventes</a>
                     <a href="/guichet">Guichet</a>
+                    <details class="advanced-nav"><summary>Outils avancés</summary><div><a href="{{ path('admin_evenement_index') }}">Rechercher un événement</a><a href="{{ path('admin_salle_index') }}">Salles et plan physique</a><a href="{{ path('admin_representation_index') }}">Tous les spectacles</a><a href="{{ path('admin_tarif_index') }}">Tous les tarifs</a><a href="{{ path('admin_inventaire_index') }}">Inventaire global</a><a href="{{ path('admin_commande_index') }}">Toutes les commandes</a><a href="{{ path('admin_billet_index') }}">Tous les billets</a><a href="/compte">Mon compte</a></div></details>
                     <form method="post" action="{{ path('app_logout') }}" class="topnav-logout">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
                         <button type="submit">Déconnexion</button>

@@ -13,6 +13,7 @@ use App\Entity\Salle;
 use App\Entity\Tarif;
 use App\Enum\StatutRepresentation;
 use App\Repository\InventairePlaceRepository;
+use App\Presentation\EventOverview;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DashboardController extends AbstractController
 {
     #[Route('', name: 'index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager, InventairePlaceRepository $inventaires): Response
+    public function index(EntityManagerInterface $entityManager, InventairePlaceRepository $inventaires, EventOverview $overview): Response
     {
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $representations = $entityManager->getRepository(Representation::class)->createQueryBuilder('r')
@@ -37,15 +38,16 @@ final class DashboardController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $evenements = $entityManager->getRepository(Evenement::class)->findBy([], ['titre' => 'ASC'], 3);
+        $evenements = $entityManager->getRepository(Evenement::class)->findBy([], ['id' => 'DESC'], 12);
         $firstRepresentation = $representations[0] ?? null;
         $featured = $firstRepresentation?->getEvenement() ?? ($evenements[0] ?? null);
         $next = $firstRepresentation;
 
-        return $this->render('admin/dashboard.html.twig', [
+        return $this->render('admin/workspace/dashboard.html.twig', [
             'featured' => $featured,
             'next' => $next,
             'evenements' => $evenements,
+            'eventOverview' => $overview->forEvents($evenements),
             'representations' => $representations,
             'inventoryCounts' => $inventaires->countsByRepresentationIds(array_map(
                 static fn (Representation $r): int => (int) $r->getId(), $representations,

@@ -15,6 +15,7 @@ use App\Repository\EvenementRepository;
 use App\Repository\InventairePlaceRepository;
 use App\Repository\RepresentationRepository;
 use App\Service\EventImageStorage;
+use App\Presentation\EventOverview;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -27,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class EvenementController extends AbstractController
 {
     #[Route('', name: 'index', methods: ['GET'])]
-    public function index(Request $request, EvenementRepository $evenements): Response
+    public function index(Request $request, EvenementRepository $evenements, EventOverview $overview): Response
     {
         $queryBuilder = $evenements->createQueryBuilder('e');
 
@@ -57,6 +58,7 @@ final class EvenementController extends AbstractController
 
         return $this->render('admin/evenement/index.html.twig', [
             'evenements' => $items,
+            'eventOverview' => $overview->forEvents($items),
             'pagination' => $pagination,
             'q' => $query,
             'type' => $type,
@@ -83,11 +85,11 @@ final class EvenementController extends AbstractController
             $key = $representation->getDebut()->setTimezone(new \DateTimeZone('Africa/Casablanca'))->format('Y-m-d');
             $dates[$key] = $representation->getDebut();
         }
-        $selectedDate = $request->query->getString('date');
-        if (!isset($dates[$selectedDate])) {
+        $selectedDate = $request->query->getString('date', 'all');
+        if ($selectedDate !== 'all' && !isset($dates[$selectedDate])) {
             $selectedDate = array_key_first($dates);
         }
-        $selectedRepresentations = array_values(array_filter($reps, static fn ($r): bool =>
+        $selectedRepresentations = $selectedDate === 'all' ? $reps : array_values(array_filter($reps, static fn ($r): bool =>
             $r->getDebut()->setTimezone(new \DateTimeZone('Africa/Casablanca'))->format('Y-m-d') === $selectedDate,
         ));
 

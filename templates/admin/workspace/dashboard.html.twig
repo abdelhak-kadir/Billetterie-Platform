@@ -1,0 +1,9 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Mes événements{% endblock %}
+{% block body %}
+<div class="page-head workspace-page-head"><div><p class="eyebrow">Votre billetterie, événement par événement</p><h1>Mes événements</h1><p>Ouvrez un événement pour gérer ses spectacles, ses places, ses tarifs et ses ventes.</p></div><a class="btn btn-primary" href="{{ path('admin_event_setup') }}">+ Créer un événement</a></div>
+<div class="workspace-summary"><article><span>Événements</span><strong>{{ counts.evenements }}</strong></article><article><span>Spectacles programmés</span><strong>{{ counts.representations }}</strong></article><article><span>Billets émis</span><strong>{{ counts.billets }}</strong></article><a href="{{ path('admin_report') }}"><span>Suivi des ventes</span><strong>Voir le bilan →</strong></a></div>
+<div class="section-head"><h2>Votre programmation</h2><a href="{{ path('admin_evenement_index') }}">Rechercher un événement</a></div>
+<div class="event-card-grid">{% for evenement in evenements %}{% include 'admin/workspace/_event_card.html.twig' %}{% else %}<div class="card workspace-empty"><h2>Aucun événement pour le moment</h2><p>Créez l’événement, ses spectacles et ses prix dans un seul parcours.</p><a class="btn btn-primary" href="{{ path('admin_event_setup') }}">Créer mon premier événement</a></div>{% endfor %}</div>
+{% if counts.evenements > evenements|length %}<p class="section"><a class="btn btn-secondary" href="{{ path('admin_evenement_index') }}">Voir tous les événements</a></p>{% endif %}
+{% endblock %}
