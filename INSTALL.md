@@ -149,6 +149,19 @@ Les ventes continuent en cas de panne Google. Sans identifiants, l’application
 et les tests restent utilisables. La recette sur une feuille Google réelle
 est consignée dans [VALIDATION_FINALE.md](docs/VALIDATION_FINALE.md).
 
+## Visuels des événements
+
+Dans **Administration → Événements → Nouvel événement** ou **Modifier**, le
+champ « Visuel de l’événement » accepte un fichier JPG, PNG ou WebP de 2 Mo
+maximum. Un aperçu s’affiche avant l’enregistrement. Sans nouveau fichier,
+le visuel actuel est conservé ; sans visuel personnalisé, l’affiche de secours
+reste disponible. L’image enregistrée apparaît dans les catalogues et les fiches.
+
+Les fichiers sont conservés dans `var/uploads/events/<environnement>/`, hors du
+répertoire public et de Git. Sauvegarder ce dossier avec la base pour conserver
+les visuels ; un redémarrage Compose ne l’efface pas. La migration ajoutant
+`evenement.image_filename` est appliquée par `./bin/setup-demo`.
+
 ## Tests et entretien
 
 La [documentation des tests](tests/README.md) décrit la création des bases
