@@ -6,6 +6,7 @@ use App\Clock\Clock;
 use App\Entity\{Evenement, Representation, Tarif};
 use App\Enum\{CategorieTarif, StatutRepresentation};
 use App\Presentation\SeatMapView;
+use App\Service\DemoMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{Request, Response};
@@ -30,14 +31,14 @@ final class CatalogueController extends AbstractController
     }
     #[Route('/representations/{id}/plan', name: 'store_plan', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[Route('/guichet/representations/{id}/plan', name: 'counter_plan', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function plan(int $id, Request $request, EntityManagerInterface $em, SeatMapView $view, Clock $clock): Response
+    public function plan(int $id, Request $request, EntityManagerInterface $em, SeatMapView $view, Clock $clock, DemoMode $demo): Response
     {
         $rep = $em->find(Representation::class, $id) ?? throw $this->createNotFoundException();
         try { $requested = SeatMapView::parseSelection($request->query->all('seats')); }
         catch (\InvalidArgumentException $e) { throw new BadRequestHttpException($e->getMessage(), $e); }
         $counter = $request->attributes->get('_route') === 'counter_plan';
         $map = $view->build($rep);
-        $selectable = $rep->getStatut() === StatutRepresentation::Programme && $rep->getDebut() > $clock->now();
+        $selectable = $demo->enabled() && $rep->getStatut() === StatutRepresentation::Programme && $rep->getDebut() > $clock->now();
         $selected = $selectable ? SeatMapView::availableSelection($requested, $map) : [];
         $defaultTariff = $em->getRepository(Tarif::class)->findOneBy(['representation' => $rep, 'actif' => true, 'categorie' => CategorieTarif::Plein], ['id' => 'ASC']);
         return $this->render('store/plan.html.twig', [

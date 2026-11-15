@@ -142,6 +142,41 @@ final class CheckoutTest extends AdminTestCase
         self::assertSame(14000, array_sum(array_map(static fn ($b) => $b->getPrixPayeCentimes(), $order->getBillets()->toArray())));
     }
 
+    public function testStaffOnlineCheckoutIsRedirectedToCounterChannel(): void
+    {
+        [$r1,,,$ids] = $this->scenario();
+
+        foreach ([
+            $this->createUser('online-staff@example.com', 'ROLE_GUICHETIER'),
+            $this->createUser('online-admin@example.com', 'ROLE_ADMIN'),
+        ] as $staff) {
+            $this->client->loginUser($staff);
+            $this->client->request('GET', $this->url($r1, [$ids[0]]));
+            self::assertResponseRedirects();
+            self::assertStringContainsString('/guichet/achat/'.$r1->getId(), (string) $this->client->getResponse()->headers->get('Location'));
+            $this->client->followRedirect();
+            self::assertResponseIsSuccessful();
+        }
+    }
+
+    public function testCheckoutWithoutAuthorizedTariffsIsSafe(): void
+    {
+        $hall = $this->createSalle('Salle sans tarif', ['Parterre' => ['A' => 1]]);
+        $rep = $this->createRepresentation($this->createEvenement(), $hall, '2099-12-01T19:00:00Z');
+        $buyer = $this->createUser('buyer-no-tariff@example.com');
+        $this->client->loginUser($buyer);
+        $id = $rep->getInventairePlaces()->first()->getId();
+        $url = $this->url($rep, [$id]);
+
+        $crawler = $this->client->request('GET', $url);
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Aucun tarif autorisé', $crawler->filter('[role="alert"]')->text());
+
+        $this->client->request('POST', $url);
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(0, $this->entityManager->getRepository(Commande::class)->count([]));
+    }
+
     public function testPaymentOwnerCsrfAndDemoModeAreEnforced(): void
     {
         [$r1,,$tariffs,$ids] = $this->scenario();

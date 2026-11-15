@@ -20,12 +20,14 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
-                default_target_path: /compte
+                default_target_path: /apres-connexion
             logout:
                 path: app_logout
                 target: /
                 enable_csrf: true
     access_control:
+        # Les assets partagés (CSS, polices, images, JS du plan) sont utilisés par le store public.
+        - { path: '^/admin/(admin\.css|seat-map[^/]*\.(css|js)|media/|fonts/)', roles: PUBLIC_ACCESS }
         - { path: ^/admin(?:/|$), roles: ROLE_ADMIN }
         - { path: ^/guichet(?:/|$), roles: ROLE_GUICHETIER }
         - { path: ^/compte(?:/|$), roles: ROLE_CLIENT }

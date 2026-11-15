@@ -30,6 +30,15 @@ final class CheckoutController extends AbstractController
         $rep = $em->find(Representation::class, $id) ?? throw $this->createNotFoundException();
         try { $ids = SeatMapView::parseSelection($request->query->all('seats')); }
         catch (\InvalidArgumentException $e) { throw new BadRequestHttpException($e->getMessage(), $e); }
+
+        // Le canal est déterminé par le rôle réel : les comptes personnel passent par le guichet.
+        if (!$counter && $this->getUser() instanceof User && $this->isGranted('ROLE_GUICHETIER')) {
+            return $this->redirectToRoute(
+                $ids === [] ? 'counter_plan' : 'counter_checkout',
+                $ids === [] ? ['id' => $id] : ['id' => $id, 'seats' => $ids],
+            );
+        }
+
         $map = $view->build($rep);
         if ($ids === []) { $this->addFlash('error', 'Choisissez au moins une place sur le plan.'); return $this->redirectToRoute($planRoute, ['id' => $id]); }
         if (!$this->getUser() instanceof User) {
@@ -57,7 +66,24 @@ final class CheckoutController extends AbstractController
             ]);
         }
         $form = $builder->getForm();
-        if ($tariffs !== []) { foreach ($seats as $seat) { $form->get('tariff_'.$seat['id'])->setData($tariffs[0]); } }
+
+        if ($tariffs === []) {
+            if ($request->isMethod('POST')) {
+                $this->addFlash('error', 'Aucun tarif autorisé pour ces places. Aucune réservation n’a été créée.');
+            }
+
+            return $this->render('store/checkout.html.twig', [
+                'form' => $form->createView(),
+                'representation' => $rep,
+                'seats' => $seats,
+                'ids' => $ids,
+                'counter' => $counter,
+                'total' => 0,
+                'hasTariffs' => false,
+            ]);
+        }
+
+        foreach ($seats as $seat) { $form->get('tariff_'.$seat['id'])->setData($tariffs[0]); }
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $demo->assertEnabled();

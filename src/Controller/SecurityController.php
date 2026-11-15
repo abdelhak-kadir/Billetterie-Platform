@@ -25,6 +25,24 @@ final class SecurityController extends AbstractController
     #[Route('/deconnexion', name: 'app_logout', methods: ['POST'])]
     public function logout(): never { throw new \LogicException('Handled by Symfony Security.'); }
 
+    #[Route('/apres-connexion', name: 'app_landing', methods: ['GET'])]
+    public function landing(): Response
+    {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('admin_index');
+        }
+
+        if ($this->isGranted('ROLE_GUICHETIER')) {
+            return $this->redirectToRoute('counter_index');
+        }
+
+        if ($this->isGranted('ROLE_CLIENT')) {
+            return $this->redirectToRoute('account');
+        }
+
+        return $this->redirectToRoute('store_index');
+    }
+
     #[Route('/inscription', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
     {

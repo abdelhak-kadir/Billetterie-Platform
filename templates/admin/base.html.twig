@@ -24,6 +24,10 @@
                     <a href="{{ path('admin_billet_index') }}" {% if currentRoute starts with 'admin_billet_' %}aria-current="page"{% endif %}>Billets</a>
                     <a href="{{ path('admin_report') }}">Indicateurs</a><a href="/compte">Mon compte</a>
                     <a href="/guichet">Guichet</a>
+                    <form method="post" action="{{ path('app_logout') }}" class="topnav-logout">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                        <button type="submit">Déconnexion</button>
+                    </form>
                 </nav>
             </div>
         </header>

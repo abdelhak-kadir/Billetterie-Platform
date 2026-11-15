@@ -34,9 +34,46 @@ final class SecurityTest extends AdminTestCase
         self::assertNotSame('LongPassword2026!', $user->getPassword());
         $crawler = $this->client->followRedirect();
         $this->client->submit($crawler->selectButton('Se connecter')->form(['_username' => 'new@example.com', '_password' => 'LongPassword2026!']));
+        self::assertResponseRedirects('/apres-connexion');
+        $this->client->followRedirect();
         self::assertResponseRedirects('/compte');
         $this->client->followRedirect(); self::assertResponseIsSuccessful();
         $this->client->request('GET', '/admin'); self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testLogoutFromAdministrationClearsTheSession(): void
+    {
+        $this->client->request('GET', '/admin');
+        self::assertResponseIsSuccessful();
+        $form = $this->client->getCrawler()->filter('form[action="/deconnexion"]')->form();
+        $this->client->submit($form);
+        self::assertResponseRedirects('/');
+        $this->client->request('GET', '/admin');
+        self::assertResponseRedirects('http://localhost/connexion');
+    }
+
+    public function testRoleLandingRedirectsToTheRightWorkspace(): void
+    {
+        $this->createUser('counter-landing@example.com', 'ROLE_GUICHETIER');
+        $this->createUser('client-landing@example.com');
+
+        foreach ([
+            'admin@example.com' => '/admin',
+            'counter-landing@example.com' => '/guichet',
+            'client-landing@example.com' => '/compte',
+        ] as $email => $target) {
+            $this->client->restart();
+            $crawler = $this->client->request('GET', '/connexion');
+            $this->client->submit($crawler->selectButton('Se connecter')->form([
+                '_username' => $email,
+                '_password' => 'HorizonDemo2026!',
+            ]));
+            self::assertResponseRedirects('/apres-connexion');
+            $this->client->followRedirect();
+            self::assertResponseRedirects($target);
+            $this->client->followRedirect();
+            self::assertResponseIsSuccessful();
+        }
     }
     public function testTariffMatrixIsEnforcedUnderReservationLocks(): void
     {

@@ -159,6 +159,25 @@ small{
     border-color:var(--primary);
     text-decoration:none
 }
+.topnav-logout{
+    margin:0;
+    display:flex
+}
+.topnav-logout button{
+    border:0;
+    border-bottom:2px solid transparent;
+    background:none;
+    color:var(--muted);
+    padding:12px 9px;
+    font:inherit;
+    font-size:13px;
+    cursor:pointer;
+    white-space:nowrap
+}
+.topnav-logout button:hover{
+    color:var(--text);
+    border-color:var(--primary)
+}
 .notice{
     color:var(--muted);
     font-size:11px;
@@ -979,6 +998,17 @@ td.reference{
     .topnav a[aria-current=page]{
         background:var(--surface);
         border-color:var(--primary)
+    }
+    .topnav-logout{
+        display:block
+    }
+    .topnav-logout button{
+        width:100%;
+        padding:9px 4px;
+        border:1px solid var(--line);
+        border-radius:4px;
+        font-size:11px;
+        line-height:1.2
     }
     .page-head{
         gap:16px;
