@@ -1,0 +1,42 @@
+#!/bin/sh
+# Le serveur reste arrêté tant que les dépendances et la démonstration ne sont pas prêtes.
+set -eu
+cd /app
+
+startup_phase='validation de HORIZON_AUTO_DEMO'
+trap 'startup_code=$?; if [ "$startup_code" -ne 0 ]; then printf "Horizon : échec pendant %s (code %s). Consultez les messages précédents ; aucune purge automatique de secours.\n" "$startup_phase" "$startup_code" >&2; fi' 0
+case "${HORIZON_AUTO_DEMO:-1}" in
+    0|1) ;;
+    *) echo 'HORIZON_AUTO_DEMO doit valoir 0 ou 1.' >&2; exit 1 ;;
+esac
+
+# Protège aussi vendor/ lorsque plusieurs conteneurs partagent le même clone.
+startup_phase='attente du verrou local de démarrage'
+mkdir -p var
+exec 9>var/docker-startup.lock
+flock --exclusive --timeout 600 9
+
+startup_phase='installation des dépendances de composer.lock'
+composer_attempt=1
+until composer install --no-interaction --prefer-dist; do
+    if [ "$composer_attempt" -ge 3 ]; then
+        echo 'Installation Composer échouée après trois essais. Vérifiez le réseau et les droits du clone.' >&2
+        exit 1
+    fi
+    composer_attempt=$((composer_attempt + 1))
+    printf 'Téléchargement Composer interrompu ; nouvel essai %s/3.\n' "$composer_attempt" >&2
+    sleep 3
+done
+
+if [ "${HORIZON_AUTO_DEMO:-1}" = 1 ]; then
+    startup_phase='initialisation protégée de la démonstration'
+    php bin/console app:demo:bootstrap --no-interaction
+else
+    echo 'Horizon : initialisation automatique désactivée ; aucune migration ni fixture lancée.'
+fi
+
+flock --unlock 9
+exec 9>&-
+startup_phase='démarrage du serveur HTTP'
+echo 'Horizon : initialisation terminée, démarrage HTTP sur le port 8000.'
+exec php -S 0.0.0.0:8000 -t public public/index.php

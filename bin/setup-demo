@@ -7,16 +7,6 @@ docker compose version >/dev/null
 if [ ! -f .env ]; then cp .env.example .env; fi
 export HOST_UID="${HOST_UID:-$(id -u)}" HOST_GID="${HOST_GID:-$(id -g)}"
 docker compose up --build -d --wait app database
-composer_attempt=1
-until docker compose exec -T app composer install --no-interaction --prefer-dist; do
-  if [ "$composer_attempt" -ge 3 ]; then echo 'Installation Composer échouée après trois essais.' >&2; exit 1; fi
-  composer_attempt=$((composer_attempt + 1))
-  echo "Téléchargement Composer interrompu ; nouvel essai $composer_attempt/3." >&2
-  sleep 3
-done
-docker compose exec -T app php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
-docker compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
-docker compose exec -T app php bin/console app:demo:prepare --initialize-empty
 docker compose exec -T app php bin/console doctrine:schema:validate
 docker compose exec -T app php -r '$h=get_headers("http://127.0.0.1:8000/"); if (!$h || !str_contains($h[0], "200")) {fwrite(STDERR,"Le catalogue ne répond pas 200.\n"); exit(1);}'
 if docker compose exec -T app php bin/console app:sheets:sync --enabled-check; then

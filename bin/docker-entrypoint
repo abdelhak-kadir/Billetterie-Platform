@@ -1,0 +1,13 @@
+#!/bin/sh
+# Les clones Linux n'appartiennent pas tous à l'UID 1000 de l'image.
+set -eu
+if [ "$(id -u)" -eq 0 ]; then
+    runtime_uid=$(stat -c '%u' /app)
+    runtime_gid=$(stat -c '%g' /app)
+    mkdir -p /app/var /app/vendor /home/app/.composer/cache
+    # Seulement les répertoires générés ; ne pas réattribuer les sources ni .git.
+    chown -R --no-dereference "$runtime_uid:$runtime_gid" /app/var /app/vendor /home/app/.composer
+    exec setpriv --reuid="$runtime_uid" --regid="$runtime_gid" --clear-groups docker-php-entrypoint "$@"
+fi
+
+exec docker-php-entrypoint "$@"
