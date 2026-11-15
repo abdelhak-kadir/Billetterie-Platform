@@ -52,11 +52,12 @@ A1 est déjà vendue sur R1 dans le jeu initial : choisir une autre place pour l
 | 1 — Modéliser | Vérifié : salle et places, événements, représentations, tarifs, migrations, données de démonstration et administration. |
 | 2 — Règles métier | Vérifié : inventaire par représentation, réservation temporaire, protection contre les doubles ventes concurrentes, annulation et remboursement simulé. |
 | 3 — Produit | Vérifié : trois rôles, achat client et vente au guichet sur plan, billets PDF avec QR signé, remplissage et recettes. |
-| 4 — Google Sheets | Implémenté et testé avec API simulée : file transactionnelle, worker automatique, reprise et prévention des doublons. Recette Google réelle encore en attente. |
-| 5 — Livraison | Installation en une commande et guide vérifiés localement et sur runner neuf ; niveau cumulatif non revendiqué tant que la recette du niveau 4 reste en attente. |
+| 4 — Google Sheets | Vérifié sur une feuille Google réelle : ventes et remboursements exportés automatiquement, sans doublon après relance. Reprise après panne couverte avec API simulée. |
+| 5 — Livraison | Vérifié : installation en une commande, relance sans purge, guide complet et contrôles sur runner neuf. |
 
-Les niveaux sont **cumulatifs** : le niveau atteint est **3**, avec les niveaux
-1 et 2. **Paiements et remboursements sont simulés**, sans mouvement bancaire.
+Les niveaux sont **cumulatifs** : les **niveaux 1 à 5 sont vérifiés** ; voir le
+[bilan de validation](docs/VALIDATION_FINALE.md). **Paiements et remboursements
+sont simulés**, sans mouvement bancaire.
 Le QR permet un contrôle authentifié par le personnel ; il ne gère pas une entrée
 à usage unique. Les [preuves et limites du niveau 3](docs/NIVEAU3.md) détaillent
 les vérifications réalisées.

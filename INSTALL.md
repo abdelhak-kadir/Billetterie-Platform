@@ -146,7 +146,8 @@ reprise sont décrits dans [GOOGLE_SHEETS.md](docs/GOOGLE_SHEETS.md). Une clé
 réelle reste dans `var/credentials/` et les réglages dans `.env.local`. Relancer
 `./bin/setup-demo` après configuration pour démarrer ou arrêter le worker.
 Les ventes continuent en cas de panne Google. Sans identifiants, l’application
-et les tests restent utilisables ; la recette API réelle reste à effectuer.
+et les tests restent utilisables. La recette sur une feuille Google réelle
+est consignée dans [VALIDATION_FINALE.md](docs/VALIDATION_FINALE.md).
 
 ## Tests et entretien
 

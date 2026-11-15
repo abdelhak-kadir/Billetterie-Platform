@@ -13,7 +13,7 @@ was found; the requested S1 scopes are recorded below.
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
 | Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
 | Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 75 tests / 461 assertions relancés le 15 novembre ; Demo Fixtures et Chrome 1440/390 documentés aux jalons précédents. Voir NIVEAU3.md. |
-| Niveaux 4 et 5 | Non atteints | Google Sheets implémenté et testé avec client simulé ; recette API réelle en attente. L’installation Docker est automatisée et [INSTALL.md](../INSTALL.md) est disponible ; les niveaux restent cumulatifs et Google Sheets reste à valider. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
+| Niveaux 4 et 5 | Vérifiés | Ventes client/guichet et remboursement exportés automatiquement sur Google réel ; relance sans doublon. Installation en une commande vérifiée sur runner neuf, avec [INSTALL.md](../INSTALL.md). Voir le [bilan actuel](VALIDATION_FINALE.md). |
 
 ## S1-02 verification
 
@@ -322,7 +322,11 @@ Les tests ciblés initiaux passent : 16 tests et 92 assertions. Après ajout du
 garde interdisant un export réel depuis PHPUnit, la suite intégrée passe
 avec **97 tests et 564 assertions** sur runner neuf ; Demo Fixtures reste
 séparée et passe avec 16 175 assertions. Les achats et PDF client/guichet sont
-également contrôlés avec Chromium en formats desktop et mobile. La recette
-Google réelle reste conditionnée à la feuille et
-aux identifiants autorisés ; aucun succès Google n’est déduit des mocks. Voir
-[VALIDATION_FINALE.md](VALIDATION_FINALE.md) pour la clôture intégrée.
+également contrôlés avec Chromium en formats desktop et mobile.
+
+La recette Google réelle du 15 novembre a ensuite réussi sur la feuille
+autorisée : sept billets historiques, deux nouvelles ventes client/guichet,
+PDF, remboursement client sur la même ligne, puis rejeu et redémarrage du
+worker sans doublon. Résultat : neuf billets exportés, aucune attente ni erreur ;
+l’onglet d’origine est intact. Les niveaux 1 à 5 sont désormais vérifiés de
+manière cumulative. Voir [VALIDATION_FINALE.md](VALIDATION_FINALE.md).

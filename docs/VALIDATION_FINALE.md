@@ -51,6 +51,8 @@ Captures conservées dans le dépôt : [plan client mobile](screenshots/final/mo
 [tarifs au guichet](screenshots/final/mobile-guichet-tarifs.png),
 [administration mobile](screenshots/final/mobile-admin.png) et
 [indicateurs desktop](screenshots/final/desktop-indicateurs.png).
+Ces captures précèdent l’activation de Google sur l’instance locale ; la carte
+Sheets y apparaît encore désactivée. La recette ci-dessous vérifie son état activé.
 
 ## Synchronisation Google Sheets
 
@@ -62,9 +64,37 @@ Captures conservées dans le dépôt : [plan client mobile](screenshots/final/mo
   workers, le changement de destination et le rollback commun vente/file.
 - Les sept billets de la démonstration isolée ont été examinés par le backfill,
   avec sept demandes conservées sans appel externe lorsque Sheets est désactivé.
-- Recette Google réelle : **en attente d’une feuille autorisée et d’une clé de
-  compte de service**. Aucune réussite réelle de synchronisation n’est annoncée
-  sur la seule base des tests simulés.
+
+### Recette Google réelle — 15 novembre 2026
+
+Réalisée sur la feuille privée autorisée « Horizon Demo », via l’API officielle,
+avec la clé de compte de service locale ignorée par Git. Aucun identifiant de
+feuille, e-mail réel, jeton ou contenu de clé n’est publié dans le dépôt.
+
+- Lecture des métadonnées Google : **HTTP 200**. L’onglet « Feuille 1 » existant
+  est conservé ; les exports utilisent un nouvel onglet « Ventes Horizon ».
+- `SELECT DATABASE()` confirme **`billetterie`** dans l’app web et le worker.
+  Aucune base PHPUnit n’est utilisée, aucune fixture n’est rechargée.
+- Sept billets historiques exportés ; les seize colonnes lues depuis Google
+  correspondent aux projections MySQL, avec lecture des nombres en mode
+  `UNFORMATTED_VALUE` pour éviter une comparaison avec du texte formaté.
+- Achat client **A6/R1, 100 MAD**, puis vente guichet **A7/R1, 80 MAD** au tarif
+  réduit : paiement simulé et PDF contrôlés par HTTP. Les deux nouvelles lignes
+  apparaissent automatiquement, sans commande manuelle d’envoi après les ventes.
+- Annulation/remboursement client : la ligne d’A6 est mise à jour automatiquement,
+  sur la même référence et la même position. Révision 2, remboursement de
+  10 000 centimes, net nul. A7 porte bien le canal `guichet`.
+- Rejeu des neuf billets historiques : **zéro nouvel envoi** ; redémarrage du
+  worker et relecture Google : **neuf références uniques**, dix lignes avec
+  les en-têtes, aucun doublon. L’empreinte des valeurs de l’onglet initial est identique.
+- Client et guichet voient A6 de nouveau libre sur R1, A7 vendue sur R1 ;
+  A6 et A7 sont libres sur R2. L’admin indique la synchronisation activée,
+  **9 synchronisés, 0 en attente, 0 en erreur**.
+
+Après ces achats de recette : **7 commandes et 9 billets**, dont 8 valides et
+1 annulé. Salle, places, événements, représentations, inventaires, tarifs et
+trois comptes sont conservés. Les scénarios d’indisponibilité Google et de
+timeout sont vérifiés avec l’adaptateur simulé, pas par une coupure réelle de l’API.
 
 ## Instance locale conservée
 
@@ -83,5 +113,6 @@ R1 et sa disponibilité sur R2 ont été revérifiés par HTTP après la mise à
 Le fichier généré local `config/reference.php` reste hors des commits et son
 contenu préexistant est conservé à l’identique.
 
-Le bilan cumulatif reste limité au niveau 3 tant que la recette externe n’a
-pas été observée. Docker et son guide sont prêts indépendamment de ce statut.
+Le bilan cumulatif couvre maintenant les **niveaux 1 à 5** : socle et règles,
+produit, Google réel et livraison Docker sur runner neuf. Les paiements et
+remboursements restent simulés.

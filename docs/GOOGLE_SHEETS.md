@@ -122,10 +122,12 @@ docker compose exec -T app php bin/phpunit --filter 'SheetsSyncTest|GoogleSheets
 ```
 
 La commande de worker refuse les bases et l’environnement PHPUnit. Les tests
-appellent directement un adaptateur simulé. Un client simulé ne valide pas l’accès réel à Google. La recette finale doit
-inclure, sur une feuille autorisée : une vente client, une vente au guichet,
-un remboursement, puis une relance sans doublon. Les résultats effectivement
-observés sont consignés dans [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
+appellent directement un adaptateur simulé. La recette Google réelle du
+15 novembre 2026 a aussi réussi sur une feuille autorisée : vente client,
+vente au guichet, remboursement sur la même ligne et relance sans doublon.
+Résultat : neuf billets exportés, aucune attente ni erreur. Les contrôles
+de panne restent des scénarios simulés ; les résultats effectivement observés
+sont consignés dans [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
 
 Références officielles : [identifiants Google](https://developers.google.com/workspace/guides/create-credentials),
 [activation de l’API](https://developers.google.com/workspace/guides/enable-apis),

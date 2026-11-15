@@ -201,7 +201,7 @@ ils ne constituent pas une certification lecteur d'écran ou multi-navigateur.
 L'email n'est pas vérifié par un envoi et il n'y a pas de récupération de mot de
 passe, de prestataire bancaire, de scanner d'entrée à usage unique. La synchronisation Google Sheets est
 maintenant implémentée séparément ; sa recette réelle est suivie dans
-[VALIDATION_FINALE.md](VALIDATION_FINALE.md). Le niveau 5 cumulatif reste non atteint ; voir le
+[VALIDATION_FINALE.md](VALIDATION_FINALE.md). Les niveaux 4 et 5 sont désormais vérifiés ; voir le
 [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). Les conditions commerciales réduit/groupe
 et une future politique d'entrée restent à définir ; aucune n'est ajoutée en silence.
 
