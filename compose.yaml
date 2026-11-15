@@ -3,16 +3,16 @@ services:
     build:
       context: .
       args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
-    image: billetterie-platform-app
+        UID: ${HOST_UID:-${UID:-1000}}
+        GID: ${HOST_GID:-${GID:-1000}}
+    image: ${COMPOSE_PROJECT_NAME:-billetterie-platform}-app
     init: true
     working_dir: /app
     volumes:
       - .:/app
       - composer-cache:/home/app/.composer/cache
     ports:
-      - "8080:8000"
+      - "${HORIZON_HTTP_PORT:-8080}:8000"
     depends_on:
       database:
         condition: service_healthy

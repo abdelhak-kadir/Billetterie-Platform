@@ -1,0 +1,16 @@
+#!/bin/sh
+# Installation locale de démonstration ; aucune suppression de volume.
+set -eu
+cd "$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)"
+command -v docker >/dev/null 2>&1 || { echo 'Docker est requis.' >&2; exit 1; }
+docker compose version >/dev/null
+if [ ! -f .env ]; then cp .env.example .env; fi
+export HOST_UID="${HOST_UID:-$(id -u)}" HOST_GID="${HOST_GID:-$(id -g)}"
+docker compose up --build -d --wait app database
+docker compose exec -T app composer install --no-interaction --prefer-dist
+docker compose exec -T app php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
+docker compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
+docker compose exec -T app php bin/console app:demo:prepare --initialize-empty
+docker compose exec -T app php bin/console doctrine:schema:validate
+docker compose exec -T app php -r '$h=get_headers("http://127.0.0.1:8000/"); if (!$h || !str_contains($h[0], "200")) {fwrite(STDERR,"Le catalogue ne répond pas 200.\n"); exit(1);}'
+printf '\nHorizon est prêt : http://localhost:%s\n' "${HORIZON_HTTP_PORT:-8080}"

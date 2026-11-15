@@ -10,23 +10,16 @@ Les administrateurs gèrent la programmation, les tarifs et le suivi des ventes.
 ## Démarrage rapide
 
 Prérequis : Git, Docker Engine et Docker Compose v2 ou ultérieur. Depuis la
-racine d'un clone neuf, avec un volume MySQL neuf réservé à la démonstration :
+racine d’un clone destiné à la démonstration :
 
 ```sh
-cp .env.example .env
-docker compose up --build -d --wait
-docker compose exec -T app composer install --no-interaction
-docker compose exec -T app php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
+./bin/setup-demo
 ```
 
-Vérifier que la base affichée est `billetterie` et qu'elle est jetable.
-**Le chargement des fixtures ci-dessous efface les données de cette base.**
-
-```sh
-docker compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
-docker compose exec -T app php bin/console doctrine:fixtures:load --no-interaction
-docker compose exec -T app php bin/console app:demo:users
-```
+Cette commande prépare les services, dépendances, migrations, fixtures et comptes.
+Elle initialise uniquement une base métier vide avec des comptes fictifs ; une
+relance conserve le jeu déjà installé et ses achats. Une base non vide inconnue
+est refusée, sans purge.
 
 Ouvrir **[http://localhost:8080](http://localhost:8080)**.
 Voir [INSTALL.md](INSTALL.md) pour la configuration complète, les migrations,
@@ -60,7 +53,7 @@ A1 est déjà vendue sur R1 dans le jeu initial : choisir une autre place pour l
 | 2 — Règles métier | Vérifié : inventaire par représentation, réservation temporaire, protection contre les doubles ventes concurrentes, annulation et remboursement simulé. |
 | 3 — Produit | Vérifié : trois rôles, achat client et vente au guichet sur plan, billets PDF avec QR signé, remplissage et recettes. |
 | 4 — Google Sheets | Non implémenté : aucune synchronisation automatique des ventes ou remboursements, aucun appel réel vérifié. |
-| 5 — Livraison | Docker et guide d'installation disponibles ; niveau non atteint, car le niveau 4 manque et l'initialisation reste manuelle. |
+| 5 — Livraison | Installation Docker automatisée et guide disponibles ; niveau cumulatif non revendiqué tant que le niveau 4 et la validation finale ne sont pas confirmés. |
 
 Les niveaux sont **cumulatifs** : le niveau atteint est **3**, avec les niveaux
 1 et 2. **Paiements et remboursements sont simulés**, sans mouvement bancaire.

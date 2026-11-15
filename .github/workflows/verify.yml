@@ -1,0 +1,37 @@
+name: Horizon - clean Docker installation
+on:
+  push:
+    branches: [main, sprint-5-livraison, sprint-4-google-sheets]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  docker-install:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      COMPOSE_PROJECT_NAME: horizon-ci
+      HORIZON_HTTP_PORT: '8080'
+    steps:
+      - uses: actions/checkout@v4
+      - name: One-command installation and safe rerun
+        run: |
+          ./bin/setup-demo
+          docker compose exec -T app php bin/console dbal:run-sql 'SELECT DATABASE() AS demo_database'
+          python3 tests/Support/demo-http-check.py --base-url http://localhost:8080
+          ./bin/setup-demo
+          python3 tests/Support/demo-http-check.py --base-url http://localhost:8080 --expect-existing
+      - name: MySQL tests and isolated fixtures
+        run: ./bin/test-docker
+      - name: Preserve volumes across restart
+        run: |
+          docker compose down
+          docker compose up -d --wait app database
+          curl --fail --silent --retry 10 --retry-connrefused --retry-delay 1 http://localhost:8080/ > /dev/null
+      - name: Docker logs on failure
+        if: failure()
+        run: docker compose logs --tail=80
+      - name: Remove this job's disposable volumes
+        if: always()
+        run: docker compose down --volumes

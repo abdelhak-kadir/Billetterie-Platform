@@ -13,7 +13,7 @@ was found; the requested S1 scopes are recorded below.
 | Sprint 2 — Niveau 2 | Implemented and verified | Atomic reservations, locked confirmation, expiration, cancellation and simulated refunds; 49 standard tests / 255 assertions, plus isolated Demo Fixtures. |
 | Sprint 3 — first admin product step | Implemented and verified | Shared chair map, inspect/select modes, real session switch, local multi-seat recap and S2 handoff; 55 tests / 296 assertions, Chrome 1440/390. See SEAT_MAP.md. |
 | Niveau 3 — produit | Implemented and verified | Security roles/ownership, customer and counter checkout, signed QR/PDF and reports; 75 tests / 461 assertions relancés le 15 novembre ; Demo Fixtures et Chrome 1440/390 documentés aux jalons précédents. Voir NIVEAU3.md. |
-| Niveaux 4 et 5 | Non atteints | Google Sheets absent. Docker et [INSTALL.md](../INSTALL.md) sont disponibles ; l'initialisation reste manuelle et les niveaux sont cumulatifs. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
+| Niveaux 4 et 5 | Non atteints | Google Sheets absent. L’installation Docker est automatisée et [INSTALL.md](../INSTALL.md) est disponible ; les niveaux restent cumulatifs et Google Sheets reste à valider. Voir le [bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). |
 
 ## S1-02 verification
 
@@ -288,3 +288,22 @@ La suite principale a été relancée sur `billetterie_test` : 75 tests et
 461 assertions, sans échec. La base de démonstration reste distincte. Les
 travaux de livraison et Google Sheets sont suivis séparément et ne sont
 revendiqués qu’après leur vérification.
+
+## Installation automatisée (15 novembre 2026)
+
+`bin/setup-demo` prépare les services, dépendances, migrations, fixtures et
+comptes en une commande. Le garde refuse les bases PHPUnit, les données non
+reconnues et les comptes non fictifs avant toute initialisation. Une relance
+conserve le jeu installé et les ventes. Le port et le nom Compose sont configurables.
+
+Contrôle local sur le projet distinct `horizon-release-verify`, port 8081 et
+volumes neufs : installation OK, achat A5/PDF et trois connexions OK, puis
+relance sans purge et même billet toujours accessible. Suite principale :
+80 tests / 470 assertions. Demo Fixtures : 1 test / 16 175 assertions, sur sa
+base séparée. Le workflow CI reproduit l’installation et les contrôles sur un
+runner neuf ; son résultat distant sera consigné après exécution.
+
+Le nouveau raccourci de fixtures a d’abord révélé un chargement incomplet de
+`.env.test`, puis une réécriture de la surcharge DATABASE_URL par Dotenv. Les
+gardes ont refusé l’exécution sur la mauvaise base. La surcharge est désormais
+explicite, et la suite dédiée passe. Aucun chargement n’a touché la base web.
