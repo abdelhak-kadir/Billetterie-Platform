@@ -8,6 +8,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     env(RESERVATION_TTL_SECONDS): 600
+    env(SHEETS_ENABLED): '0'
+    env(GOOGLE_SHEETS_ID): ''
+    env(GOOGLE_SHEETS_TAB): 'Ventes Horizon'
+    env(GOOGLE_APPLICATION_CREDENTIALS): ''
 
 services:
     # default configuration for services in *this* file
@@ -28,3 +32,20 @@ services:
     App\Service\TicketingService:
         arguments:
             $reservationTtlSeconds: '%env(int:RESERVATION_TTL_SECONDS)%'
+
+    App\Sheets\SheetsGateway: '@App\Sheets\GoogleSheetsClient'
+    App\Sheets\AccessTokenProvider: '@App\Sheets\GoogleTokenProvider'
+    App\Sheets\HttpTransport: '@App\Sheets\NativeHttpTransport'
+
+    App\Sheets\GoogleTokenProvider:
+        arguments:
+            $credentialsPath: '%env(resolve:GOOGLE_APPLICATION_CREDENTIALS)%'
+
+    App\Sheets\GoogleSheetsClient:
+        arguments:
+            $spreadsheetId: '%env(GOOGLE_SHEETS_ID)%'
+            $sheetTitle: '%env(GOOGLE_SHEETS_TAB)%'
+
+    App\Sheets\SheetsSynchronizer:
+        arguments:
+            $enabled: '%env(bool:SHEETS_ENABLED)%'

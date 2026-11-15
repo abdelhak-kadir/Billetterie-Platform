@@ -10,6 +10,7 @@ use App\Enum\{CanalCommande, CategorieTarif, StatutBillet, StatutCommande, Statu
 use App\Exception\SaleConflict;
 use App\Entity\User;
 use App\Security\TariffAccess;
+use App\Sheets\SalesSyncQueue;
 use Doctrine\DBAL\{ArrayParameterType, LockMode};
 use Doctrine\DBAL\Exception\{RetryableException, UniqueConstraintViolationException};
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,11 +18,14 @@ use Doctrine\ORM\EntityManagerInterface;
 /** Toutes les écritures du cycle de vente passent par ces transactions courtes. */
 final class TicketingService
 {
+    private readonly SalesSyncQueue $sheetsQueue;
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly Clock $clock,
         private readonly int $reservationTtlSeconds = 600,
+        ?SalesSyncQueue $sheetsQueue = null,
     ) {
+        $this->sheetsQueue = $sheetsQueue ?? new SalesSyncQueue($em->getConnection(), $clock);
         if ($reservationTtlSeconds < 1) {
             throw new \InvalidArgumentException('La durée de réservation doit être un nombre positif de secondes.');
         }
@@ -124,6 +128,7 @@ final class TicketingService
                 $inventory->vendre();
             }
             $order->marquerPayee($now);
+            $this->sheetsQueue->enqueue($order->getBillets());
             return $order;
         });
         if ($order->getStatut() === StatutCommande::Expiree) {
@@ -331,12 +336,13 @@ final class TicketingService
     private function cancelTickets(Commande $order, array $inventories, array $representations, \DateTimeImmutable $now, ?int $onlyRepresentation = null): void
     {
         $tickets = $this->em->getRepository(Billet::class)->findBy(['commande' => $order], ['id' => 'ASC']);
-        $valid = 0;
+        $valid = 0; $changed = [];
         foreach ($tickets as $ticket) {
             $this->em->refresh($ticket); // La commande verrouillée sérialise toutes ses notifications.
             $representationId = $ticket->getInventairePlace()->getRepresentation()->getId();
             if ($ticket->getStatut() === StatutBillet::Valide && ($onlyRepresentation === null || $representationId === $onlyRepresentation)) {
                 $ticket->annuler($now);
+                $changed[] = $ticket;
                 if ($ticket->getStatutRemboursement() === StatutRemboursement::ARembourser) {
                     $ticket->marquerRembourse($ticket->getPrixPayeCentimes(), $now);
                 }
@@ -349,5 +355,6 @@ final class TicketingService
             $valid += (int) ($ticket->getStatut() === StatutBillet::Valide);
         }
         if ($valid === 0) { $order->annulerApresVente(); }
+        $this->sheetsQueue->enqueue($changed);
     }
 }
