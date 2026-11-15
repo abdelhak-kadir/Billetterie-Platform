@@ -13,6 +13,7 @@
             <span><span class="h-legend-seat h-state-{{ state }}" aria-hidden="true">{{ state == 'selected' ? '✓' : (state == 'reservee' ? '◷' : (state == 'vendue' ? '×' : (state == 'bloquee' ? '−' : ''))) }}</span>{{ label }}</span>
         {% endfor %}
     </div>
+    {% if seatMap.categories|default([]) %}<div class="seat-category-legend" aria-label="Catégories et prix des places">{% for category in seatMap.categories %}<span class="seat-category-pill tier-{{ category.code }}"><strong>{{ category.name }}</strong> · {{ category.total }} places{% if category.price is not null %} · {{ category.price|mad }}{% endif %}</span>{% endfor %}</div>{% endif %}
     {% set firstSeatId = (seatMap.seats|first).id|default(null) %}
     <div class="h-map-viewport" tabindex="0" role="region" aria-label="Plan schématique défilant" aria-describedby="{{ instanceId }}-help">
         <div class="h-stage"><span>SCÈNE</span><small>Orientation indicative</small></div>
@@ -29,7 +30,7 @@
                                 {% for seat in seats %}{% if seat.number == number %}
                                     {% set seatInColumn = true %}
                                     {% set isSelected = seat.id in selected %}
-                                    <button class="h-seat h-state-{{ seat.status }} {{ isSelected ? 'h-is-selected' : '' }}" type="button" data-seat-id="{{ seat.id }}" data-status="{{ seat.status }}" data-label="{{ seat.label }}" data-status-label="{{ seat.statusLabel }}" data-number="{{ seat.number }}" data-initial-selected="{{ isSelected ? 'true' : 'false' }}" aria-label="{{ seat.label }}, {{ isSelected ? 'sélectionné' : seat.statusLabel }}" aria-pressed="{{ isSelected ? 'true' : 'false' }}" tabindex="{{ seat.id == firstSeatId ? '0' : '-1' }}" title="{{ seat.label }}, {{ seat.statusLabel }}">
+                                    <button class="h-seat h-state-{{ seat.status }} {{ isSelected ? 'h-is-selected' : '' }}" type="button" data-seat-id="{{ seat.id }}" data-status="{{ seat.status }}" data-label="{{ seat.label }}" data-status-label="{{ seat.statusLabel }}" data-number="{{ seat.number }}" data-category-code="{{ seat.categoryCode|default('') }}" data-category-name="{{ seat.categoryName|default('') }}" data-price-centimes="{{ seat.priceCentimes is defined and seat.priceCentimes is not null ? seat.priceCentimes : '' }}" data-initial-selected="{{ isSelected ? 'true' : 'false' }}" aria-label="{{ seat.label }}, {{ isSelected ? 'sélectionné' : seat.statusLabel }}" aria-pressed="{{ isSelected ? 'true' : 'false' }}" tabindex="{{ seat.id == firstSeatId ? '0' : '-1' }}" title="{{ seat.label }}, {{ seat.statusLabel }}">
                                         <svg viewBox="0 0 32 34" aria-hidden="true"><path class="h-chair-back" d="M8 3h16a3 3 0 0 1 3 3v14H5V6a3 3 0 0 1 3-3Z"/><path d="M3 15h3v10h20V15h3v13H3Z"/><path d="M7 28h3v4H7zm15 0h3v4h-3z"/></svg>
                                         <span class="h-seat-symbol" aria-hidden="true">{{ isSelected ? '✓' : (seat.status == 'reservee' ? '◷' : (seat.status == 'vendue' ? '×' : (seat.status == 'bloquee' ? '−' : ''))) }}</span>
                                         <span class="h-seat-number" aria-hidden="true">{{ seat.number }}</span>

@@ -57,9 +57,12 @@ final class CheckoutController extends AbstractController
         $tariffs = array_values(array_filter($em->getRepository(Tarif::class)->findBy(['representation' => $rep, 'actif' => true], ['id' => 'ASC']), static fn (Tarif $t) => in_array($t->getCategorie(), TariffAccess::categories($actor), true)));
         $builder = $this->createFormBuilder(null, ['csrf_message' => 'Le jeton de sécurité est invalide.']);
         if ($counter) { $builder->add('email', EmailType::class, ['label' => 'E-mail du destinataire', 'constraints' => [new Assert\NotBlank(), new Assert\Email(), new Assert\Length(max: 180)]]); }
+        $perSeat = []; $hasTariffs = true;
         foreach ($seats as $seat) {
+            $perSeat[$seat['id']] = array_values(array_filter($tariffs, static fn (Tarif $t) => $t->getSeatCategory()?->getId() === $seat['categoryId']));
+            $hasTariffs = $hasTariffs && $perSeat[$seat['id']] !== [];
             $builder->add('tariff_'.$seat['id'], EntityType::class, [
-                'class' => Tarif::class, 'choices' => $tariffs, 'label' => $seat['label'], 'placeholder' => false,
+                'class' => Tarif::class, 'choices' => $perSeat[$seat['id']], 'label' => $seat['label'].($seat['categoryName'] !== '' ? ' · '.$seat['categoryName'] : ''), 'placeholder' => false,
                 'choice_label' => static fn (Tarif $t) => $t->getLibelle().' · '.number_format($t->getPrixCentimes()/100, 2, ',', ' ').' MAD',
                 'choice_attr' => static fn (Tarif $t) => ['data-price' => $t->getPrixCentimes()],
                 'constraints' => [new Assert\NotNull()], 'attr' => ['data-line-tariff' => ''],
@@ -67,7 +70,7 @@ final class CheckoutController extends AbstractController
         }
         $form = $builder->getForm();
 
-        if ($tariffs === []) {
+        if (!$hasTariffs) {
             if ($request->isMethod('POST')) {
                 $this->addFlash('error', 'Aucun tarif autorisé pour ces places. Aucune réservation n’a été créée.');
             }
@@ -83,7 +86,7 @@ final class CheckoutController extends AbstractController
             ]);
         }
 
-        foreach ($seats as $seat) { $form->get('tariff_'.$seat['id'])->setData($tariffs[0]); }
+        foreach ($seats as $seat) { $form->get('tariff_'.$seat['id'])->setData($perSeat[$seat['id']][0]); }
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $demo->assertEnabled();

@@ -45,6 +45,11 @@ Accès : [espace client](http://localhost:8080/compte),
 Le catalogue est public ; chaque espace demande le rôle correspondant.
 A1 est déjà vendue sur R1 dans le jeu initial : choisir une autre place pour l'achat.
 
+Pour préparer votre propre programme, ouvrir **Administration → Créer un
+événement** : un seul formulaire rassemble l'affiche, les spectacles nommés,
+les catégories Standard/VIP/VVIP et leurs prix. Voir le
+[guide de gestion des événements](docs/EVENEMENTS.md).
+
 ## Fonctionnalités et niveaux atteints
 
 | Niveau | Fonctionnalités et état |

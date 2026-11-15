@@ -6,6 +6,7 @@ namespace App\Form\Model;
 
 use App\Entity\Representation;
 use App\Entity\Tarif;
+use App\Entity\SeatCategory;
 use App\Enum\CategorieTarif;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -24,6 +25,7 @@ final class TarifFormData
     #[Assert\NotNull(message: 'Le prix est obligatoire.')]
     #[Assert\PositiveOrZero(message: 'Le prix ne peut pas être négatif.')]
     public ?int $prixCentimes = null;
+    public ?SeatCategory $seatCategory = null;
 
     public static function fromEntity(Tarif $tarif): self
     {
@@ -32,6 +34,7 @@ final class TarifFormData
         $data->libelle = $tarif->getLibelle();
         $data->categorie = $tarif->getCategorie();
         $data->prixCentimes = $tarif->getPrixCentimes();
+        $data->seatCategory = $tarif->getSeatCategory();
 
         return $data;
     }

@@ -1,0 +1,28 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}{{ existing ? 'Ajouter des spectacles' : 'Créer un événement complet' }}{% endblock %}
+{% block javascripts %}<script type="module" src="/admin/event-setup.js"></script><script type="module" src="/admin/event-form.js"></script>{% endblock %}
+{% block body %}
+<nav class="workspace-breadcrumb" aria-label="Fil d’Ariane"><a href="{{ path('admin_index') }}">Mes événements</a><span>›</span>{% if existing %}<a href="{{ path('admin_evenement_show',{id:existing.id}) }}">{{ existing.titre }}</a><span>›</span>{% endif %}<span>{{ existing ? 'Ajouter des spectacles' : 'Créer un événement' }}</span></nav>
+<div class="page-head"><div><p class="eyebrow">Toute la programmation, au même endroit</p><h1>{{ existing ? 'Ajouter des spectacles' : 'Créer un événement' }}</h1><p>Décrivez l’événement, programmez ses spectacles et définissez les places et les prix.</p></div><a class="btn btn-secondary" href="{{ existing ? path('admin_evenement_show',{id:existing.id}) : path('admin_index') }}">Annuler</a></div>
+<ol class="setup-steps"><li><a href="#setup-event">1. Événement et salle</a></li><li><a href="#setup-shows">2. Spectacles et prix</a></li><li><a href="#setup-seats">3. Catégories de places</a></li></ol>
+{% if hall is null %}<div class="card"><h2>Préparez d’abord la salle</h2><p>Une salle avec ses places est nécessaire pour ouvrir les ventes.</p><a href="{{ path('admin_salle_index') }}">Consulter les salles</a></div>{% else %}
+{{ form_start(form,{attr:{class:'event-setup-form','data-event-setup':''}}) }}
+{{ form_errors(form) }}
+<section class="card setup-section" id="setup-event"><div class="section-head"><div><p class="eyebrow">Étape 1</p><h2>{{ existing ? existing.titre : 'Votre événement' }}</h2></div></div>
+{% if form.evenement is defined %}<div class="form-grid"><div class="field">{{ form_row(form.evenement.titre) }}</div><div class="field">{{ form_row(form.evenement.type) }}</div><div class="field field-span-2">{{ form_row(form.evenement.description) }}</div><div class="field field-span-2">{{ form_row(form.evenement.image) }}<span class="help">Affiche facultative : JPG, PNG ou WebP · 2 Mo maximum.</span><figure class="event-image-preview" data-event-image-preview hidden><img alt="Aperçu de l’affiche"><figcaption data-event-image-name></figcaption></figure></div></div>{% else %}<p>Les nouveaux spectacles seront rattachés à cet événement. Ses informations et ses ventes existantes sont conservées.</p>{% endif %}
+<div class="setup-hall"><div class="field">{{ form_row(form.hall) }}</div><button class="btn btn-secondary" type="submit" name="load_hall" value="1" formnovalidate>Charger les rangées de cette salle</button></div><p class="help">{{ hall.capacite }} places dans la salle sélectionnée. Le plan physique est réutilisé pour chaque spectacle.</p></section>
+<section class="setup-section" id="setup-shows"><div class="section-head"><div><p class="eyebrow">Étape 2</p><h2>Les spectacles à réserver</h2><p class="muted">Un nom, un horaire et des prix pour chaque spectacle.</p></div></div>
+{{ form_errors(form.shows) }}
+<div data-show-list data-next-index="{{ form.shows|length }}" data-prototype="{{ include('admin/workspace/_show_form.html.twig',{show:form.shows.vars.prototype})|e('html_attr') }}">{% for show in form.shows %}{% include 'admin/workspace/_show_form.html.twig' %}{% endfor %}</div>
+<button type="button" class="btn btn-secondary" data-add-show>+ Ajouter un spectacle</button><p class="help">Les prix proposés sont modifiables, en MAD. Ils correspondent au plein tarif de chaque catégorie.</p></section>
+<section class="card setup-section" id="setup-seats"><div class="section-head"><div><p class="eyebrow">Étape 3</p><h2>Répartir les places</h2><p class="muted">La même répartition sera appliquée aux nouveaux spectacles de cet enregistrement.</p></div></div>
+<p>Répartition proposée et modifiable : premières rangées en VVIP, suivantes en VIP, puis Standard. Vérifiez chaque rangée avant de créer l’événement.</p>
+<div class="category-counts" data-category-counts aria-live="polite"></div>
+<div class="setup-bulk"><label for="bulk-tier">Appliquer à toutes les rangées</label><select id="bulk-tier" data-bulk-tier><option value="standard">Standard</option><option value="vip">VIP</option><option value="vvip">VVIP</option></select><button type="button" class="btn btn-secondary btn-small" data-apply-tier>Appliquer</button></div>
+<div class="setup-row-grid">{% for row in form.rowCategories %}<div class="field setup-row">{{ form_row(row) }}</div>{% endfor %}</div>
+</section>
+<div class="setup-submit card"><div><h2>Prêt à ouvrir la billetterie ?</h2><p>Un seul enregistrement crée les spectacles, leurs places et leurs tarifs. Aucun paiement réel n’est effectué.</p></div><button class="btn btn-primary" type="submit">{{ existing ? 'Créer les spectacles' : 'Créer l’événement et ses spectacles' }}</button></div>
+{{ form_end(form) }}
+<noscript><p class="help">Sans JavaScript, le formulaire permet de créer un spectacle. Vous pourrez en ajouter d’autres depuis l’événement.</p></noscript>
+{% endif %}
+{% endblock %}

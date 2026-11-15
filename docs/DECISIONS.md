@@ -313,3 +313,19 @@ hypothèse ne constitue pas une politique commerciale pour le futur produit.
   trié ou déplacé physiquement ; des gardes évitent d’écraser des lignes étrangères.
   La validation par client simulé reste distincte d’une synchronisation Google
   réellement observée sur une feuille autorisée.
+
+## D18 — Spectacles nommés et catégories de places (15 novembre 2026)
+
+- **Demande complémentaire :** le client doit choisir un spectacle nommé dans
+  un événement ; l'administration doit préparer ensemble la programmation et
+  les prix Standard, VIP et VVIP.
+- **Décision :** conserver Representation comme séance réservable, avec son
+  propre nom, horaire et inventaire. Ajouter une catégorie de place par
+  représentation, indépendante du type de tarif (plein, réduit, groupe,
+  invitation). La réservation vérifie la correspondance sous verrou.
+- **Parcours :** création groupée dans une transaction ; cartes événement,
+  spectacles, puis plan/prix/ventes. Les propositions de rangées et de prix
+  sont modifiables, sans valeur commerciale imposée par le cahier des charges.
+- **Conservation :** migration additive, noms et catégories facultatifs pour
+  l'historique. Aucune reclassification des places existantes ni modification
+  des montants payés. Les fixtures d'origine conservent leur contrat.

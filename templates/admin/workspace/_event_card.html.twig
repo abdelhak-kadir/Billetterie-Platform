@@ -1,0 +1,11 @@
+{% set overview = eventOverview[evenement.id]|default({shows:0,capacity:0,sold:0,available:0}) %}
+{% set next = next_representation(evenement) %}
+<article class="event-card">
+    <a class="poster-link event-card-cover" href="{{ path('admin_evenement_show',{id:evenement.id}) }}"><div class="poster"><img src="{{ event_art(evenement) }}" alt="" loading="lazy"><span class="poster-type">{{ evenement.type.label }}</span></div></a>
+    <div class="event-card-body poster-caption"><p class="eyebrow">{{ overview.shows ? 'Programmation' : 'À compléter' }}</p><h2><a href="{{ path('admin_evenement_show',{id:evenement.id}) }}">{{ evenement.titre }}</a></h2>
+        <p class="muted">{{ next ? next.debut|casablanca_date : 'Aucun spectacle à venir' }}</p>
+        <div class="event-card-stats"><span><strong>{{ overview.shows }}</strong> spectacle(s)</span><span><strong>{{ overview.sold }}</strong> places vendues</span><span><strong>{{ overview.available }}</strong> libres</span></div>
+        {% if overview.capacity %}<div class="workspace-progress" role="img" aria-label="{{ overview.sold }} places vendues sur {{ overview.capacity }}"><span style="width:{{ overview.sold / overview.capacity * 100 }}%"></span></div>{% endif %}
+        <a class="btn btn-primary" href="{{ path('admin_evenement_show',{id:evenement.id}) }}">Gérer cet événement <span aria-hidden="true">→</span></a>
+    </div>
+</article>

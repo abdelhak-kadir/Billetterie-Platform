@@ -18,7 +18,7 @@ for (const screen of document.querySelectorAll('[data-store-seat-screen]')) {
     }
     const updateTotal = () => {
         const total = root.querySelector('[data-selected-total]');
-        if (total) total.textContent = 'Total estimé au plein tarif : ' + new Intl.NumberFormat('fr-MA', {style:'currency', currency:'MAD'}).format(root.seatMap.selected.size * Number(total.dataset.unitPrice) / 100);
+        if (total) total.textContent = 'Total estimé au plein tarif : ' + new Intl.NumberFormat('fr-MA', {style:'currency', currency:'MAD'}).format([...root.seatMap.selected].reduce((sum, id) => sum + Number(root.seatMap.byId.get(id).dataset.priceCentimes || total.dataset.unitPrice), 0) / 100);
     };
     root.addEventListener('seatmap:selectionchange', updateTotal); updateTotal();
     mountRepresentationDates(screen, root);

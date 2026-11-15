@@ -1,6 +1,6 @@
 # Modèle métier Horizon
 
-État du 15 novembre 2026 : modèle implémenté avec Doctrine et cinq migrations
+État du 15 novembre 2026 : modèle implémenté avec Doctrine et six migrations
 MySQL. Les niveaux 1 à 3 comprennent le plan de salle, les inventaires par
 représentation, les réservations temporaires, les ventes et remboursements
 simulés, les comptes, les billets PDF/QR et les indicateurs.
@@ -46,9 +46,10 @@ obligatoires sauf mention « nullable ». Les champs décrivent le schéma Doctr
 | Zone | Regroupe les places d'une salle : `salle_id`, `nom`. |
 | Place | Identité physique stable : `zone_id`, `rangee`, `numero` positif. Ne porte aucun état de vente. Le libellé public inclut zone, rangée et numéro. |
 | Evenement | Décrit le programme : `titre`, `description`, `type` (concert, théâtre, conférence), `image_filename` nullable pour un visuel personnalisé. L’image reste un fichier local ; seul son nom généré est stocké en base. |
-| Representation | Occurrence datée d'un événement dans une salle : `evenement_id`, `salle_id`, `debut`, `statut` (programmée, annulée, terminée). |
-| InventairePlace | Disponibilité d'une place pour une représentation : `representation_id`, `place_id`, `statut` (disponible, réservée, vendue, bloquée), `commande_reservation_id` nullable, `reservation_expire_a` nullable. « Bloquée » empêche une nouvelle vente : représentation annulée ou place annulée après fermeture des ventes. |
-| Tarif | Offre de prix pour une représentation : `representation_id`, `libelle`, `categorie` (plein, réduit, groupe, invitation), `prix_centimes` entier non négatif, `actif` booléen. Plusieurs offres d'une même catégorie sont possibles. |
+| Representation | Spectacle réservable d'un événement dans une salle : `evenement_id`, `salle_id`, `nom` nullable (repli sur le titre de l'événement), `debut`, `statut` (programmée, annulée, terminée). |
+| SeatCategory | Catégorie de place propre à une représentation : `representation_id`, `code` (standard, vip, vvip), `nom`. Distincte du type commercial d'un tarif. |
+| InventairePlace | Disponibilité d'une place pour une représentation : `representation_id`, `place_id`, `seat_category_id` nullable pour l'historique, `statut` (disponible, réservée, vendue, bloquée), `commande_reservation_id` nullable, `reservation_expire_a` nullable. « Bloquée » empêche une nouvelle vente : représentation annulée ou place annulée après fermeture des ventes. |
+| Tarif | Offre de prix pour une représentation : `representation_id`, `seat_category_id` nullable pour l'historique, `libelle`, `categorie` (plein, réduit, groupe, invitation), `prix_centimes` entier non négatif, `actif` booléen. Plusieurs offres d'une même catégorie sont possibles. |
 | User | Compte avec e-mail unique, hash de mot de passe et rôle client, guichetier ou administrateur. |
 | ReservationItem | Ligne acceptée : commande, inventaire, tarif et prix en centimes figé à la réservation. |
 | Commande | Regroupe une opération d'achat : `reference`, `email_client`, `canal` (en ligne, guichet), `statut` (en attente, payée, échouée, expirée, annulée), `cree_a`, `paye_a` nullable. Son état de remboursement est calculé depuis ses billets, séparément du paiement. |
@@ -95,6 +96,9 @@ erDiagram
     REPRESENTATION ||--|{ INVENTAIRE_PLACE : initialise
     PLACE ||--o{ INVENTAIRE_PLACE : reutilisee
     REPRESENTATION ||--o{ TARIF : propose
+    REPRESENTATION ||--o{ SEAT_CATEGORY : definit
+    SEAT_CATEGORY o|--o{ INVENTAIRE_PLACE : classe
+    SEAT_CATEGORY o|--o{ TARIF : concerne
     COMMANDE o|--o{ INVENTAIRE_PLACE : reserve_temporairement
     COMMANDE ||--o{ BILLET : conserve
     INVENTAIRE_PLACE ||--o{ BILLET : historique
@@ -129,6 +133,10 @@ erDiagram
 
 - Une place inventoriée appartient à la salle de la représentation, via sa Zone.
   Le Tarif du Billet concerne exactement cette même représentation.
+- Pour les nouveaux spectacles guidés, le tarif doit aussi concerner la
+  catégorie du siège. Les anciens inventaires et tarifs sans catégorie restent
+  compatibles entre eux. La classification d'une place est fixée lors de sa
+  création ; les prix acceptés restent historisés dans les lignes de réservation.
 - La création d'une représentation initialise atomiquement son inventaire
   complet à partir des 400 places physiques existantes, sans recopier ces places.
   Aucun inventaire partiel n'est ouvert à la vente. Une relance ne crée pas de doublons.

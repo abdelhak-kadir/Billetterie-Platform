@@ -710,3 +710,5 @@
     padding-bottom:calc(var(--h-selection-height, 280px) + 24px);
     scroll-padding-bottom:calc(var(--h-selection-height, 280px) + 24px);
 }
+
+.seat-category-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.seat-category-pill{padding:8px 12px;border-radius:30px;border:1px solid #b59a58;font-size:12px;background:#fff0c5;color:#243746}.seat-category-pill.tier-vip{background:#e8dbff;border-color:#9874cc}.seat-category-pill.tier-vvip{background:#ffdde0;border-color:#cf7b89}.h-seat.h-state-disponible[data-category-code=vip]:not(.h-is-selected) .h-chair-back{fill:#dac4fc}.h-seat.h-state-disponible[data-category-code=vvip]:not(.h-is-selected) .h-chair-back{fill:#ffc0cb}

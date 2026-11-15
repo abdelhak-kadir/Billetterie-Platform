@@ -6,6 +6,7 @@ pour la démonstration courte, ouvrir le [README principal](../README.md#démons
 
 | Document | À consulter pour… |
 | --- | --- |
+| [EVENEMENTS.md](EVENEMENTS.md) | Créer un événement complet, nommer ses spectacles et fixer les catégories Standard/VIP/VVIP et leurs prix. |
 | [MODELE.md](MODELE.md) | Comprendre les entités, leurs relations et l'inventaire par représentation. |
 | [DECISIONS.md](DECISIONS.md) | Retrouver les hypothèses et les décisions sur les prix, annulations et droits. |
 | [SPRINT2.md](SPRINT2.md) | Lire les règles de réservation, vente, expiration, remboursement et concurrence. |

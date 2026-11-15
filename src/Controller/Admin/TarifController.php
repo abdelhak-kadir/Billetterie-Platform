@@ -98,6 +98,8 @@ final class TarifController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $data = new TarifFormData();
+        $contextId = QueryFilters::positiveInt($request->query,'representation');
+        if ($contextId > 0) { $data->representation = $entityManager->find(\App\Entity\Representation::class,$contextId); }
         $form = $this->createForm(TarifType::class, $data);
         $form->handleRequest($request);
 
@@ -117,6 +119,8 @@ final class TarifController extends AbstractController
                         $data->categorie ?? throw new \LogicException('Catégorie manquante.'),
                         $data->prixCentimes ?? throw new \LogicException('Prix manquant.'),
                     );
+                    $tarif->setSeatCategory($data->seatCategory);
+                    if ($data->seatCategory === null && $entityManager->getRepository(\App\Entity\SeatCategory::class)->count(['representation'=>$data->representation]) > 0) { throw new \InvalidArgumentException('Choisissez la catégorie de place Standard, VIP ou VVIP de ce spectacle.'); }
                     $entityManager->persist($tarif);
                     $entityManager->flush();
 
@@ -199,6 +203,7 @@ final class TarifController extends AbstractController
                             $data->categorie ?? throw new \LogicException('Catégorie manquante.'),
                             $data->prixCentimes ?? throw new \LogicException('Prix manquant.'),
                         );
+                        $tarif->setSeatCategory($data->seatCategory);
                         $entityManager->flush();
                         $db->commit();
                     } catch (\Throwable $error) {

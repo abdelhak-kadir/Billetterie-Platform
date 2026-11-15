@@ -25,6 +25,7 @@
             {{ form_errors(form) }}
             <p class="eyebrow">Programmation</p>
             <div class="form-grid">
+                <div class="field field-span-2">{{ form_row(form.nom) }}</div>
                 <div class="field">
                     {{ form_label(form.evenement) }}
                     {{ form_widget(form.evenement) }}

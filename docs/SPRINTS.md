@@ -344,3 +344,16 @@ y compris inscription réelle et image effectivement publiée. La version finale
 réduit aussi la hauteur du bandeau sur mobile. La migration additive et la mise
 à jour du port 8080 préservent toutes les données existantes et les treize
 exports Google. Détails dans [VALIDATION_FINALE.md](VALIDATION_FINALE.md).
+
+## Gestion des événements et spectacles (15 novembre 2026)
+
+Branche `feat/event-workspace` : spectacles nommés, catégories de places
+Standard/VIP/VVIP distinctes des réductions commerciales, prix par spectacle,
+création groupée et administration par cartes. La migration ajoute des champs
+facultatifs et une table sans reclasser les données historiques.
+
+Validation locale et CI : **110 tests, 718 assertions** ; Demo Fixtures :
+1 test et 16 175 assertions. Chromium vérifie la création, les prix VIP, le
+PDF, les inventaires indépendants et les ventes par spectacle en formats
+ordinateur et mobile. Voir [EVENEMENTS.md](EVENEMENTS.md) et
+[VALIDATION_FINALE.md](VALIDATION_FINALE.md).

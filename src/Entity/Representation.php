@@ -35,6 +35,9 @@ class Representation
     #[ORM\Column(length: 20, enumType: StatutRepresentation::class)]
     private StatutRepresentation $statut;
 
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $nom = null;
+
     /** @var Collection<int, InventairePlace> */
     #[ORM\OneToMany(mappedBy: 'representation', targetEntity: InventairePlace::class)]
     private Collection $inventairePlaces;
@@ -61,6 +64,14 @@ class Representation
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getNom(): string { return $this->nom ?? $this->evenement->getTitre(); }
+    public function nommer(?string $nom): void
+    {
+        $nom = trim($nom ?? '');
+        if (mb_strlen($nom) > 150) { throw new \InvalidArgumentException('Le nom du spectacle est limité à 150 caractères.'); }
+        $this->nom = $nom === '' ? null : $nom;
     }
 
     public function getEvenement(): Evenement

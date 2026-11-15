@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TarifRepository::class)]
 #[ORM\Table(name: 'tarif')]
+#[ORM\Index(name: 'IDX_TARIFF_CATEGORY', columns: ['seat_category_id'])]
 #[ORM\UniqueConstraint(name: 'uniq_tarif_representation_libelle', columns: ['representation_id', 'libelle'])]
 class Tarif
 {
@@ -33,6 +34,26 @@ class Tarif
 
     #[ORM\Column]
     private bool $actif = true;
+
+    #[ORM\ManyToOne(targetEntity: SeatCategory::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    private ?SeatCategory $seatCategory = null;
+
+    public function getSeatCategory(): ?SeatCategory { return $this->seatCategory; }
+    public function setSeatCategory(?SeatCategory $category): void
+    {
+        if ($category !== null && $category->getRepresentation() !== $this->representation
+            && ($category->getRepresentation()->getId() === null || $category->getRepresentation()->getId() !== $this->representation->getId())) {
+            throw new \InvalidArgumentException('La catégorie appartient à un autre spectacle.');
+        }
+        $this->seatCategory = $category;
+    }
+    public function appliesTo(InventairePlace $inventory): bool
+    {
+        return $this->seatCategory === $inventory->getSeatCategory()
+            || ($this->seatCategory !== null && $inventory->getSeatCategory() !== null
+                && $this->seatCategory->getId() !== null && $this->seatCategory->getId() === $inventory->getSeatCategory()->getId());
+    }
 
     public function __construct(Representation $representation, string $libelle, CategorieTarif $categorie, int $prixCentimes)
     {
