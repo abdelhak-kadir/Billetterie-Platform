@@ -60,6 +60,8 @@ final class PrepareDemoCommand extends Command
             if ($this->getApplication()->find('doctrine:fixtures:load')->run($args, $output) !== Command::SUCCESS) { return Command::FAILURE; }
         }
         $args = new ArrayInput([]); $args->setInteractive(false);
+        if ($this->getApplication()->find('app:demo:shows')->run($args, $output) !== Command::SUCCESS) { return Command::FAILURE; }
+        $args = new ArrayInput([]); $args->setInteractive(false);
         return $this->getApplication()->find('app:demo:users')->run($args, $output);
     }
 }

@@ -87,12 +87,14 @@ def seat(dom):
 
 client=login('client')
 _,catalogue=get(client,'/')
-event=next(a.attrs['href'] for a in catalogue.all('a') if 'Concert Horizon' in a.text())
+event=next(a.attrs['href'] for a in catalogue.all('a') if 'Horizon Live' in a.text())
 _,event_dom=get(client,event)
 reps=[a for a in event_dom.all('a') if a.attrs.get('href','').startswith('/representations/')]
-r1=next(a.attrs['href'] for a in reps if '01/12/2026' in a.text())
-r2=next(a.attrs['href'] for a in reps if '02/12/2026' in a.text())
+r1=next(a.attrs['href'] for a in reps if 'Première partie' in a.text())
+r2=next(a.attrs['href'] for a in reps if 'Concert principal' in a.text())
 _,plan=get(client,r1)
+assert seat(plan).attrs['data-category-code']=='vvip'
+assert seat(plan).attrs['data-price-centimes']=='30000'
 if args.expect_existing:
     assert seat(plan).attrs['data-status']=='vendue'
     seat_id=seat(plan).attrs['data-seat-id']
@@ -127,6 +129,7 @@ assert seat(counter_r1).attrs['data-status']=='vendue'
 assert seat(counter_r1).attrs['data-initial-selected']=='false'
 _,counter_r2=get(counter,'/guichet'+r2)
 assert seat(counter_r2).attrs['data-status']=='disponible'
+assert seat(counter_r2).attrs['data-price-centimes']=='36000'
 print('Guichet : A5 vendue sur R1, libre sur R2 : OK')
 
 admin=login('admin')

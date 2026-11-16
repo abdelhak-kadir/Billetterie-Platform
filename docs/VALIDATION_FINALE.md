@@ -1,10 +1,12 @@
 # Validation finale Horizon
 
-La recette la plus récente, du **16 novembre 2026**, est le
-[démarrage Compose automatique](DOCKER_STARTUP.md) : installation isolée,
-conservation des achats, 120 tests et 771 assertions, puis captures du README.
-Les sections datées ci-dessous conservent les résultats précédents et distinguent
-les contrôles locaux, les runners neufs et la recette réelle de l'API Google.
+La recette la plus récente, du **16 novembre 2026**, porte sur le
+[jeu par spectacles](DEMO_SPECTACLES.md) : deux spectacles du même soir,
+catégories et prix dès le chargement, puis complément d'une ancienne démo sans
+purge. **130 tests et 832 assertions**, plus 16 511 assertions de fixtures,
+passent. Les [contrôles du démarrage Docker](DOCKER_STARTUP.md) restent documentés.
+Les sections datées ci-dessous conservent les résultats précédents ; leurs
+anciens nombres de tarifs et dates décrivent les versions de ces contrôles.
 
 ## Socle et installation
 

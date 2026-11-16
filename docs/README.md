@@ -6,6 +6,7 @@ pour la démonstration courte, ouvrir le [README principal](../README.md#démons
 
 | Document | À consulter pour… |
 | --- | --- |
+| [DEMO_SPECTACLES.md](DEMO_SPECTACLES.md) | Essayer les deux spectacles du même concert et mettre à jour un ancien jeu sans purge. |
 | [DOCKER_STARTUP.md](DOCKER_STARTUP.md) | Voir la recette sur clone propre du démarrage Compose, de la conservation des achats et des captures du README. |
 | [EVENEMENTS.md](EVENEMENTS.md) | Créer un événement complet, nommer ses spectacles et fixer les catégories Standard/VIP/VVIP et leurs prix. |
 | [MODELE.md](MODELE.md) | Comprendre les entités, leurs relations et l'inventaire par représentation. |

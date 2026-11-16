@@ -46,31 +46,38 @@ le [dépannage](INSTALL.md#arrêt-et-dépannage) et le
 Les **[mots de passe de démonstration sont dans INSTALL.md](INSTALL.md#comptes-de-démonstration)**.
 Utiliser des profils de navigateur distincts pour comparer les trois espaces.
 
-1. Se connecter comme client. Dans le catalogue, rechercher **Concert Horizon**,
-   puis choisir le spectacle du **1er décembre 2026 (R1)**.
+1. Se connecter comme client. Dans le catalogue, rechercher **Horizon Live**,
+   puis choisir **Première partie**, le **1er décembre 2026 à 20 h (R1)**.
 2. Sélectionner **Parterre / A / 5**, libre sur une installation neuve. Continuer,
-   garder le plein tarif de **100 MAD**, puis cliquer sur **Réserver ces places**
+   garder le plein tarif **VVIP à 300 MAD**, puis cliquer sur **Réserver ces places**
    et **Simuler un paiement réussi**.
 3. Depuis la commande payée, ouvrir **Voir mon billet**, puis
    **Télécharger le billet PDF** : le billet contient son QR code.
 4. Comme guichetier, ouvrir le même spectacle : **A5 est vendue et non
-   sélectionnable**. Elle reste libre sur le spectacle du **2 décembre (R2)**.
-5. Comme administrateur, ouvrir **Mes événements → Concert Horizon → spectacle
-   du 1er décembre**, puis **Ventes et billets**. Le plan confirme la place vendue ;
+   sélectionnable**. Elle reste libre pour **Concert principal**, le **même soir à 21 h 30 (R2)**.
+5. Comme administrateur, ouvrir **Mes événements → Horizon Live → Première partie**, puis **Ventes et billets**. Le plan confirme la place vendue ;
    **Remplissage et recettes** affiche le bilan.
 
 Le jeu neuf contient **400 places, 3 événements, 4 représentations, 1 600
-inventaires, 16 tarifs et 6 billets fictifs vendus**. A1 est déjà vendue sur R1.
+inventaires, 48 tarifs et 6 billets fictifs vendus**. A1 est déjà vendue sur R1.
 Après un premier essai, choisir une autre place libre : un redémarrage ne remet
 pas A5 en vente. Les dates des fixtures sont fixes ; effectuer l'achat avant le
 début du spectacle. Pour créer un autre programme avec Standard/VIP/VVIP,
 suivre le [formulaire guidé des événements](docs/EVENEMENTS.md).
+Sur une base ancienne, ce programme est ajouté une seule fois ; les anciennes
+ventes restent conservées. Voir [la mise à jour du jeu de démonstration](docs/DEMO_SPECTACLES.md).
 
 ## Captures d'écran
 
 Toutes les vues ci-dessous proviennent d'une installation isolée et de comptes
 fictifs. Elles montrent des ventes simulées ; aucun compte réel ni lien externe
 privé n'est publié.
+
+### Spectacles d’un même concert
+
+![Horizon Live avec Première partie et Concert principal le même soir](docs/screenshots/reviewer/spectacles.png)
+
+*Le client choisit le spectacle, puis ses places et leur catégorie.*
 
 ### Plan de salle client
 

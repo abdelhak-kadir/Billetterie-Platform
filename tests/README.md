@@ -127,8 +127,8 @@ s105 php bin/console doctrine:schema:validate
 
 Le test effectue lui-même les deux chargements standards. Il vérifie notamment
 une salle, 400 places, trois événements, quatre représentations, 1 600
-inventaires, seize tarifs, quatre commandes et six billets. Il contrôle aussi
-A1 vendue sur R1 et libre sur R2. Voir les [données de démonstration](../INSTALL.md#données-de-démonstration)
+inventaires, 12 catégories de places, 48 tarifs, quatre commandes et six billets. Il contrôle aussi
+A1 vendue sur Première partie et libre sur Concert principal, deux spectacles du même soir. Voir les [données de démonstration](../INSTALL.md#données-de-démonstration)
 pour les dates et tarifs. Ne pas utiliser `--append` pour contourner un conflit
 de fixtures ; ne pas lancer cette suite sur la base utilisée dans le navigateur.
 

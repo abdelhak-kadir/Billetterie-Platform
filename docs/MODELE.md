@@ -1,6 +1,6 @@
 # Modèle métier Horizon
 
-État du 15 novembre 2026 : modèle implémenté avec Doctrine et six migrations
+État du 16 novembre 2026 : modèle implémenté avec Doctrine et sept migrations
 MySQL. Les niveaux 1 à 3 comprennent le plan de salle, les inventaires par
 représentation, les réservations temporaires, les ventes et remboursements
 simulés, les comptes, les billets PDF/QR et les indicateurs.
@@ -14,7 +14,7 @@ multi-représentations restent prises en charge pour leur annulation.
 Le plan initial est fixe, les montants sont stockés en centimes de MAD et les
 inventaires sont indépendants d’une représentation à l’autre. Les décisions
 initiales du 11 novembre sont conservées dans [DECISIONS.md](DECISIONS.md) ;
-D11–D16 précisent les règles effectivement retenues. Voir [SPRINT2.md](SPRINT2.md)
+D11–D19 précisent les règles effectivement retenues. Voir [SPRINT2.md](SPRINT2.md)
 pour les transactions et [NIVEAU3.md](NIVEAU3.md) pour les droits et parcours.
 
 ## Sources et périmètre
@@ -45,7 +45,7 @@ obligatoires sauf mention « nullable ». Les champs décrivent le schéma Doctr
 | Salle | Décrit le lieu et son plan réutilisable : `nom`. La capacité initiale de 400 est dérivée des places, pas d'un compteur modifiable indépendamment. |
 | Zone | Regroupe les places d'une salle : `salle_id`, `nom`. |
 | Place | Identité physique stable : `zone_id`, `rangee`, `numero` positif. Ne porte aucun état de vente. Le libellé public inclut zone, rangée et numéro. |
-| Evenement | Décrit le programme : `titre`, `description`, `type` (concert, théâtre, conférence), `image_filename` nullable pour un visuel personnalisé. L’image reste un fichier local ; seul son nom généré est stocké en base. |
+| Evenement | Décrit le programme : `titre`, `description`, `type` (concert, théâtre, conférence), `image_filename` nullable pour un visuel personnalisé, `demo_key` nullable et unique pour identifier un programme fictif sans le recréer. L’image reste un fichier local ; seul son nom généré est stocké en base. |
 | Representation | Spectacle réservable d'un événement dans une salle : `evenement_id`, `salle_id`, `nom` nullable (repli sur le titre de l'événement), `debut`, `statut` (programmée, annulée, terminée). |
 | SeatCategory | Catégorie de place propre à une représentation : `representation_id`, `code` (standard, vip, vvip), `nom`. Distincte du type commercial d'un tarif. |
 | InventairePlace | Disponibilité d'une place pour une représentation : `representation_id`, `place_id`, `seat_category_id` nullable pour l'historique, `statut` (disponible, réservée, vendue, bloquée), `commande_reservation_id` nullable, `reservation_expire_a` nullable. « Bloquée » empêche une nouvelle vente : représentation annulée ou place annulée après fermeture des ventes. |

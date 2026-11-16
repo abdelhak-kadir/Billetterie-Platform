@@ -372,3 +372,15 @@ Le nouveau raccourci de fixtures a d’abord révélé un chargement incomplet d
 `.env.test`, puis une réécriture de la surcharge DATABASE_URL par Dotenv. Les
 gardes ont refusé l’exécution sur la mauvaise base. La surcharge est désormais
 explicite, et la suite dédiée passe. Aucun chargement n’a touché la base web.
+
+## Jeu de démonstration par spectacles (16 novembre 2026)
+
+Les fixtures utilisent le même service de création que l'administration :
+Horizon Live contient Première partie et Concert principal le même soir,
+avec Standard/VIP/VVIP et leurs offres commerciales. Le jeu neuf contient
+48 tarifs ; une ancienne installation reçoit seulement le programme manquant,
+avec une clé de provenance unique et sans changer ses anciens billets.
+
+Validation : 130 tests, 832 assertions ; Demo Fixtures : 1 test et
+16 511 assertions. Achats et PDF, captures ordinateur/mobile et mise à jour
+non destructive d'un ancien jeu contrôlés. Voir [DEMO_SPECTACLES.md](DEMO_SPECTACLES.md).

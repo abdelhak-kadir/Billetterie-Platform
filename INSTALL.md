@@ -145,18 +145,27 @@ Utiliser des sessions de navigateur distinctes pour comparer client et guichet.
 
 ## Données de démonstration
 
-Le jeu contient une salle de 400 places, trois événements, quatre
-représentations, seize tarifs et six billets déjà vendus. Les tarifs fictifs
-sont plein 100 MAD, réduit 80 MAD, groupe 60 MAD et invitation 0 MAD.
-Le client achète au plein tarif ; le guichetier dispose aussi du réduit et du
-groupe ; l'invitation est réservée à l'administrateur.
+Le jeu neuf contient une salle de 400 places, trois événements, quatre spectacles,
+1 600 inventaires, douze catégories de places, **48 tarifs** et six billets fictifs.
+Chaque spectacle possède Standard, VIP et VVIP ; chaque catégorie propose plein,
+réduit (80 %), groupe (60 %) et invitation (0 MAD), selon le rôle connecté.
 
-Le **Concert Horizon** se joue le **1er décembre 2026 (R1)** et le **2 décembre
-2026 (R2)** à 19 h UTC, affichées dans le fuseau `Africa/Casablanca`. Ces dates
-sont fixes : le parcours d'achat doit être testé avant le début des séances.
-Parterre / A / 1 est déjà vendue sur R1 et libre sur R2 ; A4 est libre sur les
-deux après un chargement neuf. R1 et R2 désignent les dates du jeu, pas des
-identifiants SQL à saisir dans une URL.
+**Horizon Live** réunit **Première partie** le **1er décembre 2026 à 20 h (R1)**
+et **Concert principal** le **même soir à 21 h 30 (R2)**, dans `Africa/Casablanca`.
+Plein tarif : Standard/VIP/VVIP à **100/200/300 MAD** pour la première partie,
+et **120/240/360 MAD** pour le concert principal. Parterre A/B est VVIP,
+C/D/E est VIP ; les autres rangées et le Balcon sont Standard.
+
+Parterre / A / 1 est vendue pour la première partie et libre pour le concert
+principal ; A5 est libre pour les deux sur un jeu neuf. Chaque spectacle garde
+son propre inventaire. Les dates sont fixes et les achats nécessitent une date
+future. R1/R2 sont des repères du scénario, pas des identifiants SQL.
+
+Sur une ancienne installation reconnue, le démarrage ajoute seulement **Horizon
+Live** et ses deux spectacles catégorisés. Les anciens événements, horaires,
+prix, achats, billets et comptes restent inchangés. Il n'ajoute pas de nouvelle
+vente fictive à ce programme : les billets préexistants sont conservés.
+Voir [DEMO_SPECTACLES.md](docs/DEMO_SPECTACLES.md) pour la mise à jour sans purge.
 
 Suivre le [scénario du README](README.md#démonstration-en-deux-minutes) pour acheter et comparer
 les disponibilités. Le [guide du niveau 3](docs/NIVEAU3.md) explique les droits,
