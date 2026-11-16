@@ -79,3 +79,11 @@ La suite de fixtures évite les lectures répétées par siège et désactive le
 backtraces SQL de test pour rester dans la limite mémoire PHP standard. Le
 raccourci de tests utilise l'UID/GID de l'application afin de ne pas créer de
 dossiers d'uploads appartenant à root et de laisser les images de démo utilisables.
+
+Mise à jour de l'instance locale `localhost:8080` : `SELECT DATABASE()` confirme
+`billetterie`. Après migration additive puis démarrage normal, les quatre
+commandes, six billets et trois comptes préexistants sont identiques. Le
+complément porte le total à quatre événements, six spectacles, 2 400 inventaires,
+40 tarifs et six catégories de places. Les trois connexions, les deux spectacles
+Horizon Live et leurs prix VVIP (300/360 MAD) sont vérifiés par HTTP sans achat
+supplémentaire. Le fichier généré local `config/reference.php` reste inchangé.
