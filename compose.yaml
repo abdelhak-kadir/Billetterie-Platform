@@ -8,6 +8,15 @@ services:
     image: ${COMPOSE_PROJECT_NAME:-billetterie-platform}-app
     init: true
     working_dir: /app
+    environment:
+      HORIZON_AUTO_DEMO: ${HORIZON_AUTO_DEMO:-1}
+    command: [sh, bin/start-docker]
+    healthcheck:
+      test: ["CMD", "php", "-r", "$$headers = @get_headers('http://127.0.0.1:8000/'); exit($$headers && str_contains($$headers[0], '200') ? 0 : 1);"]
+      interval: 5s
+      timeout: 5s
+      start_period: 600s
+      retries: 6
     volumes:
       - .:/app
       - composer-cache:/home/app/.composer/cache
@@ -27,7 +36,7 @@ services:
       - .:/app
     depends_on:
       app:
-        condition: service_started
+        condition: service_healthy
       database:
         condition: service_healthy
     command: [php, bin/console, app:sheets:sync, --watch, --enqueue-existing]

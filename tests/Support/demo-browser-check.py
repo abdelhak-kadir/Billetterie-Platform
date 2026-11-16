@@ -1,5 +1,7 @@
 """Recette Chromium sur un jeu de démonstration jetable, jamais sur une base à garder."""
 import argparse
+import shutil
+import subprocess
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
@@ -8,6 +10,7 @@ from playwright.sync_api import expect, sync_playwright
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--base-url', default='http://localhost:8080')
 parser.add_argument('--output-dir', default='/tmp/horizon-browser-qa')
+parser.add_argument('--browser-executable', help='Chemin facultatif vers Chrome/Chromium déjà installé.')
 args = parser.parse_args()
 base = args.base_url.rstrip('/')
 output = Path(args.output_dir)
@@ -31,6 +34,16 @@ def capture(page, name):
     for element in page.locator('.footer-inner > *').all():
         assert element.evaluate('(el) => el.getBoundingClientRect().right <= window.innerWidth'), name + ': pied de page tronqué'
     page.screenshot(path=str(output / (name + '.png')), full_page=True)
+    # Recadrages de documentation : contenu utile, sans barres du navigateur ni longues tables.
+    reviewer_clips = {
+        'desktop-catalogue-public': dict(x=0, y=0, width=1440, height=940),
+        'desktop-client-plan': dict(x=80, y=130, width=1280, height=870),
+        'desktop-guichet-plan': dict(x=80, y=130, width=1280, height=870),
+        'desktop-guichet-tarifs': dict(x=80, y=130, width=1280, height=650),
+        'desktop-indicateurs': dict(x=80, y=150, width=1280, height=490),
+    }
+    if name in reviewer_clips:
+        page.screenshot(path=str(output / (name + '-reviewer.png')), clip=reviewer_clips[name])
 
 
 def seat(page, number):
@@ -183,6 +196,7 @@ def buy(page, number, name, counter=False):
         page.get_by_label('E-mail du destinataire').fill('destinataire@example.com')
         reduced = page.locator('[data-line-tariff] option').filter(has_text='Réduit').first
         page.locator('[data-line-tariff]').select_option(value=reduced.get_attribute('value'))
+        page.locator('h1').click()
     capture(page, name + '-tarifs')
     page.get_by_role('button', name='Réserver ces places', exact=True).click()
     page.get_by_role('button', name='Simuler un paiement réussi', exact=True).click()
@@ -194,11 +208,15 @@ def buy(page, number, name, counter=False):
     download = result.value
     assert download.failure() is None
     assert Path(download.path()).read_bytes().startswith(b'%PDF-')
+    if name == 'desktop-client' and shutil.which('pdftoppm'):
+        # Uniquement ce billet fictif du projet jetable, jamais un billet de l'instance existante.
+        subprocess.run(['pdftoppm', '-scale-to', '1400', '-singlefile', '-png',
+                        download.path(), str(output / (name + '-pdf'))], check=True)
     download.delete()  # Les billets privés ne sont pas joints aux captures publiques.
 
 
 with sync_playwright() as playwright:
-    browser = playwright.chromium.launch()
+    browser = playwright.chromium.launch(executable_path=args.browser_executable)
     for device, viewport, client_seat, counter_seat in [
         ('desktop', {'width': 1440, 'height': 1000}, 6, 8),
         ('mobile', {'width': 390, 'height': 844}, 7, 9),
@@ -208,6 +226,7 @@ with sync_playwright() as playwright:
         client = browser.new_context(**options)
         client_page = client.new_page()
         public_ui(client_page, device)
+        capture(client_page, device + '-catalogue-public')
         login(client_page, 'client')
         client_page.goto(base + '/')
         capture(client_page, device + '-catalogue')

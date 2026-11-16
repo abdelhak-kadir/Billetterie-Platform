@@ -3,7 +3,7 @@
 Livraison sur `sprint-3-produit`, depuis le Sprint 2 vérifié à `8e62b5e`, puis
 le plan admin `8a82262`. Comptes, achats client, guichet, PDF/QR et indicateurs
 réutilisent le modèle et les transactions du Sprint 2. Le bilan cumulatif actuel
-se trouve dans le [README](../README.md#fonctionnalités-et-niveaux-atteints) ;
+se trouve dans le [README](../README.md#fonctionnalités-et-documentation) ;
 l'installation locale est décrite dans [INSTALL.md](../INSTALL.md).
 
 ## Comptes, droits et historique
@@ -128,7 +128,7 @@ Suivre [INSTALL.md](../INSTALL.md#installation-sur-un-clone-neuf) dans un autre
 clone, avec un nom de projet Compose neuf et un volume jetable. Ce guide
 centralise les migrations, le chargement des données et les
 [comptes de démonstration](../INSTALL.md#comptes-de-démonstration).
-Le [README](../README.md#démonstration) donne le scénario court client → PDF →
+Le [README](../README.md#démonstration-en-deux-minutes) donne le scénario court client → PDF →
 vérification au guichet ; les [instructions de tests](../tests/README.md)
 séparent la suite principale de Demo Fixtures.
 
@@ -202,7 +202,7 @@ L'email n'est pas vérifié par un envoi et il n'y a pas de récupération de mo
 passe, de prestataire bancaire, de scanner d'entrée à usage unique. La synchronisation Google Sheets est
 maintenant implémentée séparément ; sa recette réelle est suivie dans
 [VALIDATION_FINALE.md](VALIDATION_FINALE.md). Les niveaux 4 et 5 sont désormais vérifiés ; voir le
-[bilan actuel](../README.md#fonctionnalités-et-niveaux-atteints). Les conditions commerciales réduit/groupe
+[bilan actuel](../README.md#fonctionnalités-et-documentation). Les conditions commerciales réduit/groupe
 et une future politique d'entrée restent à définir ; aucune n'est ajoutée en silence.
 
 Documentation technique consultée : [Symfony Security 7.4](https://symfony.com/doc/7.4/security.html),

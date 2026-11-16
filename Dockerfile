@@ -6,6 +6,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
         unzip \
+        util-linux \
         libicu-dev \
         libzip-dev \
     && docker-php-ext-install -j"$(nproc)" intl pdo_mysql zip opcache \
@@ -24,10 +25,15 @@ RUN groupadd --gid "${GID}" app \
 
 ENV COMPOSER_HOME=/home/app/.composer
 
-USER app
+COPY --chmod=755 bin/docker-entrypoint /usr/local/bin/horizon-entrypoint
+
+# Le point d'entrée prépare les seuls dossiers générés, puis prend l'UID/GID
+# du propriétaire du clone avant d'exécuter Composer, PHP ou le worker.
+USER root
 
 WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public", "public/index.php"]
+ENTRYPOINT ["horizon-entrypoint"]
+CMD ["sh", "bin/start-docker"]

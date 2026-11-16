@@ -18,7 +18,6 @@ MySQL 8.0. Toutes les commandes suivantes se lancent à la racine du dépôt.
 ```sh
 git clone https://github.com/abdelhak-kadir/Billetterie-Platform.git
 cd Billetterie-Platform
-cp .env.example .env
 ```
 
 Si une autre copie utilise déjà Compose sur cette machine, choisir un nom de
@@ -29,18 +28,26 @@ les commandes de cette session :
 export COMPOSE_PROJECT_NAME=horizon-evaluation
 ```
 
-Ce nom sépare les volumes et le réseau. Il ne change pas le port : arrêter
-l'autre application ou adapter le port publié dans `compose.yaml` si nécessaire.
+Ce nom sépare les volumes et le réseau. Il ne change pas le port : utiliser
+`HORIZON_HTTP_PORT` si une autre application écoute déjà sur 8080.
 Un clone neuf ne garantit pas un volume neuf si le nom de projet a déjà servi.
 
 ```sh
-./bin/setup-demo
+docker compose up --build -d --wait
 ```
 
-Le script construit et démarre PHP/MySQL, installe les dépendances de
-`composer.lock`, applique les migrations, prépare les fixtures et comptes,
-puis attend une réponse HTTP 200 du catalogue. Aucun PHP, Composer ou MySQL
-n’est requis sur l’hôte. Sous Linux, l’UID/GID est transmis à la construction.
+Compose attend MySQL sain, puis le conteneur app installe les dépendances de
+`composer.lock`. En `dev`, il applique les migrations et appelle la commande
+existante `app:demo:prepare --initialize-empty` avant de lancer le serveur.
+`--wait` attend une réponse HTTP 200 du catalogue. Aucun fichier à copier, PHP,
+Composer ou MySQL à installer sur l'hôte. `docker compose up` fonctionne aussi
+au premier plan ; arrêter avec Ctrl+C conserve les volumes.
+
+Un verrou de fichier protège les dépendances partagées et un verrou MySQL
+sérialise migrations et préparation pour la même base, y compris entre clones.
+Les deux commandes tournent dans des processus PHP distincts afin de repartir
+d'un état Doctrine neuf après les DDL MySQL. En cas d'échec, le serveur ne démarre
+pas : consulter `docker compose logs app`, corriger puis relancer Compose.
 
 L’initialisation vérifie `SELECT DATABASE()` dans le même conteneur et le même
 environnement `dev` que le web. Elle est interdite sur une base PHPUnit. Si les
@@ -53,7 +60,7 @@ Ouvrir **[http://localhost:8080](http://localhost:8080)**. Pour conserver une
 instance déjà en service, installer le clone de démo avec un autre nom et port :
 
 ```sh
-COMPOSE_PROJECT_NAME=horizon-evaluation HORIZON_HTTP_PORT=8081 ./bin/setup-demo
+COMPOSE_PROJECT_NAME=horizon-evaluation HORIZON_HTTP_PORT=8081 docker compose up --build -d --wait
 ```
 
 L’URL devient `http://localhost:8081`. Conserver les mêmes variables pour toutes
@@ -65,6 +72,25 @@ Pour une exécution détaillée ou une installation existante, les commandes de
 migration restent décrites ci-dessous. Le chargement manuel de fixtures purge
 la base ciblée : il n’est pas une mise à jour d’une base contenant des données.
 
+`./bin/setup-demo` reste un raccourci : il délègue l'installation à Compose,
+vérifie le schéma et le catalogue, puis active le worker Sheets si la configuration
+Google est prête. Il ne duplique ni Composer, ni migrations, ni fixtures.
+
+## Désactiver l'initialisation automatique
+
+```sh
+HORIZON_AUTO_DEMO=0 docker compose up --build -d --wait
+```
+
+Les dépendances restent installées ; aucune migration ni fixture automatique
+n'est lancée. La base doit alors être préparée séparément pour que le catalogue
+réponde 200. Ce drapeau est une variable **Compose**, à exporter dans le terminal ou à
+placer dans `.env` ; `.env.local` configure Symfony et ne définit pas ce drapeau.
+L'environnement Symfony effectif est lu depuis sa configuration habituelle.
+Hors `dev`, le démarrage n'exécute jamais les migrations ou fixtures de démo ;
+en `dev`, une base nommée `test`, terminée par `_test` ou `_testN` est refusée
+avant les migrations. Les bases PHPUnit restent réservées aux tests automatisés.
+
 ## Configuration
 
 Les valeurs de `.env.example` sont des exemples publics pour une démonstration
@@ -73,6 +99,8 @@ locale. Aucun identifiant réel n'est nécessaire.
 | Variable | Utilisation |
 | --- | --- |
 | `APP_ENV` | `dev` active les ventes et paiements de démonstration ; `prod` les interdit. |
+| `HORIZON_AUTO_DEMO` | Variable Compose, `1` par défaut ; `0` désactive les migrations et données automatiques au démarrage. |
+| `HORIZON_HTTP_PORT` | Variable Compose, `8080` par défaut ; permet un autre port sans modifier le fichier. |
 | `APP_SECRET` | Signature des QR et protections Symfony. Remplacer la valeur d'exemple pour tout autre usage ; une rotation invalide les anciennes signatures QR. |
 | `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD` | Initialisation de MySQL sur un volume vide. |
 | `DATABASE_URL` | Connexion Symfony ; doit correspondre à la base et au compte MySQL. Le nom d'hôte `database` fonctionne dans Compose. |
@@ -102,7 +130,7 @@ déjà présents, sans modifier leur rôle ni leur mot de passe.
 
 ## Comptes de démonstration
 
-Créer ces comptes **après** les fixtures avec `app:demo:users`.
+Le démarrage crée ces comptes **après** les fixtures avec `app:demo:users`.
 Ce sont des comptes fictifs publics, réservés à la démonstration locale.
 
 | Profil | Adresse | Mot de passe de démonstration | Accès |
@@ -130,11 +158,34 @@ Parterre / A / 1 est déjà vendue sur R1 et libre sur R2 ; A4 est libre sur les
 deux après un chargement neuf. R1 et R2 désignent les dates du jeu, pas des
 identifiants SQL à saisir dans une URL.
 
-Suivre le [scénario du README](README.md#démonstration) pour acheter et comparer
+Suivre le [scénario du README](README.md#démonstration-en-deux-minutes) pour acheter et comparer
 les disponibilités. Le [guide du niveau 3](docs/NIVEAU3.md) explique les droits,
 le contrôle des QR, les indicateurs et les limites. Pour contrôler deux
 rechargements identiques sans toucher au jeu utilisé dans le navigateur,
 suivre la [suite Demo Fixtures](tests/README.md#suite-demo-fixtures).
+
+## Rechargement manuel des données
+
+Pour repartir de zéro, préférer un **nouveau projet Compose avec un volume
+neuf**. Sur une base déjà utilisée, un redémarrage conserve volontairement les
+achats ; `app:demo:prepare` ne les efface pas.
+
+Le chargement ci-dessous supprime les données métier et reste réservé à une
+base de démonstration dédiée et jetable, sans configuration Google réelle.
+Il conserve les comptes, dont les mots de passe existants. Arrêter les acteurs
+puis vérifier à nouveau le nom effectif avant la commande de purge :
+
+```sh
+docker compose --profile sheets stop app sheets-worker
+docker compose run --rm --no-deps app php bin/console dbal:run-sql 'SELECT DATABASE() AS target_database'
+# Continuer uniquement si cette base est bien celle de la démo jetable.
+docker compose run --rm --no-deps app php bin/console doctrine:fixtures:load --purge-exclusions=app_user --no-interaction
+docker compose run --rm --no-deps app php bin/console app:demo:users
+docker compose up -d --wait
+```
+
+Conserver le nom de projet et le port choisis pour toutes ces commandes.
+Ne pas utiliser cette procédure sur une base contenant des données à garder.
 
 Pour essayer la démonstration sans toucher à une base existante, utiliser un
 autre clone et un nom de projet Compose neuf, comme décrit ci-dessus.
@@ -199,18 +250,18 @@ supprime ces données et le cache Composer : réserver cette option à un projet
 | Symptôme | Vérification ou solution |
 | --- | --- |
 | Accès Docker refusé | Vérifier `docker info` et les droits d'accès au moteur ; aucune commande applicative ne corrige les droits de la machine. |
-| Port 8080 déjà utilisé | Arrêter le service concerné ou adapter `8080:8000` dans `compose.yaml`, puis utiliser l'URL correspondante. |
-| Écriture refusée dans le clone sous Linux | Si l'UID/GID diffère de 1000, lancer `HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose build app`, puis `docker compose up -d --wait`. |
+| Port 8080 déjà utilisé | Définir `HORIZON_HTTP_PORT=8081`, puis utiliser `http://localhost:8081`. |
+| Écriture refusée dans le clone sous Linux | Le point d'entrée prend automatiquement l'UID/GID du propriétaire du clone. Vérifier les droits du dossier et les éventuelles restrictions du système de fichiers ; seuls `var/`, `vendor/` et le cache Composer sont réattribués. |
 | Erreur MySQL | Consulter `docker compose logs database`, comparer `DATABASE_URL` aux variables MySQL et vérifier les surcharges de `.env.local`. Ne pas supprimer un volume contenant des données utiles. |
-| Dépendances manquantes ou page en erreur | Relancer `docker compose exec -T app composer install --no-interaction`, puis consulter `docker compose logs app`. |
+| App arrêtée ou non saine | Lire `docker compose logs app`. Le message final nomme l'étape échouée ; Composer est réessayé trois fois. Après correction, relancer `docker compose up --build -d --wait`. |
 | Catalogue vide | Les migrations ne créent pas de programmation. Vérifier la base ciblée et préparer les fixtures uniquement dans une installation jetable. |
 | Connexion de démonstration impossible | Créer les comptes après les fixtures. Un compte déjà présent garde son mot de passe ; la commande ne le réinitialise pas. |
 | Vente désactivée ou séance indisponible | Garder `APP_ENV=dev` et choisir une représentation programmée, non commencée. Les dates des fixtures ne se décalent pas automatiquement. |
 
 ## Vérification de ce guide
 
-Les commandes de démarrage et de préparation sont vérifiées dans un clone
-local sans dépendances préinstallées, avec un projet Compose distinct et un
-volume MySQL neuf. Le détail de la vérification figure dans
-[la documentation des tests](tests/README.md#vérification-des-commandes-documentées).
-Ce contrôle ne constitue pas une installation sur une autre machine.
+Le démarrage Compose seul, les trois connexions, l'achat simulé et sa conservation
+après recréation des conteneurs sont contrôlés sur une installation isolée.
+Les résultats réellement observés sont consignés dans le
+[bilan de démarrage Docker](docs/DOCKER_STARTUP.md). Les commandes de tests sont
+centralisées dans [tests/README.md](tests/README.md).
