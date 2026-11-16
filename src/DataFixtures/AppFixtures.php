@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
-use App\Entity\{Billet, Commande, Evenement, InventairePlace, Place, Salle, Tarif, Zone};
-use App\Enum\{CanalCommande, CategorieTarif, TypeEvenement};
-use App\Service\RepresentationInventoryService;
+use App\Entity\{Billet, Commande, InventairePlace, Place, Salle, Zone};
+use App\Enum\{CanalCommande, CategorieTarif};
+use App\Service\DemoProgram;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
 /** Jeu autonome : plan, programme, tarifs, puis ventes ; aucune purge ici. */
 final class AppFixtures extends Fixture
 {
-    public function __construct(private readonly RepresentationInventoryService $inventoryService)
+    public function __construct(private readonly DemoProgram $program)
     {
     }
 
@@ -36,40 +36,14 @@ final class AppFixtures extends Fixture
             }
         }
 
-        $evenements = [];
-        foreach ([
-            ['Concert Horizon', TypeEvenement::Concert],
-            ['Les voix de la scène', TypeEvenement::Theatre],
-            ['Rencontres des savoirs', TypeEvenement::Conference],
-        ] as [$titre, $type]) {
-            $evenement = new Evenement($titre, $type, 'Programme fictif de démonstration.');
-            $manager->persist($evenement);
-            $evenements[] = $evenement;
-        }
         $manager->flush();
-
-        $representations = $tarifs = [];
-        foreach ([
-            'R1' => [0, '2026-12-01T19:00:00Z'],
-            'R2' => [0, '2026-12-02T19:00:00Z'],
-            'R3' => [1, '2026-12-03T19:00:00Z'],
-            'R4' => [2, '2026-12-04T17:00:00Z'],
-        ] as $code => [$index, $date]) {
-            $representation = $this->inventoryService->createRepresentation(
-                $evenements[$index], $salle, new \DateTimeImmutable($date),
-            );
-            $representations[$code] = $representation;
-            $this->addReference($code, $representation);
-            foreach ([
-                [CategorieTarif::Plein, 10000],
-                [CategorieTarif::Reduit, 8000],
-                [CategorieTarif::Groupe, 6000],
-                [CategorieTarif::Invitation, 0],
-            ] as [$categorie, $prix]) {
-                $tarif = new Tarif($representation, $categorie->label(), $categorie, $prix);
-                $representation->addTarif($tarif);
-                $manager->persist($tarif);
-                $tarifs[$code][$categorie->value] = $tarif;
+        $representations = [];
+        foreach (['concert', 'theatre', 'conference'] as $program) {
+            $event = $this->program->create($program, $salle);
+            foreach ($event->getRepresentations() as $representation) {
+                $code = 'R'.(count($representations) + 1);
+                $representations[$code] = $representation;
+                $this->addReference($code, $representation);
             }
         }
         $manager->flush();
@@ -94,7 +68,11 @@ final class AppFixtures extends Fixture
                 if (!$inventaire instanceof InventairePlace) {
                     throw new \LogicException('Inventaire de démonstration manquant : '.$code.' '.$clePlace);
                 }
-                $tarif = $tarifs[$code][$categorie->value];
+                $tarif = null;
+                foreach ($representations[$code]->getTarifs() as $candidate) {
+                    if ($candidate->getCategorie() === $categorie && $candidate->appliesTo($inventaire)) { $tarif = $candidate; break; }
+                }
+                if ($tarif === null) { throw new \LogicException('Tarif fictif manquant pour cette catégorie de siège.'); }
                 // Transition immédiate de démonstration, sans parcours de paiement.
                 $inventaire->reserver($commande, $date->modify('+1 minute'));
                 $billet = new Billet(

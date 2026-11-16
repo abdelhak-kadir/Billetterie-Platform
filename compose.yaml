@@ -8,6 +8,8 @@ services:
     image: ${COMPOSE_PROJECT_NAME:-billetterie-platform}-app
     init: true
     working_dir: /app
+    labels:
+      dev.horizon.demo-program: "2"
     environment:
       HORIZON_AUTO_DEMO: ${HORIZON_AUTO_DEMO:-1}
     command: [sh, bin/start-docker]

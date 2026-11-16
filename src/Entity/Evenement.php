@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EvenementRepository::class)]
 #[ORM\Table(name: 'evenement')]
+#[ORM\UniqueConstraint(name: 'uniq_evenement_demo_key', columns: ['demo_key'])]
 class Evenement
 {
     #[ORM\Id]
@@ -30,6 +31,9 @@ class Evenement
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $imageFilename = null;
+
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $demoKey = null;
 
     /** @var Collection<int, Representation> */
     #[ORM\OneToMany(mappedBy: 'evenement', targetEntity: Representation::class)]
@@ -72,6 +76,20 @@ class Evenement
     }
 
     public function getImageFilename(): ?string { return $this->imageFilename; }
+
+    public function getDemoKey(): ?string { return $this->demoKey; }
+
+    /** Provenance interne du jeu fictif, jamais un champ du formulaire administrateur. */
+    public function markAsDemo(string $key): void
+    {
+        if (!preg_match('/^horizon\.demo\.v2\.[a-z]+$/D', $key) || strlen($key) > 80) {
+            throw new \InvalidArgumentException('Identifiant de programme fictif invalide.');
+        }
+        if ($this->demoKey !== null && $this->demoKey !== $key) {
+            throw new \LogicException('La provenance d’un événement de démonstration est immuable.');
+        }
+        $this->demoKey = $key;
+    }
 
     public function setImageFilename(string $filename): void
     {

@@ -19,6 +19,7 @@ doctrine:
 when@test:
     doctrine:
         dbal:
+            profiling_collect_backtrace: false
             # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 

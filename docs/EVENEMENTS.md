@@ -49,11 +49,15 @@ anciens sièges ni modifier les prix, comptes ou ventes. Un ancien spectacle
 sans nom spécifique affiche le titre de son événement ; il peut être renommé
 depuis sa fiche. Ses tarifs historiques continuent à fonctionner.
 
-Le jeu de fixtures reste identique : 400 places, trois événements, quatre
-représentations et seize tarifs. Il n'attribue pas rétroactivement VIP/VVIP aux
-anciennes représentations. Pour essayer les nouvelles catégories, créer un
-événement ou ajouter des spectacles via le formulaire guidé. Ne pas recharger
-les fixtures sur une base contenant des achats à conserver.
+Le jeu neuf prépare désormais les spectacles nommés et les catégories : **Horizon
+Live** propose **Première partie** et **Concert principal** le même soir.
+Il contient toujours 400 places, trois événements et quatre spectacles, avec
+48 tarifs (quatre offres pour chaque catégorie de place de chaque spectacle).
+
+Sur une ancienne base, le démarrage ajoute une seule fois le nouveau programme.
+Il ne reclassifie pas les inventaires historiques, ne déplace pas leurs dates
+et ne change pas leurs ventes. La [recette de mise à jour](DEMO_SPECTACLES.md)
+détaille cette différence avec un jeu neuf. Ne pas purger une base à conserver.
 
 Voir [INSTALL.md](../INSTALL.md) pour les migrations et les comptes,
 [MODELE.md](MODELE.md) pour les relations et [les tests](../tests/README.md)

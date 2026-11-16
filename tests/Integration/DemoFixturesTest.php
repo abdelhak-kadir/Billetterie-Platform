@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Integration;
 
 use App\DataFixtures\AppFixtures;
-use App\Entity\{Billet, Commande, Evenement, InventairePlace, Place, Representation, Salle, Tarif};
+use App\Entity\{Billet, Commande, Evenement, InventairePlace, Place, Representation, Salle, SeatCategory, Tarif};
+use App\Service\DemoProgram;
 use App\Enum\{CanalCommande, CategorieTarif, StatutBillet, StatutCommande, StatutInventairePlace, TypeEvenement};
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -30,7 +31,7 @@ final class DemoFixturesTest extends KernelTestCase
 
             foreach ([Salle::class => 1, Place::class => 400, Evenement::class => 3,
                 Representation::class => 4, InventairePlace::class => 1600,
-                Tarif::class => 16, Commande::class => 4, Billet::class => 6] as $class => $count) {
+                SeatCategory::class => 12, Tarif::class => 48, Commande::class => 4, Billet::class => 6] as $class => $count) {
                 self::assertSame($count, $manager->getRepository($class)->count([]), $class);
             }
             $salle = $manager->getRepository(Salle::class)->findOneBy([]);
@@ -39,16 +40,34 @@ final class DemoFixturesTest extends KernelTestCase
             self::assertEqualsCanonicalizing(TypeEvenement::cases(), $types);
             $representations = $manager->getRepository(Representation::class)->findBy([], ['debut' => 'ASC']);
             self::assertSame($representations[0]->getEvenement(), $representations[1]->getEvenement());
+            self::assertSame(DemoProgram::TITLE, $representations[0]->getEvenement()->getTitre());
+            self::assertSame(DemoProgram::OPENING, $representations[0]->getNom());
+            self::assertSame(DemoProgram::HEADLINER, $representations[1]->getNom());
+            self::assertSame($representations[0]->getDebut()->format('Y-m-d'), $representations[1]->getDebut()->format('Y-m-d'));
+            self::assertNotEquals($representations[0]->getDebut(), $representations[1]->getDebut());
             foreach ($representations as $representation) {
                 self::assertSame(400, $manager->getRepository(InventairePlace::class)->count(['representation' => $representation]));
+                self::assertNotSame($representation->getEvenement()->getTitre(), $representation->getNom());
                 $categories = [];
+                self::assertCount(12, $representation->getTarifs());
                 foreach ($representation->getTarifs() as $tarif) {
-                    $categories[] = $tarif->getCategorie();
-                    self::assertSame($tarif->getCategorie() === CategorieTarif::Invitation ? 0 : match ($tarif->getCategorie()) {
-                        CategorieTarif::Plein => 10000, CategorieTarif::Reduit => 8000, CategorieTarif::Groupe => 6000,
-                    }, $tarif->getPrixCentimes());
+                    $tier = $tarif->getSeatCategory();
+                    self::assertNotNull($tier);
+                    self::assertSame($representation, $tier->getRepresentation());
+                    $categories[$tier->getCode()][] = $tarif->getCategorie();
+                    $base = $representation->getNom() === DemoProgram::HEADLINER ? 12000 : 10000;
+                    $base *= match ($tier->getCode()) { 'standard' => 1, 'vip' => 2, 'vvip' => 3 };
+                    $percent = match ($tarif->getCategorie()) {
+                        CategorieTarif::Plein => 100, CategorieTarif::Reduit => 80,
+                        CategorieTarif::Groupe => 60, CategorieTarif::Invitation => 0,
+                    };
+                    self::assertSame(intdiv($base * $percent, 100), $tarif->getPrixCentimes());
                 }
-                self::assertEqualsCanonicalizing(CategorieTarif::cases(), $categories);
+                foreach (['standard' => 300, 'vip' => 60, 'vvip' => 40] as $code => $count) {
+                    self::assertEqualsCanonicalizing(CategorieTarif::cases(), $categories[$code]);
+                    $tier = $manager->getRepository(SeatCategory::class)->findOneBy(['representation'=>$representation,'code'=>$code]);
+                    self::assertSame($count, $manager->getRepository(InventairePlace::class)->count(['representation'=>$representation,'seatCategory'=>$tier]));
+                }
             }
             $canaux = [];
             $snapshot = [];
@@ -68,6 +87,7 @@ final class DemoFixturesTest extends KernelTestCase
                 self::assertSame(StatutBillet::Valide, $billet->getStatut());
                 self::assertSame(StatutInventairePlace::Vendue, $inventaire->getStatut());
                 self::assertSame($inventaire->getRepresentation(), $billet->getTarif()->getRepresentation());
+                self::assertSame($inventaire->getSeatCategory(), $billet->getTarif()->getSeatCategory());
                 self::assertSame($inventaire->getRepresentation()->getSalle(), $inventaire->getPlace()->getZone()->getSalle());
                 self::assertSame($billet->getTarif()->getPrixCentimes(), $billet->getPrixPayeCentimes());
                 if ($billet->getTarif()->getCategorie() === CategorieTarif::Invitation) {
@@ -85,8 +105,9 @@ final class DemoFixturesTest extends KernelTestCase
                 $inventaire = $manager->getRepository(InventairePlace::class)->findOneBy(['representation' => $representations[$index], 'place' => $a1]);
                 self::assertSame($statut, $inventaire->getStatut());
             }
+            $ticketsByInventory = $connection->fetchAllKeyValue('SELECT inventaire_place_id, COUNT(*) FROM billet GROUP BY inventaire_place_id');
             foreach ($manager->getRepository(InventairePlace::class)->findAll() as $inventaire) {
-                $billets = $manager->getRepository(Billet::class)->count(['inventairePlace' => $inventaire]);
+                $billets = (int) ($ticketsByInventory[$inventaire->getId()] ?? 0);
                 self::assertSame($billets === 1 ? StatutInventairePlace::Vendue : StatutInventairePlace::Disponible, $inventaire->getStatut());
                 self::assertLessThanOrEqual(1, $billets);
                 self::assertNull($inventaire->getCommandeReservation());
@@ -95,7 +116,7 @@ final class DemoFixturesTest extends KernelTestCase
             // Compare les lignes métier en remplaçant les clés auto-incrémentées
             // par des clés naturelles : les associations sont donc vérifiées aussi.
             $rowsByTable = [];
-            foreach (['salle', 'zone', 'place', 'evenement', 'representation', 'tarif', 'inventaire_place', 'commande', 'billet'] as $table) {
+            foreach (['salle', 'zone', 'place', 'evenement', 'representation', 'seat_category', 'tarif', 'inventaire_place', 'commande', 'billet'] as $table) {
                 $rowsByTable[$table] = $connection->fetchAllAssociative('SELECT * FROM '.$table.' ORDER BY id');
             }
 
@@ -116,6 +137,9 @@ final class DemoFixturesTest extends KernelTestCase
             foreach ($rowsByTable['representation'] as $row) {
                 $naturalKeys['representation'][$row['id']] = $naturalKeys['evenement'][$row['evenement_id']]
                     .'|'.$naturalKeys['salle'][$row['salle_id']].'|'.$row['debut'];
+            }
+            foreach ($rowsByTable['seat_category'] as $row) {
+                $naturalKeys['seat_category'][$row['id']] = $naturalKeys['representation'][$row['representation_id']].'|'.$row['code'];
             }
             foreach ($rowsByTable['tarif'] as $row) {
                 $naturalKeys['tarif'][$row['id']] = $naturalKeys['representation'][$row['representation_id']]
@@ -139,6 +163,7 @@ final class DemoFixturesTest extends KernelTestCase
                 'evenement_id' => 'evenement',
                 'representation_id' => 'representation',
                 'tarif_id' => 'tarif',
+                'seat_category_id' => 'seat_category',
                 'commande_id' => 'commande',
                 'inventaire_place_id' => 'inventaire_place',
                 'commande_reservation_id' => 'commande',

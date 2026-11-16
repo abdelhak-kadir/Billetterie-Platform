@@ -1,11 +1,13 @@
 #!/bin/sh
 set -eu
 cd "$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)"
+test_identity=$(docker compose exec -T app stat -c '%u:%g' /app)
+app_test() { docker compose exec -T --user "$test_identity" app "$@"; }
 docker compose exec -T database sh -c '
 case "$MYSQL_USER" in ""|*[!a-zA-Z0-9_]*) echo "Compte MySQL non pris en charge par ce raccourci de test." >&2; exit 1;; esac
 MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot -e "CREATE DATABASE IF NOT EXISTS billetterie_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE DATABASE IF NOT EXISTS billetterie_s105_verify_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON billetterie_test.* TO '\''$MYSQL_USER'\''@'\''%'\''; GRANT ALL PRIVILEGES ON billetterie_s105_verify_test.* TO '\''$MYSQL_USER'\''@'\''%'\'';"'
-docker compose exec -T app php bin/console --env=test dbal:run-sql 'SELECT DATABASE() AS test_database'
-docker compose exec -T app php bin/console --env=test doctrine:migrations:migrate --no-interaction
-docker compose exec -T app php bin/phpunit
-docker compose exec -T app php tests/Support/fixtures-runner.php console doctrine:migrations:migrate --no-interaction
-docker compose exec -T app php tests/Support/fixtures-runner.php phpunit
+app_test php bin/console --env=test dbal:run-sql 'SELECT DATABASE() AS test_database'
+app_test php bin/console --env=test doctrine:migrations:migrate --no-interaction
+app_test php bin/phpunit
+app_test php tests/Support/fixtures-runner.php console doctrine:migrations:migrate --no-interaction
+app_test php tests/Support/fixtures-runner.php phpunit

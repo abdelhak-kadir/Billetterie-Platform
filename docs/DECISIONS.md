@@ -329,3 +329,19 @@ hypothèse ne constitue pas une politique commerciale pour le futur produit.
 - **Conservation :** migration additive, noms et catégories facultatifs pour
   l'historique. Aucune reclassification des places existantes ni modification
   des montants payés. Les fixtures d'origine conservent leur contrat.
+
+## D19 — Démonstration avec spectacles nommés (16 novembre 2026)
+
+- **Constat :** le formulaire guidé créait des spectacles et des catégories,
+  mais les anciennes fixtures montraient encore deux dates sans nom ni catégorie.
+- **Décision :** le nouveau jeu contient Horizon Live, avec Première partie et
+  Concert principal le même soir. Les quatre spectacles du jeu ont chacun trois
+  catégories de places et quatre offres commerciales, soit 48 tarifs.
+- **Conservation :** les anciens achats ne sont pas déplacés ni reclassés. Une
+  base reconnue reçoit un nouveau programme identifié par une clé de provenance
+  interne, facultative et unique. Une relance conserve aussi les modifications
+  ultérieures de l'administrateur ; aucune purge n'est requise.
+- **Validation :** comparaison de données avant/après sur une ancienne démo,
+  achat et PDF du nouveau programme, puis second passage sans doublon. Les
+  scénarios de référence choisissent les spectacles par leur nom, au lieu
+  d'utiliser la différence entre deux jours comme seule identité.
